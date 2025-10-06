@@ -1,8 +1,10 @@
 package com.clearlagenhanced.managers;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
+import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,12 +15,12 @@ public class ConfigManager {
     private static final int CURRENT_CONFIG_VERSION = 1;
 
     private final ClearLaggEnhanced plugin;
-    private FileConfiguration config;
+    @Getter private FileConfiguration config;
     private boolean debuggingInProgress = false;
 
-    public ConfigManager(ClearLaggEnhanced plugin) {
+    public ConfigManager(@NotNull ClearLaggEnhanced plugin) {
         this.plugin = plugin;
-        reload();
+        this.reload();
     }
 
     public void reload() {
@@ -33,17 +35,17 @@ public class ConfigManager {
 
         if (configVersion == 0) {
             plugin.getLogger().warning("No config version found! Updating config...");
-            migrateConfig(0, CURRENT_CONFIG_VERSION);
+            migrateConfig(0);
         } else if (configVersion < CURRENT_CONFIG_VERSION) {
             plugin.getLogger().info("Config version " + configVersion + " is outdated. Updating to version " + CURRENT_CONFIG_VERSION + "...");
-            migrateConfig(configVersion, CURRENT_CONFIG_VERSION);
+            migrateConfig(configVersion);
         } else if (configVersion > CURRENT_CONFIG_VERSION) {
             plugin.getLogger().warning("Config version " + configVersion + " is newer than supported version " + CURRENT_CONFIG_VERSION + "!");
             plugin.getLogger().warning("Please update the plugin or reset your config.");
         }
     }
 
-    private void migrateConfig(int fromVersion, int toVersion) {
+    private void migrateConfig(int fromVersion) {
         try {
             // Backup the old config
             File configFile = new File(plugin.getDataFolder(), "config.yml");
@@ -79,7 +81,7 @@ public class ConfigManager {
         }
     }
 
-    private void migrateSettings(FileConfiguration oldConfig, FileConfiguration newConfig) {
+    private void migrateSettings(@NotNull FileConfiguration oldConfig, @NotNull FileConfiguration newConfig) {
         // Migrate all user-set values from old config to new config
         // This preserves user customizations while adding new default values
 
@@ -97,12 +99,12 @@ public class ConfigManager {
             }
         }
     }
-    
-    private void debugLog(String message) {
+
+    private void debugLog(@NotNull String message) {
         if (debuggingInProgress) {
             return;
         }
-        
+
         debuggingInProgress = true;
         try {
             if (config.getBoolean("debug", false)) {
@@ -112,68 +114,68 @@ public class ConfigManager {
             debuggingInProgress = false;
         }
     }
-    
-    public boolean getBoolean(String path, boolean defaultValue) {
+
+    public boolean getBoolean(@NotNull String path, boolean defaultValue) {
         boolean value = config.getBoolean(path, defaultValue);
         debugLog("Getting boolean " + path + " = " + value);
         return value;
     }
-    
-    public boolean getBoolean(String path) {
+
+    public boolean getBoolean(@NotNull String path) {
         boolean value = config.getBoolean(path);
         debugLog("Getting boolean " + path + " = " + value);
         return value;
     }
 
-    public int getInt(String path, int defaultValue) {
+    public int getInt(@NotNull String path, int defaultValue) {
         int value = config.getInt(path, defaultValue);
         debugLog("Getting int " + path + " = " + value);
         return value;
     }
 
-    public int getInt(String path) {
+    public int getInt(@NotNull String path) {
         int value = config.getInt(path);
         debugLog("Getting int " + path + " = " + value);
         return value;
     }
 
-    public double getDouble(String path, double defaultValue) {
+    public double getDouble(@NotNull String path, double defaultValue) {
         double value = config.getDouble(path, defaultValue);
         debugLog("Getting double " + path + " = " + value);
         return value;
     }
 
-    public double getDouble(String path) {
+    public double getDouble(@NotNull String path) {
         double value = config.getDouble(path);
         debugLog("Getting double " + path + " = " + value);
         return value;
     }
 
-    public String getString(String path, String defaultValue) {
+    public String getString(@NotNull String path, @NotNull String defaultValue) {
         String value = config.getString(path, defaultValue);
         debugLog("Getting string " + path + " = " + value);
         return value;
     }
 
-    public String getString(String path) {
+    public String getString(@NotNull String path) {
         String value = config.getString(path);
         debugLog("Getting string " + path + " = " + value);
         return value;
     }
-    
-    public List<String> getStringList(String path) {
+
+    public List<String> getStringList(@NotNull String path) {
         List<String> value = config.getStringList(path);
         debugLog("Getting string list " + path + " = " + value);
         return value;
     }
-    
-    public List<Integer> getIntegerList(String path) {
+
+    public List<Integer> getIntegerList(@NotNull String path) {
         List<Integer> value = config.getIntegerList(path);
         debugLog("Getting integer list " + path + " = " + value);
         return value;
     }
-    
-    public void set(String path, Object value) {
+
+    public void set(@NotNull String path, @NotNull Object value) {
         debugLog("Setting " + path + " = " + value);
         config.set(path, value);
 
@@ -183,9 +185,5 @@ public class ConfigManager {
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to save configuration: " + e.getMessage());
         }
-    }
-    
-    public FileConfiguration getConfig() {
-        return config;
     }
 }

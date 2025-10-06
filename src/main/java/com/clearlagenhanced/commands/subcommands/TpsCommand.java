@@ -4,16 +4,17 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.commands.SubCommand;
 import com.clearlagenhanced.utils.MessageUtils;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TpsCommand implements SubCommand {
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         double tps = ClearLaggEnhanced.getInstance().getPerformanceManager().getTPS();
-        Map<String, String> ph = new HashMap<>();
+        Map<String, String> ph = new ConcurrentHashMap<>();
         ph.put("tps", String.format("%.2f", tps));
         MessageUtils.sendMessage(sender, "performance.tps", ph);
         return true;

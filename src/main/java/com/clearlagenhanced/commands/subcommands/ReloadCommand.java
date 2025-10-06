@@ -4,11 +4,12 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.commands.SubCommand;
 import com.clearlagenhanced.utils.MessageUtils;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 public class ReloadCommand implements SubCommand {
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         ClearLaggEnhanced.getInstance().reloadAll();
         MessageUtils.sendMessage(sender, "notifications.reload-complete");
         return true;

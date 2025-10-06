@@ -2,6 +2,8 @@ package com.clearlagenhanced.listeners;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.managers.ConfigManager;
+import com.tcoded.folialib.impl.PlatformScheduler;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -13,11 +15,13 @@ import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RedstoneLimiterListener implements Listener {
 
@@ -26,40 +30,38 @@ public class RedstoneLimiterListener implements Listener {
     private static final int COST_DISPENSE = 2;
 
     private final ClearLaggEnhanced plugin;
-    private final ConfigManager config;
-    private final Map<ChunkKey, Integer> creditsUsed = new HashMap<>();
+    private final PlatformScheduler scheduler;
+    private final Map<ChunkKey, Integer> creditsUsed = new ConcurrentHashMap<>();
     private final Set<String> worldFilter = new HashSet<>();
-    private int taskId = -1;
+    private WrappedTask resetTask;
     private final boolean enabled;
     private final int maxPerChunk;
     private final boolean debug;
 
     public RedstoneLimiterListener(ClearLaggEnhanced plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfigManager();
+        this.scheduler = ClearLaggEnhanced.scheduler();
+        ConfigManager config = plugin.getConfigManager();
         this.enabled = config.getBoolean("lag-prevention.redstone-limiter.enabled", true);
         this.maxPerChunk = config.getInt("lag-prevention.redstone-limiter.max-redstone-per-chunk", 100);
         this.debug = config.getBoolean("debug", false);
 
-        for (String w : config.getStringList("lag-prevention.redstone-limiter.worlds")) {
-            worldFilter.add(w);
-        }
+        worldFilter.addAll(config.getStringList("lag-prevention.redstone-limiter.worlds"));
 
-        this.taskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(
-                plugin, creditsUsed::clear, 1L, 1L
-        );
+        this.resetTask = scheduler.runTimer(creditsUsed::clear, 1L, 1L);
     }
 
     public void shutdown() {
-        if (taskId != -1) {
-            plugin.getServer().getScheduler().cancelTask(taskId);
-            taskId = -1;
+        if (resetTask != null) {
+            scheduler.cancelTask(resetTask);
+            resetTask = null;
         }
     }
 
     private boolean enabled() {
         return enabled;
     }
+
     private int maxPerChunk() {
         return maxPerChunk;
     }
@@ -72,23 +74,17 @@ public class RedstoneLimiterListener implements Listener {
         return new ChunkKey(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
-    private boolean budgetExceeded(Chunk chunk, int cost) {
+    private boolean budgetExceeded(@NotNull Chunk chunk, int cost) {
         if (!enabled()) return false;
         if (!isWorldAllowed(chunk.getWorld())) return false;
 
         ChunkKey key = key(chunk);
-        int used = creditsUsed.getOrDefault(key, 0);
-        int max = maxPerChunk();
-        if (used >= max) {
-            return true;
-        }
-        int newUsed = used + cost;
-        creditsUsed.put(key, newUsed);
-        return newUsed > max;
+        int newUsed = creditsUsed.merge(key, cost, Integer::sum);
+        return newUsed > maxPerChunk();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onRedstoneChange(BlockRedstoneEvent event) {
+    public void onRedstoneChange(@NotNull BlockRedstoneEvent event) {
         Block block = event.getBlock();
         Chunk chunk = block.getChunk();
         if (event.getNewCurrent() == event.getOldCurrent()) return;
@@ -97,13 +93,7 @@ public class RedstoneLimiterListener implements Listener {
         if (exceeded) {
             event.setNewCurrent(event.getOldCurrent());
             if (debug) {
-                java.util.Map<String, String> ph = new java.util.HashMap<>();
-                ph.put("world", block.getWorld().getName());
-                ph.put("x", String.valueOf(block.getLocation().getBlockX()));
-                ph.put("y", String.valueOf(block.getLocation().getBlockY()));
-                ph.put("z", String.valueOf(block.getLocation().getBlockZ()));
-                ph.put("cx", String.valueOf(chunk.getX()));
-                ph.put("cz", String.valueOf(chunk.getZ()));
+                Map<String, String> ph = getStringStringMap(block, chunk);
                 var comp = plugin.getMessageManager().getMessage("debug.redstone.neutralized", ph);
                 plugin.getServer().getOnlinePlayers().stream()
                         .filter(p -> p.hasPermission("CLE.admin"))
@@ -113,19 +103,13 @@ public class RedstoneLimiterListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPistonExtend(BlockPistonExtendEvent event) {
+    public void onPistonExtend(@NotNull BlockPistonExtendEvent event) {
         Chunk chunk = event.getBlock().getChunk();
         boolean exceeded = budgetExceeded(chunk, COST_PISTON);
         if (exceeded) {
             event.setCancelled(true);
             if (debug) {
-                java.util.Map<String, String> ph = new java.util.HashMap<>();
-                ph.put("world", event.getBlock().getWorld().getName());
-                ph.put("x", String.valueOf(event.getBlock().getLocation().getBlockX()));
-                ph.put("y", String.valueOf(event.getBlock().getLocation().getBlockY()));
-                ph.put("z", String.valueOf(event.getBlock().getLocation().getBlockZ()));
-                ph.put("cx", String.valueOf(chunk.getX()));
-                ph.put("cz", String.valueOf(chunk.getZ()));
+                Map<String, String> ph = getStringStringMap(event.getBlock(), chunk);
                 var comp = plugin.getMessageManager().getMessage("debug.redstone.piston-extend", ph);
                 plugin.getServer().getOnlinePlayers().stream()
                         .filter(p -> p.hasPermission("CLE.admin"))
@@ -134,42 +118,41 @@ public class RedstoneLimiterListener implements Listener {
         }
     }
 
+    private static @NotNull Map<String, String> getStringStringMap(@NotNull Block event, @NotNull Chunk chunk) {
+        Map<String, String> ph = new ConcurrentHashMap<>();
+        ph.put("world", event.getWorld().getName());
+        ph.put("x", String.valueOf(event.getLocation().getBlockX()));
+        ph.put("y", String.valueOf(event.getLocation().getBlockY()));
+        ph.put("z", String.valueOf(event.getLocation().getBlockZ()));
+        ph.put("cx", String.valueOf(chunk.getX()));
+        ph.put("cz", String.valueOf(chunk.getZ()));
+        return ph;
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPistonRetract(BlockPistonRetractEvent event) {
+    public void onPistonRetract(@NotNull BlockPistonRetractEvent event) {
         Chunk chunk = event.getBlock().getChunk();
         boolean exceeded = budgetExceeded(chunk, COST_PISTON);
         if (exceeded) {
             event.setCancelled(true);
             if (debug) {
-                java.util.Map<String, String> ph = new java.util.HashMap<>();
-                ph.put("world", event.getBlock().getWorld().getName());
-                ph.put("x", String.valueOf(event.getBlock().getLocation().getBlockX()));
-                ph.put("y", String.valueOf(event.getBlock().getLocation().getBlockY()));
-                ph.put("z", String.valueOf(event.getBlock().getLocation().getBlockZ()));
-                ph.put("cx", String.valueOf(chunk.getX()));
-                ph.put("cz", String.valueOf(chunk.getZ()));
+                Map<String, String> ph = getStringStringMap(event.getBlock(), chunk);
                 var comp = plugin.getMessageManager().getMessage("debug.redstone.piston-retract", ph);
                 plugin.getServer().getOnlinePlayers().stream()
-                        .filter(p -> p.hasPermission("CLE.admin"))
-                        .forEach(p -> p.sendMessage(comp));
+                        .filter(player -> player.hasPermission("CLE.admin"))
+                        .forEach(player -> player.sendMessage(comp));
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onDispense(BlockDispenseEvent event) {
+    public void onDispense(@NotNull BlockDispenseEvent event) {
         Chunk chunk = event.getBlock().getChunk();
         boolean exceeded = budgetExceeded(chunk, COST_DISPENSE);
         if (exceeded) {
             event.setCancelled(true);
             if (debug) {
-                java.util.Map<String, String> ph = new java.util.HashMap<>();
-                ph.put("world", event.getBlock().getWorld().getName());
-                ph.put("x", String.valueOf(event.getBlock().getLocation().getBlockX()));
-                ph.put("y", String.valueOf(event.getBlock().getLocation().getBlockY()));
-                ph.put("z", String.valueOf(event.getBlock().getLocation().getBlockZ()));
-                ph.put("cx", String.valueOf(chunk.getX()));
-                ph.put("cz", String.valueOf(chunk.getZ()));
+                Map<String, String> ph = getStringStringMap(event.getBlock(), chunk);
                 var comp = plugin.getMessageManager().getMessage("debug.redstone.dispense", ph);
                 plugin.getServer().getOnlinePlayers().stream()
                         .filter(p -> p.hasPermission("CLE.admin"))
@@ -178,41 +161,28 @@ public class RedstoneLimiterListener implements Listener {
         }
     }
 
-    private static String loc(Location l) {
+    private static String loc(@NotNull Location l) {
         return l.getWorld().getName() + " " + l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ();
     }
 
-    private void debugAdmins(String message) {
+    private void debugAdmins(@NotNull String message) {
         plugin.getServer().getOnlinePlayers().stream()
                 .filter(p -> p.hasPermission("CLE.admin"))
                 .forEach(p -> p.sendMessage(message));
     }
 
-    private static final class ChunkKey {
-        final String world;
-        final int x;
-        final int z;
-
-        ChunkKey(String world, int x, int z) {
-            this.world = world;
-            this.x = x;
-            this.z = z;
-        }
+    private record ChunkKey(String world, int x, int z) {
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof ChunkKey)) return false;
-            ChunkKey k = (ChunkKey) o;
+            if (!(o instanceof ChunkKey k)) return false;
             return x == k.x && z == k.z && world.equals(k.world);
         }
 
         @Override
         public int hashCode() {
-            int result = world.hashCode();
-            result = 31 * result + x;
-            result = 31 * result + z;
-            return result;
+            return Objects.hash(world, x, z);
         }
     }
 }

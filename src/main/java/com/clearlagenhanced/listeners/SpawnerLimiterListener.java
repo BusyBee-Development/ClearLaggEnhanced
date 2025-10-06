@@ -9,25 +9,25 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SpawnerLimiterListener implements Listener {
 
     private final ClearLaggEnhanced plugin;
-    private final ConfigManager config;
     private final Set<String> worldFilter = new HashSet<>();
     private final boolean enabled;
     private final double multiplier;
     private final boolean debug;
 
-    public SpawnerLimiterListener(ClearLaggEnhanced plugin) {
+    public SpawnerLimiterListener(@NotNull ClearLaggEnhanced plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfigManager();
-        for (String w : config.getStringList("lag-prevention.spawner-limiter.worlds")) {
-            worldFilter.add(w);
-        }
+        ConfigManager config = plugin.getConfigManager();
+        worldFilter.addAll(config.getStringList("lag-prevention.spawner-limiter.worlds"));
         this.enabled = config.getBoolean("lag-prevention.spawner-limiter.enabled", true);
         this.multiplier = Math.max(1.0, config.getDouble("lag-prevention.spawner-limiter.spawn-delay-multiplier", 1.5));
         this.debug = config.getBoolean("debug", false);
@@ -46,7 +46,7 @@ public class SpawnerLimiterListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onSpawnerSpawn(SpawnerSpawnEvent event) {
+    public void onSpawnerSpawn(@NotNull SpawnerSpawnEvent event) {
         if (!enabled()) return;
 
         CreatureSpawner spawner = event.getSpawner();
@@ -56,7 +56,7 @@ public class SpawnerLimiterListener implements Listener {
         if (plugin.getLagPreventionManager().isMobLimitReached(chunk)) {
             event.setCancelled(true);
             if (debug) {
-                java.util.Map<String, String> ph = new java.util.HashMap<>();
+                Map<String, String> ph = new ConcurrentHashMap<>();
                 ph.put("x", String.valueOf(chunk.getX()));
                 ph.put("z", String.valueOf(chunk.getZ()));
                 var comp = plugin.getMessageManager().getMessage("debug.spawner-limiter.cancelled", ph);
@@ -64,6 +64,7 @@ public class SpawnerLimiterListener implements Listener {
                         .filter(p -> p.hasPermission("CLE.admin"))
                         .forEach(p -> p.sendMessage(comp));
             }
+
             return;
         }
 
@@ -73,7 +74,7 @@ public class SpawnerLimiterListener implements Listener {
             spawner.setDelay(newDelay);
 
             if (debug) {
-                java.util.Map<String, String> ph = new java.util.HashMap<>();
+                Map<String, String> ph = new ConcurrentHashMap<>();
                 ph.put("delay", String.valueOf(newDelay));
                 ph.put("world", spawner.getWorld().getName());
                 ph.put("x", String.valueOf(spawner.getX()));
@@ -86,7 +87,7 @@ public class SpawnerLimiterListener implements Listener {
             }
         } catch (Throwable t) {
             if (debug) {
-                java.util.Map<String, String> ph = new java.util.HashMap<>();
+                Map<String, String> ph = new ConcurrentHashMap<>();
                 ph.put("error", String.valueOf(t.getMessage()));
                 var comp = plugin.getMessageManager().getMessage("debug.spawner-limiter.error", ph);
                 plugin.getServer().getOnlinePlayers().stream()
@@ -95,7 +96,7 @@ public class SpawnerLimiterListener implements Listener {
             }
         }
     }
-    private void debugAdmins(String message) {
+    private void debugAdmins(@NotNull String message) {
         plugin.getServer().getOnlinePlayers().stream()
                 .filter(p -> p.hasPermission("CLE.admin"))
                 .forEach(p -> p.sendMessage(message));

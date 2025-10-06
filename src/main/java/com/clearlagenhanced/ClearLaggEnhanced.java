@@ -2,77 +2,116 @@ package com.clearlagenhanced;
 
 import com.clearlagenhanced.commands.LaggCommand;
 import com.clearlagenhanced.database.DatabaseManager;
-import com.clearlagenhanced.managers.*;
+import com.clearlagenhanced.listeners.HopperLimiterListener;
+import com.clearlagenhanced.listeners.MiscEntityLimiterListener;
+import com.clearlagenhanced.listeners.MobLimiterListener;
+import com.clearlagenhanced.listeners.RedstoneLimiterListener;
+import com.clearlagenhanced.listeners.SpawnerLimiterListener;
+import com.clearlagenhanced.managers.ConfigManager;
+import com.clearlagenhanced.managers.EntityManager;
+import com.clearlagenhanced.managers.GUIManager;
+import com.clearlagenhanced.managers.LagPreventionManager;
+import com.clearlagenhanced.managers.MessageManager;
+import com.clearlagenhanced.managers.MiscEntitySweepService;
+import com.clearlagenhanced.managers.NotificationManager;
+import com.clearlagenhanced.managers.PerformanceManager;
 import com.clearlagenhanced.utils.MessageUtils;
+import com.clearlagenhanced.utils.VersionCheck;
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.impl.PlatformScheduler;
+import lombok.Getter;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ClearLaggEnhanced extends JavaPlugin {
 
+    @Getter
     private static ClearLaggEnhanced instance;
-    private DatabaseManager databaseManager;
-    private ConfigManager configManager;
-    private MessageManager messageManager;
-    private EntityManager entityManager;
-    private LagPreventionManager lagPreventionManager;
-    private PerformanceManager performanceManager;
-    private NotificationManager notificationManager;
+
+    private static FoliaLib foliaLib;
+    private static PlatformScheduler scheduler;
+
+    @Getter private DatabaseManager databaseManager;
+    @Getter private ConfigManager configManager;
+    @Getter private MessageManager messageManager;
+    @Getter private EntityManager entityManager;
+    @Getter private LagPreventionManager lagPreventionManager;
+    @Getter private PerformanceManager performanceManager;
+    @Getter private NotificationManager notificationManager;
     private GUIManager guiManager;
-    private com.clearlagenhanced.managers.MiscEntitySweepService miscSweep;
+
+    private MiscEntitySweepService miscSweep;
+
+    public static FoliaLib foliaLib() {
+      return foliaLib;
+    }
+
+    public static PlatformScheduler scheduler() {
+      return scheduler;
+    }
 
     @Override
     public void onEnable() {
         instance = this;
-        
+
+        FoliaLib foliaLib = new FoliaLib(this);
+        scheduler = foliaLib.getScheduler();
+
         saveDefaultConfig();
-        
         initializeManagers();
         registerCommands();
-        getServer().getPluginManager().registerEvents(
-                new com.clearlagenhanced.listeners.MobLimiterListener(this), this);
-        getServer().getPluginManager().registerEvents(
-                new com.clearlagenhanced.listeners.RedstoneLimiterListener(this), this);
-        getServer().getPluginManager().registerEvents(
-                new com.clearlagenhanced.listeners.HopperLimiterListener(this), this);
-        getServer().getPluginManager().registerEvents(
-                new com.clearlagenhanced.listeners.SpawnerLimiterListener(this), this);
-        // Register update notifier
-        getServer().getPluginManager().registerEvents(
-                new com.clearlagenhanced.utils.VersionCheck(this), this);
+        registerListeners();
+        startMiscLimiterIfEnabled();
 
-        // Misc entity limiter (non-mobs): start sweeper and register proactive listener if enabled in config
-        boolean miscEnabled = getConfigManager().getBoolean("lag-prevention.misc-entity-limiter.enabled", true);
-        if (miscEnabled) {
-            miscSweep = new com.clearlagenhanced.managers.MiscEntitySweepService(this, getConfigManager());
-            miscSweep.start();
-            getServer().getPluginManager().registerEvents(
-                    new com.clearlagenhanced.listeners.MiscEntityLimiterListener(this, miscSweep), this);
-        }
-        
         getLogger().info("ClearLaggEnhanced has been enabled!");
     }
 
     @Override
     public void onDisable() {
-        if (databaseManager != null) {
-            databaseManager.close();
-        }
-        
-        if (entityManager != null) {
-            entityManager.shutdown();
-        }
-        
-        if (guiManager != null) {
-            guiManager.shutdown();
-        }
+        closeQuietlyDatabase();
+        shutdown(entityManager);
+        shutdown(guiManager);
+        stopMiscLimiterIfRunning();
 
-        if (miscSweep != null) {
-            miscSweep.shutdown();
-        }
-        
         getLogger().info("ClearLaggEnhanced has been disabled!");
     }
-    
+
+    public GUIManager getGUIManager() {
+        return guiManager;
+    }
+
+    public void reloadAll() {
+        HandlerList.unregisterAll(this);
+
+        shutdown(entityManager);
+        shutdown(guiManager);
+        stopMiscLimiterIfRunning();
+
+        if (configManager != null) configManager.reload();
+        if (messageManager != null) messageManager.reload();
+
+        MessageUtils.initialize(messageManager);
+
+        entityManager = new EntityManager(this);
+        lagPreventionManager = new LagPreventionManager(this);
+        performanceManager = new PerformanceManager(this);
+        notificationManager = new NotificationManager(this);
+        guiManager = new GUIManager(this);
+
+        registerListeners();
+        final HopperLimiterListener hopperListener = new HopperLimiterListener(this);
+        getServer().getPluginManager().registerEvents(hopperListener, this);
+        try {
+            hopperListener.rescanLoadedChunks();
+        } catch (NoSuchMethodError | Exception ignored) {
+        }
+
+        startMiscLimiterIfEnabled();
+
+        getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
+    }
+
     private void initializeManagers() {
         configManager = new ConfigManager(this);
         messageManager = new MessageManager(this);
@@ -82,106 +121,60 @@ public class ClearLaggEnhanced extends JavaPlugin {
         performanceManager = new PerformanceManager(this);
         notificationManager = new NotificationManager(this);
         guiManager = new GUIManager(this);
-        
+
         MessageUtils.initialize(messageManager);
-        
+
         getLogger().info("All managers initialized successfully!");
     }
-    
+
     private void registerCommands() {
-        getCommand("lagg").setExecutor(new LaggCommand(this));
-        getCommand("lagg").setTabCompleter(new LaggCommand(this));
+        final PluginCommand lagg = getCommand("lagg");
+        if (lagg != null) {
+            lagg.setExecutor(new LaggCommand());
+            lagg.setTabCompleter(new LaggCommand());
+        } else {
+            getLogger().severe("Command 'lagg' is not defined in plugin.yml!");
+        }
     }
 
-    public void reloadAll() {
-        HandlerList.unregisterAll(this);
+    private void registerListeners() {
+        getServer().getPluginManager().registerEvents(new MobLimiterListener(this), this);
+        getServer().getPluginManager().registerEvents(new RedstoneLimiterListener(this), this);
+        getServer().getPluginManager().registerEvents(new HopperLimiterListener(this), this);
+        getServer().getPluginManager().registerEvents(new SpawnerLimiterListener(this), this);
+        getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
+    }
 
-        if (entityManager != null) {
-            entityManager.shutdown();
+    private void startMiscLimiterIfEnabled() {
+        final boolean miscEnabled = getConfigManager().getBoolean("lag-prevention.misc-entity-limiter.enabled", true);
+        if (!miscEnabled) {
+            return;
         }
-        if (guiManager != null) {
-            guiManager.shutdown();
-        }
+
+        miscSweep = new MiscEntitySweepService(this, getConfigManager());
+        miscSweep.start();
+
+        getServer().getPluginManager().registerEvents(new MiscEntityLimiterListener(this, miscSweep), this);
+    }
+
+    private void stopMiscLimiterIfRunning() {
         if (miscSweep != null) {
             miscSweep.shutdown();
             miscSweep = null;
         }
+    }
 
-        if (configManager != null) {
-            configManager.reload();
+    private void closeQuietlyDatabase() {
+        if (databaseManager != null) {
+            databaseManager.close();
         }
-        if (messageManager != null) {
-            messageManager.reload();
+    }
+
+    private static void shutdown(Object o) {
+        if (o instanceof GUIManager gm) {
+            gm.shutdown();
+        } else if (o instanceof EntityManager em) {
+            em.shutdown();
         }
-        MessageUtils.initialize(messageManager);
-
-        entityManager = new EntityManager(this);
-        lagPreventionManager = new LagPreventionManager(this);
-        performanceManager = new PerformanceManager(this);
-        notificationManager = new NotificationManager(this);
-        guiManager = new GUIManager(this);
-
-        getServer().getPluginManager().registerEvents(
-                new com.clearlagenhanced.listeners.MobLimiterListener(this), this);
-        getServer().getPluginManager().registerEvents(
-                new com.clearlagenhanced.listeners.RedstoneLimiterListener(this), this);
-
-        com.clearlagenhanced.listeners.HopperLimiterListener hopperListener =
-                new com.clearlagenhanced.listeners.HopperLimiterListener(this);
-        getServer().getPluginManager().registerEvents(hopperListener, this);
-        try {
-            hopperListener.rescanLoadedChunks();
-        } catch (NoSuchMethodError | Exception ignored) {
-        }
-
-        getServer().getPluginManager().registerEvents(
-                new com.clearlagenhanced.listeners.SpawnerLimiterListener(this), this);
-
-        boolean miscEnabled = getConfigManager().getBoolean("lag-prevention.misc-entity-limiter.enabled", true);
-        if (miscEnabled) {
-            miscSweep = new com.clearlagenhanced.managers.MiscEntitySweepService(this, getConfigManager());
-            miscSweep.start();
-            getServer().getPluginManager().registerEvents(
-                    new com.clearlagenhanced.listeners.MiscEntityLimiterListener(this, miscSweep), this);
-        }
-
-        getServer().getPluginManager().registerEvents(
-                new com.clearlagenhanced.utils.VersionCheck(this), this);
-    }
-
-    public static ClearLaggEnhanced getInstance() {
-        return instance;
-    }
-
-    public DatabaseManager getDatabaseManager() {
-        return databaseManager;
-    }
-
-    public ConfigManager getConfigManager() {
-        return configManager;
-    }
-
-    public MessageManager getMessageManager() {
-        return messageManager;
-    }
-
-    public EntityManager getEntityManager() {
-        return entityManager;
-    }
-
-    public LagPreventionManager getLagPreventionManager() {
-        return lagPreventionManager;
-    }
-
-    public PerformanceManager getPerformanceManager() {
-        return performanceManager;
-    }
-
-    public NotificationManager getNotificationManager() {
-        return notificationManager;
-    }
-
-    public GUIManager getGUIManager() {
-        return guiManager;
     }
 }

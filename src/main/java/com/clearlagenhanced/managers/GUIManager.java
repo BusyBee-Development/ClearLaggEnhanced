@@ -1,6 +1,9 @@
 package com.clearlagenhanced.managers;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
+import com.clearlagenhanced.utils.MessageUtils;
+import com.tcoded.folialib.impl.PlatformScheduler;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -18,53 +21,61 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GUIManager implements Listener {
 
     private static class GUIHolder implements InventoryHolder {
-        private final String id; // "main", "entity-clearing", "lag-prevention"
-        GUIHolder(String id) { this.id = id; }
-        String id() { return id; }
-        @Override public Inventory getInventory() { return null; }
+
+        private final String id;
+
+        GUIHolder(String id) {
+            this.id = id;
+        }
+
+        String id() {
+            return id;
+        }
+
+        @Override
+        public Inventory getInventory() {
+            return null;
+        }
     }
 
     private final ClearLaggEnhanced plugin;
     private final ConfigManager configManager;
     private final PerformanceManager performanceManager;
+    private final PlatformScheduler scheduler;
     private final Map<UUID, String> openGUIs;
     private final Map<UUID, String> awaitingInput;
     private final Map<UUID, String> inputPaths;
-    private BukkitTask performanceUpdateTask;
+    private WrappedTask performanceUpdateTask;
 
     public GUIManager(ClearLaggEnhanced plugin) {
         this.plugin = plugin;
         this.configManager = plugin.getConfigManager();
         this.performanceManager = plugin.getPerformanceManager();
-        this.openGUIs = new HashMap<>();
-        this.awaitingInput = new HashMap<>();
-        this.inputPaths = new HashMap<>();
+        this.scheduler = ClearLaggEnhanced.scheduler();
+        this.openGUIs = new ConcurrentHashMap<>();
+        this.awaitingInput = new ConcurrentHashMap<>();
+        this.inputPaths = new ConcurrentHashMap<>();
         Bukkit.getPluginManager().registerEvents(this, plugin);
         startPerformanceUpdateTask();
     }
 
     private void startPerformanceUpdateTask() {
-        performanceUpdateTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                updatePerformanceDisplays();
-            }
-        }.runTaskTimer(plugin, 0L, 40L);
+        performanceUpdateTask = scheduler.runTimer(this::updatePerformanceDisplays, 1L, 40L);
     }
 
     private void updatePerformanceDisplays() {
-        for (Map.Entry<UUID, String> entry : new HashMap<>(openGUIs).entrySet()) {
+        for (Map.Entry<UUID, String> entry : new ConcurrentHashMap<>(openGUIs).entrySet()) {
             if ("main".equals(entry.getValue())) {
                 Player player = Bukkit.getPlayer(entry.getKey());
-                if (player != null && player.getOpenInventory().getTopInventory() != null) {
+                if (player != null) {
+                    player.getOpenInventory().getTopInventory();
                     updatePerformanceItem(player.getOpenInventory().getTopInventory());
                 }
             }
@@ -116,7 +127,7 @@ public class GUIManager implements Listener {
         reloadItem.setItemMeta(reloadMeta);
         gui.setItem(16, reloadItem);
 
-        player.openInventory(gui);
+        scheduler.runAtEntity(player, task -> player.openInventory(gui));
         openGUIs.put(player.getUniqueId(), "main");
     }
 
@@ -196,7 +207,7 @@ public class GUIManager implements Listener {
         backItem.setItemMeta(backMeta);
         gui.setItem(31, backItem);
 
-        player.openInventory(gui);
+        scheduler.runAtEntity(player, task -> player.openInventory(gui));
         openGUIs.put(player.getUniqueId(), "entity-clearing");
     }
 
@@ -242,19 +253,18 @@ public class GUIManager implements Listener {
         backItem.setItemMeta(backMeta);
         gui.setItem(31, backItem);
 
-        player.openInventory(gui);
+        scheduler.runAtEntity(player, task -> player.openInventory(gui));
         openGUIs.put(player.getUniqueId(), "lag-prevention");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!(event.getWhoClicked() instanceof Player player)) return;
 
         Inventory top = event.getView().getTopInventory();
         InventoryHolder holder = top.getHolder();
         if (!(holder instanceof GUIHolder guiHolder)) return;
 
-        Player player = (Player) event.getWhoClicked();
         int topSize = top.getSize();
         int raw = event.getRawSlot();
         boolean clickedTop = raw >= 0 && raw < topSize;
@@ -265,16 +275,11 @@ public class GUIManager implements Listener {
             if (clicked == null || clicked.getType().isAir()) return;
 
             switch (guiHolder.id()) {
-                case "main":
-                    handleMainGUIClick(player, raw);
-                    break;
-                case "entity-clearing":
-                    handleEntityClearingClick(player, raw);
-                    break;
-                case "lag-prevention":
-                    handleLagPreventionClick(player, raw);
-                    break;
+                case "main" -> handleMainGUIClick(player, raw);
+                case "entity-clearing" -> handleEntityClearingClick(player, raw);
+                case "lag-prevention" -> handleLagPreventionClick(player, raw);
             }
+
             return;
         }
 
@@ -287,7 +292,7 @@ public class GUIManager implements Listener {
 
         if (action == InventoryAction.COLLECT_TO_CURSOR) {
             ItemStack cursor = event.getCursor();
-            if (cursor != null && !cursor.getType().isAir()) {
+            if (!cursor.getType().isAir()) {
                 for (ItemStack it : top.getContents()) {
                     if (it != null && it.isSimilar(cursor)) {
                         event.setCancelled(true);
@@ -313,82 +318,74 @@ public class GUIManager implements Listener {
 
     private void handleMainGUIClick(Player player, int slot) {
         switch (slot) {
-            case 12:
-                openEntityClearingGUI(player);
-                break;
-            case 14:
-                openLagPreventionGUI(player);
-                break;
-            case 16:
+            case 12 -> openEntityClearingGUI(player);
+            case 14 -> openLagPreventionGUI(player);
+            case 16 -> {
                 configManager.reload();
-                com.clearlagenhanced.utils.MessageUtils.sendMessage(player, "gui.reload-complete");
-                break;
+                MessageUtils.sendMessage(player, "gui.reload-complete");
+            }
         }
     }
 
     private void handleEntityClearingClick(Player player, int slot) {
         UUID playerId = player.getUniqueId();
         switch (slot) {
-            case 10:
+            case 10 -> {
                 boolean currentEnabled = configManager.getBoolean("entity-clearing.enabled", true);
                 configManager.set("entity-clearing.enabled", !currentEnabled);
                 plugin.saveConfig();
                 openEntityClearingGUI(player);
-                break;
-            case 12:
-                player.closeInventory();
+            }
+            case 12 -> {
+                scheduler.runAtEntity(player, task -> player.closeInventory());
                 awaitingInput.put(playerId, "entity-clearing-interval");
                 inputPaths.put(playerId, "entity-clearing.interval");
-                com.clearlagenhanced.utils.MessageUtils.sendMessage(player, "gui.enter-interval");
-                com.clearlagenhanced.utils.MessageUtils.sendMessage(player, "gui.type-cancel");
-                break;
-            case 14:
+                MessageUtils.sendMessage(player, "gui.enter-interval");
+                MessageUtils.sendMessage(player, "gui.type-cancel");
+            }
+            case 14 -> {
                 boolean currentNamed = configManager.getBoolean("entity-clearing.protect-named-entities", true);
                 configManager.set("entity-clearing.protect-named-entities", !currentNamed);
                 plugin.saveConfig();
                 openEntityClearingGUI(player);
-                break;
-            case 16:
+            }
+            case 16 -> {
                 boolean currentTamed = configManager.getBoolean("entity-clearing.protect-tamed-entities", true);
                 configManager.set("entity-clearing.protect-tamed-entities", !currentTamed);
                 plugin.saveConfig();
                 openEntityClearingGUI(player);
-                break;
-            case 31:
-                openMainGUI(player);
-                break;
+            }
+            case 31 -> openMainGUI(player);
         }
     }
 
     private void handleLagPreventionClick(Player player, int slot) {
         switch (slot) {
-            case 10:
+            case 10 -> {
                 boolean mobLimiter = configManager.getBoolean("lag-prevention.mob-limiter.enabled", true);
                 configManager.set("lag-prevention.mob-limiter.enabled", !mobLimiter);
                 plugin.saveConfig();
                 openLagPreventionGUI(player);
-                break;
-            case 12:
+            }
+            case 12 -> {
                 boolean redstoneLimiter = configManager.getBoolean("lag-prevention.redstone-limiter.enabled", true);
                 configManager.set("lag-prevention.redstone-limiter.enabled", !redstoneLimiter);
                 plugin.saveConfig();
                 openLagPreventionGUI(player);
-                break;
-            case 14:
+            }
+            case 14 -> {
                 boolean hopperLimiter = configManager.getBoolean("lag-prevention.hopper-limiter.enabled", true);
                 configManager.set("lag-prevention.hopper-limiter.enabled", !hopperLimiter);
                 plugin.saveConfig();
                 openLagPreventionGUI(player);
-                break;
-            case 16:
+            }
+            case 16 -> {
                 boolean spawnerLimiter = configManager.getBoolean("lag-prevention.spawner-limiter.enabled", true);
                 configManager.set("lag-prevention.spawner-limiter.enabled", !spawnerLimiter);
                 plugin.saveConfig();
                 openLagPreventionGUI(player);
-                break;
-            case 31:
-                openMainGUI(player);
-                break;
+            }
+            case 31 -> openMainGUI(player);
         }
     }
 
@@ -413,8 +410,8 @@ public class GUIManager implements Listener {
         if (input.equalsIgnoreCase("cancel")) {
             awaitingInput.remove(playerId);
             inputPaths.remove(playerId);
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                com.clearlagenhanced.utils.MessageUtils.sendMessage(player, "gui.input-cancelled");
+            scheduler.runNextTick(task -> {
+                MessageUtils.sendMessage(player, "gui.input-cancelled");
                 if ("entity-clearing-interval".equals(inputType)) {
                     openEntityClearingGUI(player);
                 }
@@ -422,21 +419,21 @@ public class GUIManager implements Listener {
             return;
         }
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        scheduler.runNextTick(task -> {
             try {
                 if ("entity-clearing-interval".equals(inputType)) {
                     int interval = Integer.parseInt(input);
                     if (interval < 10) {
-                        java.util.Map<String, String> ph = new java.util.HashMap<>();
+                        Map<String, String> ph = new ConcurrentHashMap<>();
                         ph.put("min", String.valueOf(10));
-                        com.clearlagenhanced.utils.MessageUtils.sendMessage(player, "gui.interval-min", ph);
+                        MessageUtils.sendMessage(player, "gui.interval-min", ph);
                         return;
                     }
                     configManager.set(configPath, interval);
                     plugin.saveConfig();
-                    java.util.Map<String, String> ph2 = new java.util.HashMap<>();
+                    Map<String, String> ph2 = new ConcurrentHashMap<>();
                     ph2.put("interval", String.valueOf(interval));
-                    com.clearlagenhanced.utils.MessageUtils.sendMessage(player, "gui.interval-set", ph2);
+                    MessageUtils.sendMessage(player, "gui.interval-set", ph2);
                 }
                 awaitingInput.remove(playerId);
                 inputPaths.remove(playerId);
@@ -444,15 +441,16 @@ public class GUIManager implements Listener {
                     openEntityClearingGUI(player);
                 }
             } catch (NumberFormatException e) {
-                com.clearlagenhanced.utils.MessageUtils.sendMessage(player, "gui.invalid-number");
+                MessageUtils.sendMessage(player, "gui.invalid-number");
             }
         });
     }
 
     public void shutdown() {
         if (performanceUpdateTask != null) {
-            performanceUpdateTask.cancel();
+            scheduler.cancelTask(performanceUpdateTask);
         }
+
         openGUIs.clear();
         awaitingInput.clear();
         inputPaths.clear();

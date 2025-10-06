@@ -2,6 +2,7 @@ name: ClearLaggEnhanced
 version: ${project.version}
 main: com.clearlagenhanced.ClearLaggEnhanced
 api-version: 1.20
+folia-supported: true
 authors: [djtmk]
 description: A modern, customizable lag prevention plugin for Minecraft servers
 website: https://github.com/BusyBee-Development/ClearLaggEnhanced

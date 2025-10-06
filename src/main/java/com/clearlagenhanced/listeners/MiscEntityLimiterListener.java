@@ -3,7 +3,7 @@ package com.clearlagenhanced.listeners;
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.managers.ConfigManager;
 import com.clearlagenhanced.managers.MiscEntitySweepService;
-import org.bukkit.Bukkit;
+import com.tcoded.folialib.impl.PlatformScheduler;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -16,13 +16,13 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class MiscEntityLimiterListener implements Listener {
 
-    private final ClearLaggEnhanced plugin;
-    private final ConfigManager cfg;
+    private final PlatformScheduler scheduler;
     private final boolean enabled;
     private final Map<EntityType, Integer> caps;
     private final Set<String> worldFilter;
@@ -31,8 +31,8 @@ public class MiscEntityLimiterListener implements Listener {
     private final MiscEntitySweepService notifier;
 
     public MiscEntityLimiterListener(ClearLaggEnhanced plugin, MiscEntitySweepService notifier) {
-        this.plugin = plugin;
-        this.cfg = plugin.getConfigManager();
+        this.scheduler = ClearLaggEnhanced.scheduler();
+        ConfigManager cfg = plugin.getConfigManager();
         this.notifier = notifier;
 
         enabled = cfg.getBoolean("lag-prevention.misc-entity-limiter.enabled", true);
@@ -44,43 +44,45 @@ public class MiscEntityLimiterListener implements Listener {
         loadCaps(cfg.getConfig().getConfigurationSection("lag-prevention.misc-entity-limiter.limits-per-chunk"));
     }
 
-    private void loadCaps(ConfigurationSection sec) {
-        if (sec == null) return;
+    private void loadCaps(@NotNull ConfigurationSection sec) {
         for (String key : sec.getKeys(false)) {
             try {
                 EntityType type = EntityType.valueOf(key.toUpperCase(Locale.ROOT));
                 int cap = sec.getInt(key, -1);
                 if (cap >= 0) caps.put(type, cap);
-            } catch (IllegalArgumentException ignored) {}
-        }
-    }
-
-    private boolean isWorldAllowed(World w) {
-        return worldFilter.isEmpty() || worldFilter.contains(w.getName());
-    }
-
-    private boolean exempt(Entity e) {
-        if (protectNamed && e.getCustomName() != null && !e.getCustomName().isEmpty()) return true;
-        if (!protectedTags.isEmpty()) {
-            for (String t : protectedTags) {
-                if (e.getScoreboardTags().contains(t)) return true;
+            } catch (IllegalArgumentException ignored) {
             }
         }
+    }
+
+    private boolean isWorldAllowed(@NotNull World world) {
+        return worldFilter.isEmpty() || worldFilter.contains(world.getName());
+    }
+
+    private boolean exempt(@NotNull Entity entity) {
+        if (protectNamed && entity.getCustomName() != null && !entity.getCustomName().isEmpty()) return true;
+        if (!protectedTags.isEmpty()) {
+            for (String t : protectedTags) {
+                if (entity.getScoreboardTags().contains(t)) return true;
+            }
+        }
+
         return false;
     }
 
-    private boolean overCapIfAdded(Chunk chunk, EntityType type) {
+    private boolean overCapIfAdded(@NotNull Chunk chunk, @NotNull EntityType type) {
         Integer cap = caps.get(type);
         if (cap == null || cap < 0) return false;
         int count = 0;
-        for (Entity e : chunk.getEntities()) {
-            if (e.getType() == type) count++;
+        for (Entity entity : chunk.getEntities()) {
+            if (entity.getType() == type) count++;
         }
+
         return count + 1 > cap;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onEntitySpawn(EntitySpawnEvent event) {
+    public void onEntitySpawn(@NotNull EntitySpawnEvent event) {
         if (!enabled) return;
         Entity e = event.getEntity();
         if (!caps.containsKey(e.getType())) return;
@@ -93,7 +95,7 @@ public class MiscEntityLimiterListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onHangingPlace(HangingPlaceEvent event) {
+    public void onHangingPlace(@NotNull HangingPlaceEvent event) {
         if (!enabled) return;
         Hanging h = event.getEntity();
         if (!caps.containsKey(h.getType())) return;
@@ -105,14 +107,14 @@ public class MiscEntityLimiterListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onVehicleCreate(VehicleCreateEvent event) {
+    public void onVehicleCreate(@NotNull VehicleCreateEvent event) {
         if (!enabled) return;
-        Entity e = event.getVehicle();
-        if (!caps.containsKey(e.getType())) return;
-        if (!isWorldAllowed(e.getWorld())) return;
-        if (overCapIfAdded(e.getLocation().getChunk(), e.getType())) {
-            Bukkit.getScheduler().runTask(plugin, e::remove);
-            if (notifier != null) notifier.notifyAdmins(e.getLocation().getChunk(), e.getType(), 1, false);
+        Entity entity = event.getVehicle();
+        if (!caps.containsKey(entity.getType())) return;
+        if (!isWorldAllowed(entity.getWorld())) return;
+        if (overCapIfAdded(entity.getLocation().getChunk(), entity.getType())) {
+            scheduler.runAtEntity(entity, task -> entity.remove());
+            if (notifier != null) notifier.notifyAdmins(entity.getLocation().getChunk(), entity.getType(), 1, false);
         }
     }
 }

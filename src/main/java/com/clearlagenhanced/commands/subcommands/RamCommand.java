@@ -4,14 +4,15 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.commands.SubCommand;
 import com.clearlagenhanced.utils.MessageUtils;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RamCommand implements SubCommand {
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         double memoryPercent = ClearLaggEnhanced.getInstance().getPerformanceManager().getMemoryUsagePercentage();
 
         Runtime runtime = Runtime.getRuntime();
@@ -21,14 +22,14 @@ public class RamCommand implements SubCommand {
         long usedMemory = totalMemory - freeMemory;
 
         MessageUtils.sendMessage(sender, "performance.ram.header");
-        Map<String, String> usedPh = new HashMap<>();
+        Map<String, String> usedPh = new ConcurrentHashMap<>();
         usedPh.put("used", String.valueOf(usedMemory));
         usedPh.put("percent", String.format("%.1f", memoryPercent));
         MessageUtils.sendMessage(sender, "performance.ram.used", usedPh);
-        Map<String, String> totalPh = new HashMap<>();
+        Map<String, String> totalPh = new ConcurrentHashMap<>();
         totalPh.put("total", String.valueOf(totalMemory));
         MessageUtils.sendMessage(sender, "performance.ram.total", totalPh);
-        Map<String, String> maxPh = new HashMap<>();
+        Map<String, String> maxPh = new ConcurrentHashMap<>();
         maxPh.put("max", String.valueOf(maxMemory));
         MessageUtils.sendMessage(sender, "performance.ram.max", maxPh);
         return true;

@@ -56,6 +56,7 @@ public class MessageUtils {
         } else {
             message = messageManager.getMessage(path, placeholders);
         }
+
         sender.sendMessage(message);
     }
     

@@ -1,15 +1,11 @@
 package com.clearlagenhanced.commands;
 
-import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.commands.subcommands.*;
 import com.clearlagenhanced.utils.MessageUtils;
-import org.bukkit.Bukkit;
+import lombok.Getter;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-
+@Getter
 public enum CommandRegistry {
 
     HELP("help", new HelpCommand()),
@@ -29,14 +25,6 @@ public enum CommandRegistry {
         this.executor = executor;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public SubCommand getExecutor() {
-        return executor;
-    }
-
     /**
      * Execute this command with permission checking
      * @param sender The command sender
@@ -48,6 +36,7 @@ public enum CommandRegistry {
             MessageUtils.sendMessage(sender, "notifications.no-permission");
             return true;
         }
+
         return executor.execute(sender, args);
     }
 
@@ -62,6 +51,7 @@ public enum CommandRegistry {
                 return cmd;
             }
         }
+
         return null;
     }
 
@@ -75,6 +65,7 @@ public enum CommandRegistry {
         for (int i = 0; i < commands.length; i++) {
             names[i] = commands[i].name;
         }
+
         return names;
     }
 }

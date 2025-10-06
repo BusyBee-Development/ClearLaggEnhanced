@@ -3,7 +3,6 @@ package com.clearlagenhanced.database;
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.Getter;
 
 import javax.sql.DataSource;
 import java.io.File;
