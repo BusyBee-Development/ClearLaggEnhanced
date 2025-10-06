@@ -42,11 +42,11 @@ public class LagPreventionManager {
         return mobCount.get() >= maxMobsPerChunk.get();
     }
 
-    public boolean isRedstoneExcessive(Chunk chunk) {
+    public boolean isRedstoneExcessive(@NotNull Chunk chunk) {
         return false;
     }
 
-    public boolean areHoppersExcessive(Chunk chunk) {
+    public boolean areHoppersExcessive(@NotNull Chunk chunk) {
         return false;
     }
 

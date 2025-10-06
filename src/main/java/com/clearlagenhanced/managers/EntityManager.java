@@ -46,7 +46,11 @@ public class EntityManager {
         int warnLead = 0;
         List<Integer> times = configManager.getIntegerList("notifications.broadcast-times");
         if (times != null && !times.isEmpty()) {
-            for (int t : times) if (t > warnLead) warnLead = t;
+            for (int t : times) {
+                if (t > warnLead) {
+                    warnLead = t;
+                }
+            }
         }
 
         int initialDelayTicks = intervalTicks - (warnLead * 20);
