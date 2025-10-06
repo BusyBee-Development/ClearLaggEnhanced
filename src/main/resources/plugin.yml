@@ -16,7 +16,7 @@ commands:
   lagg:
     description: Main ClearLaggEnhanced command
     usage: /lagg <subcommand>
-    aliases: [clearlagg, cl, cle]
+    aliases: [clearlagg, clearlag, cl, cle]
 
 permissions:
   CLE.*:

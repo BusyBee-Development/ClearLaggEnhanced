@@ -35,7 +35,7 @@ Special thanks to **bob7l**, the original developer of ClearLagg, whose work ins
 
 ## Commands
 
-All commands use the base command `/lagg` with the following aliases: `/clearlagg`, `/cl`, `/cle`
+All commands use the base command `/lagg` with the following aliases: `/clearlagg`, `/clearlag`, `/cl`, `/cle`
 
 | Command        | Description                          | Permission   | Default     |
 |----------------|--------------------------------------|--------------|-------------|
