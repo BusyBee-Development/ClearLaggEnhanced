@@ -7,6 +7,10 @@ authors: [djtmk]
 description: A modern, customizable lag prevention plugin for Minecraft servers
 website: https://github.com/BusyBee-Development/ClearLaggEnhanced
 softdepend: [PlaceholderAPI]
+libraries:
+  - com.zaxxer:HikariCP:7.0.2
+  - org.xerial:sqlite-jdbc:3.50.3.0
+  - net.kyori:adventure-text-minimessage:4.24.0
 
 commands:
   lagg:
