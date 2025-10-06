@@ -17,6 +17,7 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -44,7 +45,11 @@ public class MiscEntityLimiterListener implements Listener {
         loadCaps(cfg.getConfig().getConfigurationSection("lag-prevention.misc-entity-limiter.limits-per-chunk"));
     }
 
-    private void loadCaps(@NotNull ConfigurationSection sec) {
+    private void loadCaps(@Nullable ConfigurationSection sec) {
+        if (sec == null) {
+            return;
+        }
+
         for (String key : sec.getKeys(false)) {
             try {
                 EntityType type = EntityType.valueOf(key.toUpperCase(Locale.ROOT));
@@ -62,8 +67,10 @@ public class MiscEntityLimiterListener implements Listener {
     private boolean exempt(@NotNull Entity entity) {
         if (protectNamed && entity.getCustomName() != null && !entity.getCustomName().isEmpty()) return true;
         if (!protectedTags.isEmpty()) {
-            for (String t : protectedTags) {
-                if (entity.getScoreboardTags().contains(t)) return true;
+            for (String tags : protectedTags) {
+                if (entity.getScoreboardTags().contains(tags)) {
+                    return true;
+                }
             }
         }
 
@@ -72,10 +79,15 @@ public class MiscEntityLimiterListener implements Listener {
 
     private boolean overCapIfAdded(@NotNull Chunk chunk, @NotNull EntityType type) {
         Integer cap = caps.get(type);
-        if (cap == null || cap < 0) return false;
+        if (cap == null || cap < 0) {
+            return false;
+        }
+
         int count = 0;
         for (Entity entity : chunk.getEntities()) {
-            if (entity.getType() == type) count++;
+            if (entity.getType() == type) {
+                count++;
+            }
         }
 
         return count >= cap;
@@ -83,38 +95,74 @@ public class MiscEntityLimiterListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntitySpawn(@NotNull EntitySpawnEvent event) {
-        if (!enabled) return;
-        Entity e = event.getEntity();
-        if (!caps.containsKey(e.getType())) return;
-        if (!isWorldAllowed(e.getWorld())) return;
-        if (exempt(e)) return;
-        if (overCapIfAdded(e.getLocation().getChunk(), e.getType())) {
+        if (!enabled) {
+            return;
+        }
+
+        Entity entity = event.getEntity();
+        if (!caps.containsKey(entity.getType())) {
+            return;
+        }
+
+        if (!isWorldAllowed(entity.getWorld())) {
+            return;
+        }
+
+        if (exempt(entity)) {
+            return;
+        }
+
+        if (overCapIfAdded(entity.getLocation().getChunk(), entity.getType())) {
             event.setCancelled(true);
-            if (notifier != null) notifier.notifyAdmins(event.getLocation().getChunk(), e.getType(), 0, true);
+            if (notifier != null) {
+                notifier.notifyAdmins(event.getLocation().getChunk(), entity.getType(), 0, true);
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onHangingPlace(@NotNull HangingPlaceEvent event) {
-        if (!enabled) return;
-        Hanging h = event.getEntity();
-        if (!caps.containsKey(h.getType())) return;
-        if (!isWorldAllowed(h.getWorld())) return;
-        if (overCapIfAdded(h.getLocation().getChunk(), h.getType())) {
+        if (!enabled) {
+            return;
+        }
+
+        Hanging hanging = event.getEntity();
+        if (!caps.containsKey(hanging.getType())) {
+            return;
+        }
+
+        if (!isWorldAllowed(hanging.getWorld())) {
+            return;
+        }
+
+        if (overCapIfAdded(hanging.getLocation().getChunk(), hanging.getType())) {
             event.setCancelled(true);
-            if (notifier != null) notifier.notifyAdmins(h.getLocation().getChunk(), h.getType(), 0, true);
+            if (notifier != null) {
+                notifier.notifyAdmins(hanging.getLocation().getChunk(), hanging.getType(), 0, true);
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onVehicleCreate(@NotNull VehicleCreateEvent event) {
-        if (!enabled) return;
+        if (!enabled) {
+            return;
+        }
+
         Entity entity = event.getVehicle();
-        if (!caps.containsKey(entity.getType())) return;
-        if (!isWorldAllowed(entity.getWorld())) return;
+        if (!caps.containsKey(entity.getType())) {
+            return;
+        }
+
+        if (!isWorldAllowed(entity.getWorld())) {
+            return;
+        }
+
         if (overCapIfAdded(entity.getLocation().getChunk(), entity.getType())) {
             scheduler.runAtEntity(entity, task -> entity.remove());
-            if (notifier != null) notifier.notifyAdmins(entity.getLocation().getChunk(), entity.getType(), 1, false);
+            if (notifier != null) {
+                notifier.notifyAdmins(entity.getLocation().getChunk(), entity.getType(), 1, false);
+            }
         }
     }
 }

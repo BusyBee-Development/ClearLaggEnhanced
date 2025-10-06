@@ -21,7 +21,6 @@ public class LaggCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length == 0) {
-            // Show help by default
             CommandRegistry.HELP.execute(sender, new String[0]);
             return true;
         }

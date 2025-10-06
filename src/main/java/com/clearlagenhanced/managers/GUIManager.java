@@ -4,7 +4,7 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.utils.MessageUtils;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
-import io.papermc.paper.event.player.AsyncChatEvent; // Paper/Folia chat event
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -18,11 +18,12 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent; // legacy Spigot event (deprecated on Paper)
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,7 +57,7 @@ public class GUIManager implements Listener {
     private final Map<UUID, String> inputPaths;
     private WrappedTask performanceUpdateTask;
 
-    public GUIManager(ClearLaggEnhanced plugin) {
+    public GUIManager(@NotNull ClearLaggEnhanced plugin) {
         this.plugin = plugin;
         this.configManager = plugin.getConfigManager();
         this.performanceManager = plugin.getPerformanceManager();
@@ -84,7 +85,7 @@ public class GUIManager implements Listener {
         }
     }
 
-    public void openMainGUI(Player player) {
+    public void openMainGUI(@NotNull Player player) {
         Inventory gui = Bukkit.createInventory(new GUIHolder("main"), 27, Component.text("ClearLaggEnhanced Admin Panel").color(NamedTextColor.DARK_GREEN));
 
         gui.setItem(10, createPerformanceItem());
@@ -139,7 +140,7 @@ public class GUIManager implements Listener {
         return performanceItem;
     }
 
-    private void updatePerformanceItemMeta(ItemStack performanceItem) {
+    private void updatePerformanceItemMeta(@NotNull ItemStack performanceItem) {
         ItemMeta performanceMeta = performanceItem.getItemMeta();
         double tps = performanceManager.getTPS();
         String memoryUsage = performanceManager.getFormattedMemoryUsage();
@@ -158,17 +159,18 @@ public class GUIManager implements Listener {
                 Component.empty(),
                 Component.text("Updates every 2 seconds").color(NamedTextColor.DARK_GRAY)
         ));
+
         performanceItem.setItemMeta(performanceMeta);
     }
 
-    private void updatePerformanceItem(Inventory inventory) {
+    private void updatePerformanceItem(@NotNull Inventory inventory) {
         ItemStack performanceItem = inventory.getItem(10);
         if (performanceItem != null && performanceItem.getType() == Material.CLOCK) {
             updatePerformanceItemMeta(performanceItem);
         }
     }
 
-    public void openEntityClearingGUI(Player player) {
+    public void openEntityClearingGUI(@NotNull Player player) {
         Inventory gui = Bukkit.createInventory(new GUIHolder("entity-clearing"), 36, Component.text("Entity Clearing Settings").color(NamedTextColor.RED));
         boolean enabled = configManager.getBoolean("entity-clearing.enabled", true);
         int interval = configManager.getInt("entity-clearing.interval", 300);
@@ -213,7 +215,7 @@ public class GUIManager implements Listener {
         openGUIs.put(player.getUniqueId(), "entity-clearing");
     }
 
-    public void openLagPreventionGUI(Player player) {
+    public void openLagPreventionGUI(@NotNull Player player) {
         Inventory gui = Bukkit.createInventory(new GUIHolder("lag-prevention"), 36, Component.text("Lag Prevention Modules").color(NamedTextColor.GOLD));
         boolean mobLimiter = configManager.getBoolean("lag-prevention.mob-limiter.enabled", true);
         boolean redstoneLimiter = configManager.getBoolean("lag-prevention.redstone-limiter.enabled", true);
@@ -260,12 +262,16 @@ public class GUIManager implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
+    public void onInventoryClick(@NotNull InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
+            return;
+        }
 
         Inventory top = event.getView().getTopInventory();
         InventoryHolder holder = top.getHolder();
-        if (!(holder instanceof GUIHolder guiHolder)) return;
+        if (!(holder instanceof GUIHolder guiHolder)) {
+            return;
+        }
 
         int topSize = top.getSize();
         int raw = event.getRawSlot();
@@ -274,7 +280,9 @@ public class GUIManager implements Listener {
         if (clickedTop) {
             event.setCancelled(true);
             ItemStack clicked = event.getCurrentItem();
-            if (clicked == null || clicked.getType().isAir()) return;
+            if (clicked == null || clicked.getType().isAir()) {
+                return;
+            }
 
             switch (guiHolder.id()) {
                 case "main" -> handleMainGUIClick(player, raw);
@@ -306,9 +314,12 @@ public class GUIManager implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onInventoryDrag(InventoryDragEvent event) {
+    public void onInventoryDrag(@NotNull InventoryDragEvent event) {
         InventoryHolder holder = event.getView().getTopInventory().getHolder();
-        if (!(holder instanceof GUIHolder)) return;
+        if (!(holder instanceof GUIHolder)) {
+            return;
+        }
+
         int topSize = event.getView().getTopInventory().getSize();
         for (int rawSlot : event.getRawSlots()) {
             if (rawSlot >= 0 && rawSlot < topSize) {
@@ -318,7 +329,7 @@ public class GUIManager implements Listener {
         }
     }
 
-    private void handleMainGUIClick(Player player, int slot) {
+    private void handleMainGUIClick(@NotNull Player player, int slot) {
         switch (slot) {
             case 12 -> openEntityClearingGUI(player);
             case 14 -> openLagPreventionGUI(player);
@@ -329,7 +340,7 @@ public class GUIManager implements Listener {
         }
     }
 
-    private void handleEntityClearingClick(Player player, int slot) {
+    private void handleEntityClearingClick(@NotNull Player player, int slot) {
         UUID playerId = player.getUniqueId();
         switch (slot) {
             case 10 -> {
@@ -361,7 +372,7 @@ public class GUIManager implements Listener {
         }
     }
 
-    private void handleLagPreventionClick(Player player, int slot) {
+    private void handleLagPreventionClick(@NotNull Player player, int slot) {
         switch (slot) {
             case 10 -> {
                 boolean mobLimiter = configManager.getBoolean("lag-prevention.mob-limiter.enabled", true);
@@ -392,16 +403,18 @@ public class GUIManager implements Listener {
     }
 
     @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
+    public void onInventoryClose(@NotNull InventoryCloseEvent event) {
         UUID playerId = event.getPlayer().getUniqueId();
         openGUIs.remove(playerId);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAsyncChat(AsyncChatEvent event) {
+    public void onAsyncChat(@NotNull AsyncChatEvent event) {
         final Player player = event.getPlayer();
         final UUID playerId = player.getUniqueId();
-        if (!awaitingInput.containsKey(playerId)) return;
+        if (!awaitingInput.containsKey(playerId)) {
+            return;
+        }
 
         final String input = PlainTextComponentSerializer.plainText().serialize(event.message()).trim();
 
@@ -410,7 +423,7 @@ public class GUIManager implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
+    public void onAsyncPlayerChat(@NotNull AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
         final UUID playerId = player.getUniqueId();
         if (!awaitingInput.containsKey(playerId)) return;
@@ -420,7 +433,7 @@ public class GUIManager implements Listener {
         processChatInput(player, input);
     }
 
-    private void processChatInput(Player player, String input) {
+    private void processChatInput(@NotNull Player player, @NotNull String input) {
         final UUID playerId = player.getUniqueId();
         final String inputType = awaitingInput.get(playerId);
         final String configPath = inputPaths.get(playerId);
@@ -434,6 +447,7 @@ public class GUIManager implements Listener {
                     openEntityClearingGUI(player);
                 }
             });
+
             return;
         }
 

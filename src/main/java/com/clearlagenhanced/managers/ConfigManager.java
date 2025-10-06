@@ -77,7 +77,6 @@ public class ConfigManager {
 
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to migrate config: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

@@ -38,7 +38,7 @@ public class RedstoneLimiterListener implements Listener {
     private final int maxPerChunk;
     private final boolean debug;
 
-    public RedstoneLimiterListener(ClearLaggEnhanced plugin) {
+    public RedstoneLimiterListener(@NotNull ClearLaggEnhanced plugin) {
         this.plugin = plugin;
         this.scheduler = ClearLaggEnhanced.scheduler();
         ConfigManager config = plugin.getConfigManager();
@@ -75,8 +75,13 @@ public class RedstoneLimiterListener implements Listener {
     }
 
     private boolean budgetExceeded(@NotNull Chunk chunk, int cost) {
-        if (!enabled()) return false;
-        if (!isWorldAllowed(chunk.getWorld())) return false;
+        if (!enabled()) {
+            return false;
+        }
+
+        if (!isWorldAllowed(chunk.getWorld())) {
+            return false;
+        }
 
         ChunkKey key = key(chunk);
         int newUsed = creditsUsed.merge(key, cost, Integer::sum);
@@ -161,8 +166,8 @@ public class RedstoneLimiterListener implements Listener {
         }
     }
 
-    private static String loc(@NotNull Location l) {
-        return l.getWorld().getName() + " " + l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ();
+    private static String loc(@NotNull Location location) {
+        return location.getWorld().getName() + " " + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ();
     }
 
     private void debugAdmins(@NotNull String message) {
@@ -171,12 +176,18 @@ public class RedstoneLimiterListener implements Listener {
                 .forEach(p -> p.sendMessage(message));
     }
 
-    private record ChunkKey(String world, int x, int z) {
+    private record ChunkKey(@NotNull String world, int x, int z) {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof ChunkKey k)) return false;
+            if (this == o) {
+                return true;
+            }
+
+            if (!(o instanceof ChunkKey k)) {
+                return false;
+            }
+
             return x == k.x && z == k.z && world.equals(k.world);
         }
 

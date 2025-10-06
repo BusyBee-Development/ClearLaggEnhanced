@@ -31,7 +31,9 @@ public class MobLimiterListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onCreatureSpawn(@NotNull CreatureSpawnEvent event) {
         LivingEntity entity = event.getEntity();
-        if (!isCountable(entity)) return;
+        if (!isCountable(entity)) {
+            return;
+        }
 
         Chunk chunk = entity.getLocation().getChunk();
         if (limiter.isMobLimitReached(chunk)) {
@@ -52,7 +54,9 @@ public class MobLimiterListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSpawnerSpawn(@NotNull SpawnerSpawnEvent event) {
         Entity entity = event.getEntity();
-        if (!isCountable(entity)) return;
+        if (!isCountable(entity)) {
+            return;
+        }
 
         Chunk chunk = entity.getLocation().getChunk();
         if (limiter.isMobLimitReached(chunk)) {
@@ -78,7 +82,10 @@ public class MobLimiterListener implements Listener {
     }
 
     private boolean isCountable(@NotNull Entity entity) {
-        if (!(entity instanceof LivingEntity)) return false;
+        if (!(entity instanceof LivingEntity)) {
+            return false;
+        }
+
         return entity.getType() != EntityType.PLAYER;
     }
 

@@ -213,5 +213,6 @@ public class DatabaseManager {
         }
     }
 
-    public record LaggyChunkData(String world, int chunkX, int chunkZ, int entityCount) {}
+    public record LaggyChunkData(String world, int chunkX, int chunkZ, int entityCount) {
+    }
 }

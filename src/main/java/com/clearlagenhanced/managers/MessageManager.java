@@ -90,7 +90,6 @@ public class MessageManager {
 
             plugin.getLogger().info("Messages successfully updated to version " + CURRENT_MESSAGES_VERSION);
             plugin.getLogger().info("Added " + countNewKeys(oldMessages, newMessages) + " new messages while preserving your customizations");
-
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to migrate messages: " + e.getMessage());
             e.printStackTrace();
@@ -129,30 +128,30 @@ public class MessageManager {
         return messages;
     }
 
-    public String getRawMessage(String path) {
+    public String getRawMessage(@NotNull String path) {
         return messages.getString(path, "Message not found: " + path);
     }
 
-    public String getRawMessage(String path, String defaultValue) {
+    public String getRawMessage(@NotNull String path, @NotNull String defaultValue) {
         return messages.getString(path, defaultValue);
     }
 
-    public Component getMessage(String path, Map<String, String> placeholders) {
+    public Component getMessage(@NotNull String path, @NotNull Map<String, String> placeholders) {
         String message = getRawMessage(path);
         return parseMessage(message, placeholders, null);
     }
 
-    public Component getMessage(String path, Map<String, String> placeholders, Player player) {
+    public Component getMessage(@NotNull String path, @NotNull Map<String, String> placeholders, @NotNull Player player) {
         String message = getRawMessage(path);
         return parseMessage(message, placeholders, player);
     }
 
-    public Component getMessage(String path) {
+    public Component getMessage(@NotNull String path) {
         return getMessage(path, new HashMap<>());
     }
 
-    public Component parseMessage(String message, Map<String, String> placeholders, Player player) {
-        if (message == null || message.isEmpty()) {
+    public Component parseMessage(@NotNull String message, Map<String, String> placeholders, Player player) {
+        if (message.isEmpty()) {
             return Component.empty();
         }
 
@@ -160,7 +159,7 @@ public class MessageManager {
             message = message.replace("{" + entry.getKey() + "}", entry.getValue());
         }
 
-        if (placeholderAPIEnabled && player != null) {
+        if (placeholderAPIEnabled) {
             message = PlaceholderAPI.setPlaceholders(player, message);
         }
 
@@ -175,10 +174,12 @@ public class MessageManager {
         return legacySerializer.deserialize(message);
     }
 
-    private String normalizeToMiniMessage(String input) {
-        if (input == null || input.isEmpty()) return "";
+    private String normalizeToMiniMessage(@NotNull String input) {
+        if (input.isEmpty()) {
+            return "";
+        }
 
-        String msg = input.replace('§', '&'); // treat section as &
+        String msg = input.replace('§', '&');
         msg = convertLegacyXHex(msg);
         msg = AMP_HEX.matcher(msg).replaceAll(mr -> "<#" + mr.group(1) + ">");
         msg = msg.replaceAll("(?i)(?<!<)#([A-F0-9]{6})", "<#$1>");
@@ -187,7 +188,7 @@ public class MessageManager {
         return msg;
     }
 
-    private String convertLegacyXHex(String msg) {
+    private String convertLegacyXHex(@NotNull String msg) {
         Matcher m = LEGACY_X_HEX.matcher(msg);
         StringBuilder sb = new StringBuilder();
         while (m.find()) {
@@ -201,7 +202,7 @@ public class MessageManager {
             if (hex.length() == 6) {
                 m.appendReplacement(sb, '<' + "#" + hex + '>');
             } else {
-                m.appendReplacement(sb, full); // leave as-is if not parsable
+                m.appendReplacement(sb, full);
             }
         }
 
@@ -213,7 +214,7 @@ public class MessageManager {
         return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
     }
 
-    private String convertLegacyCodesToMini(String msg) {
+    private String convertLegacyCodesToMini(@NotNull String msg) {
         StringBuilder out = new StringBuilder(msg.length() + 16);
         for (int i = 0; i < msg.length(); i++) {
             char c = msg.charAt(i);
@@ -222,7 +223,7 @@ public class MessageManager {
                 String tag = mapLegacyToMiniTag(code);
                 if (tag != null) {
                     out.append('<').append(tag).append('>');
-                    i++; // skip code char
+                    i++;
                     continue;
                 }
             }

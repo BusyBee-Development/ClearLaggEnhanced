@@ -41,16 +41,20 @@ public class SpawnerLimiterListener implements Listener {
         return multiplier;
     }
 
-    private boolean isWorldAllowed(World world) {
+    private boolean isWorldAllowed(@NotNull World world) {
         return worldFilter.isEmpty() || worldFilter.contains(world.getName());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSpawnerSpawn(@NotNull SpawnerSpawnEvent event) {
-        if (!enabled()) return;
+        if (!enabled()) {
+            return;
+        }
 
         CreatureSpawner spawner = event.getSpawner();
-        if (!isWorldAllowed(spawner.getWorld())) return;
+        if (!isWorldAllowed(spawner.getWorld())) {
+            return;
+        }
 
         Chunk chunk = event.getLocation().getChunk();
         if (plugin.getLagPreventionManager().isMobLimitReached(chunk)) {

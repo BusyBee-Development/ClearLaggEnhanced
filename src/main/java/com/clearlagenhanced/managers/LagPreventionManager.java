@@ -28,7 +28,9 @@ public class LagPreventionManager {
     }
 
     public boolean isMobLimitReached(@NotNull Chunk chunk) {
-        if (!mobLimiterEnabled) return false;
+        if (!mobLimiterEnabled) {
+            return false;
+        }
 
         AtomicInteger mobCount = new AtomicInteger(0);
         for (Entity entity : chunk.getEntities()) {

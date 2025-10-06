@@ -29,7 +29,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter
     private static ClearLaggEnhanced instance;
 
-    private static FoliaLib foliaLib;
     private static PlatformScheduler scheduler;
 
     @Getter private DatabaseManager databaseManager;
@@ -42,10 +41,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
     private GUIManager guiManager;
 
     private MiscEntitySweepService miscSweep;
-
-    public static FoliaLib foliaLib() {
-      return foliaLib;
-    }
 
     public static PlatformScheduler scheduler() {
       return scheduler;
@@ -88,8 +83,15 @@ public class ClearLaggEnhanced extends JavaPlugin {
         shutdown(guiManager);
         stopMiscLimiterIfRunning();
 
-        if (configManager != null) configManager.reload();
-        if (messageManager != null) messageManager.reload();
+        if (configManager != null) {
+            configManager.reload();
+        }
+
+        if (messageManager == null) {
+            messageManager = new MessageManager(this);
+        } else {
+            messageManager.reload();
+        }
 
         MessageUtils.initialize(messageManager);
 

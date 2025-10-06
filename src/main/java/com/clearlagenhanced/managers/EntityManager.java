@@ -50,7 +50,9 @@ public class EntityManager {
         }
 
         int initialDelayTicks = intervalTicks - (warnLead * 20);
-        if (initialDelayTicks < 1) initialDelayTicks = 1;
+        if (initialDelayTicks < 1) {
+            initialDelayTicks = 1;
+        }
 
         nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
 

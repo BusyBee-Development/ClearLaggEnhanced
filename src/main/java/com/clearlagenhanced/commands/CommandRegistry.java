@@ -4,6 +4,7 @@ import com.clearlagenhanced.commands.subcommands.*;
 import com.clearlagenhanced.utils.MessageUtils;
 import lombok.Getter;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 public enum CommandRegistry {
@@ -20,7 +21,7 @@ public enum CommandRegistry {
     private final String name;
     private final SubCommand executor;
 
-    CommandRegistry(String name, SubCommand executor) {
+    CommandRegistry(@NotNull String name, @NotNull SubCommand executor) {
         this.name = name;
         this.executor = executor;
     }
@@ -31,7 +32,7 @@ public enum CommandRegistry {
      * @param args The command arguments
      * @return true if command executed successfully
      */
-    public boolean execute(CommandSender sender, String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!sender.hasPermission(executor.getPermission())) {
             MessageUtils.sendMessage(sender, "notifications.no-permission");
             return true;
@@ -45,7 +46,7 @@ public enum CommandRegistry {
      * @param name Command name to search for
      * @return CommandRegistry enum or null if not found
      */
-    public static CommandRegistry fromString(String name) {
+    public static CommandRegistry fromString(@NotNull String name) {
         for (CommandRegistry cmd : values()) {
             if (cmd.name.equalsIgnoreCase(name)) {
                 return cmd;

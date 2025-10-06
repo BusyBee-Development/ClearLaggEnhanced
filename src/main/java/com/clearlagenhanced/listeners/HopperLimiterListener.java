@@ -52,7 +52,9 @@ public class HopperLimiterListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryMove(@NotNull InventoryMoveItemEvent event) {
-        if (!enabled) return;
+        if (!enabled) {
+            return;
+        }
 
         Inventory initiatorInv = event.getInitiator();
 
@@ -88,14 +90,16 @@ public class HopperLimiterListener implements Listener {
         lastMoveTickByChunk.put(key, now);
     }
 
-    private static String chunkKey(@NotNull Chunk c) {
-        return c.getWorld().getName() + ":" + c.getX() + "," + c.getZ();
+    private static String chunkKey(@NotNull Chunk chunk) {
+        return chunk.getWorld().getName() + ":" + chunk.getX() + "," + chunk.getZ();
     }
 
     private int countHoppersInChunkCached(@NotNull Chunk chunk) {
         String key = chunkKey(chunk);
         Integer cached = hopperCountByChunk.get(key);
-        if (cached != null) return cached;
+        if (cached != null) {
+            return cached;
+        }
 
         Location location = new Location(chunk.getWorld(), (chunk.getX() << 4), 0, (chunk.getZ() << 4));
         scheduler.runAtLocation(location, task -> hopperCountByChunk.put(key, scanHoppersInChunk(chunk)));
@@ -146,18 +150,24 @@ public class HopperLimiterListener implements Listener {
     }
 
     @EventHandler
-    public void onChunkLoad(@NotNull ChunkLoadEvent e) {
-        if (!enabled) return;
-        Chunk chunk = e.getChunk();
+    public void onChunkLoad(@NotNull ChunkLoadEvent event) {
+        if (!enabled) {
+            return;
+        }
+
+        Chunk chunk = event.getChunk();
         final String key = chunkKey(chunk);
         Location location = new Location(chunk.getWorld(), (chunk.getX() << 4), 0, (chunk.getZ() << 4));
         scheduler.runAtLocation(location, task -> hopperCountByChunk.put(key, scanHoppersInChunk(chunk)));
     }
 
     @EventHandler
-    public void onChunkUnload(@NotNull ChunkUnloadEvent e) {
-        if (!enabled) return;
-        Chunk chunk = e.getChunk();
+    public void onChunkUnload(@NotNull ChunkUnloadEvent event) {
+        if (!enabled) {
+            return;
+        }
+
+        Chunk chunk = event.getChunk();
         String key = chunkKey(chunk);
         hopperCountByChunk.remove(key);
         lastMoveTickByChunk.remove(key);
@@ -165,32 +175,44 @@ public class HopperLimiterListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onBlockPlace(@NotNull BlockPlaceEvent e) {
-        if (!enabled) return;
-        if (e.getBlockPlaced().getType() != Material.HOPPER) return;
-        String key = chunkKey(e.getBlockPlaced().getChunk());
+    public void onBlockPlace(@NotNull BlockPlaceEvent event) {
+        if (!enabled) {
+            return;
+        }
+
+        if (event.getBlockPlaced().getType() != Material.HOPPER) {
+            return;
+        }
+
+        String key = chunkKey(event.getBlockPlaced().getChunk());
         hopperCountByChunk.merge(key, 1, Integer::sum);
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onBlockBreak(@NotNull BlockBreakEvent e) {
-        if (!enabled) return;
-        if (e.getBlock().getType() != Material.HOPPER) return;
-        String key = chunkKey(e.getBlock().getChunk());
+    public void onBlockBreak(@NotNull BlockBreakEvent event) {
+        if (!enabled) {
+            return;
+        }
+
+        if (event.getBlock().getType() != Material.HOPPER) {
+            return;
+        }
+
+        String key = chunkKey(event.getBlock().getChunk());
         hopperCountByChunk.compute(key, (k, v) -> {
             int current = (v == null ? 0 : v);
             current = Math.max(0, current - 1);
-            return current; // keep 0 to avoid repeated lazy scans
+            return current; // Keep at 0 to avoid repeated lazy scans
         });
     }
 
     public void rescanLoadedChunks() {
-        for (World w : plugin.getServer().getWorlds()) {
-            for (Chunk c : w.getLoadedChunks()) {
-                final String key = chunkKey(c);
-                Location location = new Location(w, (c.getX() << 4), 0, (c.getZ() << 4));
+        for (World world : plugin.getServer().getWorlds()) {
+            for (Chunk chunk : world.getLoadedChunks()) {
+                final String key = chunkKey(chunk);
+                Location location = new Location(world, (chunk.getX() << 4), 0, (chunk.getZ() << 4));
                 scheduler.runAtLocation(location, task -> {
-                    hopperCountByChunk.put(key, scanHoppersInChunk(c));
+                    hopperCountByChunk.put(key, scanHoppersInChunk(chunk));
                     lastMoveTickByChunk.remove(key);
                     lastLogTickByChunk.remove(key);
                 });
@@ -199,7 +221,10 @@ public class HopperLimiterListener implements Listener {
     }
 
     private void maybeLogChunkThrottle(@NotNull Chunk chunk, long nowTick) {
-        if (!debug) return;
+        if (!debug) {
+            return;
+        }
+
         String key = chunkKey(chunk);
         long last = lastLogTickByChunk.getOrDefault(key, 1L);
         if ((nowTick - last) >= 100L) {
