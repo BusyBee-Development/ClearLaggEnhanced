@@ -201,22 +201,22 @@ public class HopperLimiterListener implements Listener {
     private void maybeLogChunkThrottle(@NotNull Chunk chunk, long nowTick) {
         if (!debug) return;
         String key = chunkKey(chunk);
-        long last = lastLogTickByChunk.getOrDefault(key, 0L);
+        long last = lastLogTickByChunk.getOrDefault(key, 1L);
         if ((nowTick - last) >= 100L) {
             Map<String, String> ph = new ConcurrentHashMap<>();
             ph.put("x", String.valueOf(chunk.getX()));
             ph.put("z", String.valueOf(chunk.getZ()));
             var comp = plugin.getMessageManager().getMessage("debug.hopper.throttling", ph);
             plugin.getServer().getOnlinePlayers().stream()
-                    .filter(p -> p.hasPermission("CLE.admin"))
-                    .forEach(p -> p.sendMessage(comp));
+                    .filter(player -> player.hasPermission("CLE.admin"))
+                    .forEach(player -> player.sendMessage(comp));
             lastLogTickByChunk.put(key, nowTick);
         }
     }
 
     private void debugAdmins(@NotNull String message) {
         plugin.getServer().getOnlinePlayers().stream()
-                .filter(p -> p.hasPermission("CLE.admin"))
-                .forEach(p -> p.sendMessage(message));
+                .filter(player -> player.hasPermission("CLE.admin"))
+                .forEach(player -> player.sendMessage(message));
     }
 }
