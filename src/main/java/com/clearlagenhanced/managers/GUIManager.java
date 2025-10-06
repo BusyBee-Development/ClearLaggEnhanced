@@ -4,19 +4,21 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.utils.MessageUtils;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
+import io.papermc.paper.event.player.AsyncChatEvent; // Paper/Folia chat event
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent; // legacy Spigot event (deprecated on Paper)
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -396,16 +398,32 @@ public class GUIManager implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
-        Player player = event.getPlayer();
-        UUID playerId = player.getUniqueId();
+    public void onAsyncChat(AsyncChatEvent event) {
+        final Player player = event.getPlayer();
+        final UUID playerId = player.getUniqueId();
+        if (!awaitingInput.containsKey(playerId)) return;
 
+        final String input = PlainTextComponentSerializer.plainText().serialize(event.message()).trim();
+
+        event.setCancelled(true);
+        processChatInput(player, input);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
+        final Player player = event.getPlayer();
+        final UUID playerId = player.getUniqueId();
         if (!awaitingInput.containsKey(playerId)) return;
 
         event.setCancelled(true);
-        String input = event.getMessage().trim();
-        String inputType = awaitingInput.get(playerId);
-        String configPath = inputPaths.get(playerId);
+        final String input = event.getMessage().trim();
+        processChatInput(player, input);
+    }
+
+    private void processChatInput(Player player, String input) {
+        final UUID playerId = player.getUniqueId();
+        final String inputType = awaitingInput.get(playerId);
+        final String configPath = inputPaths.get(playerId);
 
         if (input.equalsIgnoreCase("cancel")) {
             awaitingInput.remove(playerId);
@@ -429,12 +447,14 @@ public class GUIManager implements Listener {
                         MessageUtils.sendMessage(player, "gui.interval-min", ph);
                         return;
                     }
+
                     configManager.set(configPath, interval);
                     plugin.saveConfig();
                     Map<String, String> ph2 = new ConcurrentHashMap<>();
                     ph2.put("interval", String.valueOf(interval));
                     MessageUtils.sendMessage(player, "gui.interval-set", ph2);
                 }
+
                 awaitingInput.remove(playerId);
                 inputPaths.remove(playerId);
                 if ("entity-clearing-interval".equals(inputType)) {
