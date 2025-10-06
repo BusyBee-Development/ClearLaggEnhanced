@@ -15,14 +15,17 @@ public class ClearCommand implements SubCommand {
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         MessageUtils.sendMessage(sender, "commands.clear.starting");
 
-        long startTime = System.currentTimeMillis();
-        int cleared = ClearLaggEnhanced.getInstance().getEntityManager().clearEntities();
-        long duration = System.currentTimeMillis() - startTime;
+        ClearLaggEnhanced.scheduler().runAsync(task -> {
+            long startTime = System.currentTimeMillis();
+            int cleared = ClearLaggEnhanced.getInstance().getEntityManager().clearEntities();
+            long duration = System.currentTimeMillis() - startTime;
 
-        Map<String, String> ph = new ConcurrentHashMap<>();
-        ph.put("count", String.valueOf(cleared));
-        ph.put("time", String.valueOf(duration));
-        MessageUtils.sendMessage(sender, "notifications.clear-complete", ph);
+            Map<String, String> ph = new ConcurrentHashMap<>();
+            ph.put("count", String.valueOf(cleared));
+            ph.put("time", String.valueOf(duration));
+            MessageUtils.sendMessage(sender, "notifications.clear-complete", ph);
+        });
+
         return true;
     }
 

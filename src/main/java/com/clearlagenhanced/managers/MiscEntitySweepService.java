@@ -99,9 +99,10 @@ public class MiscEntitySweepService {
         }
         if (chunks.isEmpty()) return;
 
+        int size = chunks.size();
         int processed = 0;
-        for (; processed < maxChunksPerTick && !chunks.isEmpty(); processed++) {
-            int i = cursor.getAndUpdate(curr -> curr + 1 >= chunks.size() ? 0 : curr + 1);
+        for (; processed < maxChunksPerTick; processed++) {
+            int i = Math.floorMod(cursor.getAndIncrement(), size);
             Chunk c = chunks.get(i);
 
             scheduler.runAtLocation(c.getBlock(0, 0, 0).getLocation(), task -> enforceChunk(c));

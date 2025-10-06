@@ -9,7 +9,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Tameable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class EntityManager {
@@ -34,62 +36,103 @@ public class EntityManager {
         }
 
         clearInterval = configManager.getInt("entity-clearing.interval", 300);
+        if (clearInterval <= 0) {
+            clearInterval = 300;
+            plugin.getLogger().warning("entity-clearing.interval was <= 0; defaulting to 300.");
+        }
+
         int intervalTicks = clearInterval * 20;
+
+        int warnLead = 0;
+        List<Integer> times = configManager.getIntegerList("notifications.broadcast-times");
+        if (times != null && !times.isEmpty()) {
+            for (int t : times) if (t > warnLead) warnLead = t;
+        }
+
+        int initialDelayTicks = intervalTicks - (warnLead * 20);
+        if (initialDelayTicks < 1) initialDelayTicks = 1;
 
         nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
 
+        int finalWarnLead = warnLead;
         clearTask = scheduler.runTimer(() -> {
-            nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
+            nextClearTime = System.currentTimeMillis() + (finalWarnLead * 1000L);
             plugin.getNotificationManager().sendClearWarnings();
-        }, intervalTicks, intervalTicks);
+        }, initialDelayTicks, intervalTicks);
 
         plugin.getLogger().info("Entity clearing task started with interval: " + clearInterval + " seconds");
     }
 
     public int clearEntities() {
+        final long startNanos = System.nanoTime();
+
+        final List<String> whitelist = configManager.getStringList("entity-clearing.whitelist");
+        final List<String> worlds = configManager.getStringList("entity-clearing.worlds");
+
+        final List<Entity> snapshot = new ArrayList<>();
+        final CountDownLatch snapshotLatch = new CountDownLatch(1);
         scheduler.runNextTick(task -> {
-            List<String> whitelist = configManager.getStringList("entity-clearing.whitelist");
-            List<String> worlds = configManager.getStringList("entity-clearing.worlds");
-
-            final AtomicInteger cleared = new AtomicInteger(0);
-            final AtomicInteger scheduled = new AtomicInteger(0);
-
             for (World world : Bukkit.getWorlds()) {
                 if (!worlds.isEmpty() && !worlds.contains(world.getName())) {
                     continue;
                 }
 
-                for (Entity entity : world.getEntities()) {
-                    if (shouldClearEntity(entity, whitelist)) {
-                        scheduled.incrementAndGet();
-                        scheduler.runAtEntity(entity, t -> {
-                            if (!entity.isDead() && shouldClearEntity(entity, whitelist)) {
-                                entity.remove();
-                                cleared.incrementAndGet();
-                            }
-
-                            if (scheduled.decrementAndGet() == 0) {
-                                if (configManager.getBoolean("notifications.console-notifications", true)) {
-                                    plugin.getLogger().info("Cleared " + cleared.get() + " entities");
-                                }
-
-                                nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
-                            }
-                        });
-                    }
-                }
+                snapshot.addAll(world.getEntities());
             }
 
-            if (scheduled.get() == 0) {
-                if (configManager.getBoolean("notifications.console-notifications", true)) {
-                    plugin.getLogger().info("Cleared 0 entities");
-                }
-
-                nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
-            }
+            snapshotLatch.countDown();
         });
+        try {
+            snapshotLatch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
-        return 0;
+        if (snapshot.isEmpty()) {
+            nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
+            if (configManager.getBoolean("notifications.console-notifications", true)) {
+                plugin.getLogger().info("Cleared 0 entities in 0ms");
+            }
+
+            return 0;
+        }
+
+        final CountDownLatch latch = new CountDownLatch(snapshot.size());
+        final AtomicInteger cleared = new AtomicInteger(0);
+
+        for (Entity entity : snapshot) {
+            scheduler.runAtEntity(entity, task -> {
+                try {
+                    if (!entity.isValid() || entity.isDead()) {
+                        return;
+                    }
+
+                    if (shouldClearEntity(entity, whitelist)) {
+                        entity.remove();
+                        cleared.incrementAndGet();
+                    }
+                } catch (Throwable ex) {
+                    plugin.getLogger().warning("Error while clearing " + entity.getType() + ": " + ex.getMessage());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        final long tookMs = (System.nanoTime() - startNanos) / 1_000_000L;
+        nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
+
+        if (configManager.getBoolean("notifications.console-notifications", true)) {
+            plugin.getLogger().info("Cleared " + cleared.get() + " entities in " + tookMs + "ms");
+        }
+
+        return cleared.get();
     }
 
     private boolean shouldClearEntity(Entity entity, List<String> whitelist) {
@@ -130,11 +173,11 @@ public class EntityManager {
         long seconds = getTimeUntilNextClear();
 
         if (seconds == -1) {
-            return "Auto-clear disabled";
+            return "Auto Clearing is Disabled";
         }
 
         if (seconds == 0) {
-            return "Any moment now";
+            return "0s";
         }
 
         long minutes = seconds / 60;

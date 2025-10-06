@@ -42,11 +42,20 @@ public class NotificationManager {
         int maxTime = broadcastTimes.stream().max(Integer::compareTo).orElse(0);
 
         for (int seconds : broadcastTimes) {
-            long delay = (maxTime - seconds) * 20L; // Convert to ticks
-            warningTasks.add(scheduler.runLater(() -> sendWarning(seconds), delay));
+            long delayTicks = (maxTime - seconds) * 20L;
+            if (delayTicks <= 0L) {
+                sendWarning(seconds);
+            } else {
+                warningTasks.add(scheduler.runLater(() -> sendWarning(seconds), delayTicks));
+            }
         }
 
-        warningTasks.add(scheduler.runLater(this::performClear, maxTime * 20L));
+        long clearDelayTicks = maxTime * 20L;
+        if (clearDelayTicks <= 0L) {
+            performClear();
+        } else {
+            warningTasks.add(scheduler.runLater(this::performClear, clearDelayTicks));
+        }
     }
 
     private void sendWarning(int seconds) {
@@ -96,9 +105,8 @@ public class NotificationManager {
     }
 
     private void performClear() {
-        long startTime = System.currentTimeMillis();
-
-        scheduler.runNextTick(task -> {
+        scheduler.runAsync(task -> {
+            long startTime = System.currentTimeMillis();
             int cleared = plugin.getEntityManager().clearEntities();
             long duration = System.currentTimeMillis() - startTime;
 

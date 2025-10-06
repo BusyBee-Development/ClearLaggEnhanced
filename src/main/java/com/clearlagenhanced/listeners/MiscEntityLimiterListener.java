@@ -78,7 +78,7 @@ public class MiscEntityLimiterListener implements Listener {
             if (entity.getType() == type) count++;
         }
 
-        return count + 1 > cap;
+        return count >= cap;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
