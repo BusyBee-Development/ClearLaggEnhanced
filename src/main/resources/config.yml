@@ -6,6 +6,25 @@
 config-version: 3
 
 # ============================================================================ #
+#                            Database Settings                                 #
+# ============================================================================ #
+
+database:
+  # Database type: sqlite or mysql
+  type: "sqlite"
+
+  # SQLite database file name
+  file: "clearlagg.db"
+
+  # MySQL configuration (only used if type is "mysql")
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "clearlagg"
+    username: "root"
+    password: "password"
+
+# ============================================================================ #
 #                           Entity Clearing System                             #
 # ============================================================================ #
 
@@ -75,41 +94,6 @@ lag-prevention:
         CHICKEN: 15
         IRON_GOLEM: 3
 
-  # ---------------------------- Redstone Limiter ---------------------------- #
-  # Prevents lag machines while allowing normal farms
-  # Optimized for medium-sized servers with medium-sized farms
-  redstone-limiter:
-    enabled: false
-    reset-period-ms: 4000
-  
-    blocks:
-      enabled: true
-      threshold:
-        GLOBAL: 6
-        PISTON: 6
-        STICKY_PISTON: 6
-        OBSERVER: 12
-        DISPENSER: 6
-        DROPPER: 6
-        REPEATER: 10
-        COMPARATOR: 10
-        REDSTONE_TORCH: 8
-        REDSTONE_WALL_TORCH: 8
-        HOPPER: 12
-        TARGET: 6
-        LECTERN: 4
-  
-    chunks:
-      enabled: true
-      threshold: 4000
-
-    # Maximum blocks a piston can push (vanilla default: 12)
-    max-piston-push: 12
-  
-  # ----------------------------- Hopper Limiter ----------------------------- #
-  hopper-limiter:
-    enabled: true
-    transfer-cooldown: 8
   
   # ---------------------------- Spawner Limiter ----------------------------- #
   spawner-limiter:
@@ -190,22 +174,3 @@ performance:
   # Update interval in ticks (20 ticks = 1 second)
   update-interval: 20
 
-# ============================================================================ #
-#                            Database Settings                                 #
-# ============================================================================ #
-
-database:
-  # Database type: sqlite or mysql
-  type: "sqlite"
-  
-  # SQLite database file name
-  file: "clearlagg.db"
-  
-  # MySQL configuration (only used if type is "mysql")
-  mysql:
-    host: "localhost"
-    port: 3306
-    database: "clearlagg"
-    username: "root"
-    password: "password"
-    ssl: false

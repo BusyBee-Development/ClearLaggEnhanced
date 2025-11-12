@@ -2,10 +2,8 @@ package com.clearlagenhanced;
 
 import com.clearlagenhanced.commands.LaggCommand;
 import com.clearlagenhanced.database.DatabaseManager;
-import com.clearlagenhanced.listeners.HopperLimiterListener;
 import com.clearlagenhanced.listeners.MiscEntityLimiterListener;
 import com.clearlagenhanced.listeners.MobLimiterListener;
-import com.clearlagenhanced.listeners.RedstoneLimiterListener;
 import com.clearlagenhanced.listeners.SpawnerLimiterListener;
 import com.clearlagenhanced.managers.ConfigManager;
 import com.clearlagenhanced.managers.EntityManager;
@@ -102,12 +100,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         guiManager = new GUIManager(this);
 
         registerListeners();
-        final HopperLimiterListener hopperListener = new HopperLimiterListener(this);
-        getServer().getPluginManager().registerEvents(hopperListener, this);
-        try {
-            hopperListener.rescanLoadedChunks();
-        } catch (NoSuchMethodError | Exception ignored) {
-        }
 
         startMiscLimiterIfEnabled();
 
@@ -141,8 +133,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new MobLimiterListener(this), this);
-        getServer().getPluginManager().registerEvents(new RedstoneLimiterListener(this), this);
-        getServer().getPluginManager().registerEvents(new HopperLimiterListener(this), this);
         getServer().getPluginManager().registerEvents(new SpawnerLimiterListener(this), this);
         getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
     }

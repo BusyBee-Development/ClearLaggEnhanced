@@ -20,8 +20,6 @@ A modern, high-performance lag prevention plugin for Minecraft servers running P
 | Module                  | Description                        | Key Features                                   |
 |-------------------------|------------------------------------|------------------------------------------------|
 | **Mob Limiter**         | Controls entity spawning per chunk | Global + per-type limits, auto-optimization    |
-| **Redstone Limiter**    | Prevents redstone lag machines     | Block & chunk-level tracking, piston limits    |
-| **Hopper Limiter**      | Optimizes hopper item transfers    | Configurable cooldowns, chunk-based throttling |
 | **Spawner Limiter**     | Controls spawner activation rates  | Delay multipliers, mob cap integration         |
 | **Misc Entity Limiter** | Manages non-mob entities           | Armor stands, boats, item frames, etc.         |
 
@@ -143,57 +141,6 @@ mob-limiter:
 - Per-type limits control specific mob types
 - Automatic chunk optimization when limits are exceeded
 - Compatible with spawner and natural spawns
-
----
-
-#### Redstone Limiter
-Prevents redstone lag machines while allowing normal farms.
-
-```yaml
-redstone-limiter:
-  enabled: false             # Disabled by default (enable if needed)
-  reset-period-ms: 4000      # Reset counters every 4 seconds
-
-  blocks:
-    enabled: true
-    threshold:
-      GLOBAL: 6              # Default limit for all redstone blocks
-      PISTON: 6
-      OBSERVER: 12
-      DISPENSER: 6
-      REPEATER: 10
-      HOPPER: 12
-
-  chunks:
-    enabled: true
-    threshold: 4000          # Total redstone events per chunk
-
-  max-piston-push: 12        # Maximum blocks a piston can push
-```
-
-**How it works:**
-- Tracks redstone events per block and per chunk
-- Blocks that exceed their threshold within the reset period are neutralized
-- Prevents lag machines without breaking normal farms
-- Configurable thresholds for different block types
-
----
-
-#### Hopper Limiter
-Optimizes hopper performance by adding transfer cooldowns.
-
-```yaml
-hopper-limiter:
-  enabled: true
-  transfer-cooldown: 8       # Ticks between transfers (8 = 0.4 seconds)
-  max-hoppers-per-chunk: 20  # Optional hopper count limit per chunk
-```
-
-**Features:**
-- Adds cooldown between hopper item transfers
-- Reduces lag from excessive hopper chains
-- Dynamic cooldown scaling based on hopper density
-- Efficient chunk-based tracking
 
 ---
 
@@ -397,12 +344,6 @@ entity-clearing:
 
 mob-limiter:
   max-mobs-per-chunk: 75
-
-redstone-limiter:
-  enabled: false             # Probably not needed
-
-hopper-limiter:
-  transfer-cooldown: 8
 ```
 
 ### For Medium Servers (20-100 players)
@@ -414,13 +355,6 @@ mob-limiter:
   max-mobs-per-chunk: 50
   per-type-limits:
     enabled: true
-
-redstone-limiter:
-  enabled: true              # Enable if players build farms
-
-hopper-limiter:
-  transfer-cooldown: 10
-  max-hoppers-per-chunk: 20
 ```
 
 ### For Large Servers (100+ players)
@@ -432,13 +366,6 @@ mob-limiter:
   max-mobs-per-chunk: 35
   per-type-limits:
     enabled: true
-
-redstone-limiter:
-  enabled: true
-
-hopper-limiter:
-  transfer-cooldown: 12
-  max-hoppers-per-chunk: 15
 
 misc-entity-limiter:
   enabled: true
@@ -474,7 +401,6 @@ misc-entity-limiter:
 3. Reduce clearing interval (`interval: 180` = 3 minutes)
 4. Use `/lagg chunkfinder` to locate problem areas
 5. Enable misc entity limiter for armor stands/boats
-6. Check for redstone lag machines with redstone limiter
 
 ### Commands Not Working
 
@@ -536,133 +462,3 @@ We welcome feature requests! Please:
 ---
 
 **Made with ❤️ for the Minecraft server community**
-
----
-
-<details>
-<summary>🔌 Using the Redstone Limiter</summary>
-
-## 🔌 Using the Redstone Limiter
-
-The Redstone Limiter prevents lag caused by excessive redstone activity while allowing normal farms and contraptions to function properly.
-
-### How It Works
-
-The limiter tracks redstone events at two levels:
-1. **Per-block tracking** - Monitors individual redstone components
-2. **Per-chunk tracking** - Monitors total redstone activity in a chunk
-
-When a block or chunk exceeds its configured threshold within the reset period, the plugin neutralizes the excessive activity to prevent lag.
-
-### Configuration
-
-Enable the redstone limiter in `config.yml`:
-
-```yaml
-redstone-limiter:
-  enabled: true              # Set to true to enable
-  reset-period-ms: 4000      # Reset counters every 4 seconds
-
-  blocks:
-    enabled: true
-    threshold:
-      GLOBAL: 6              # Default limit for all redstone blocks
-      PISTON: 6              # Pistons can activate 6 times per reset period
-      OBSERVER: 12           # Observers can trigger 12 times per reset period
-      DISPENSER: 6
-      REPEATER: 10
-      HOPPER: 12
-
-  chunks:
-    enabled: true
-    threshold: 4000          # Maximum total redstone events per chunk
-
-  max-piston-push: 12        # Maximum blocks a piston can push at once
-```
-
-### Understanding Thresholds
-
-- **reset-period-ms**: How long before counters reset (4000ms = 4 seconds)
-- **Block threshold**: Maximum activations per block within the reset period
-- **Chunk threshold**: Maximum total redstone events in a chunk within the reset period
-- **max-piston-push**: Limits how many blocks a single piston can push (prevents lag from pushing hundreds of blocks)
-
-### What Gets Limited
-
-The redstone limiter monitors these components:
-- **Pistons** (PISTON, STICKY_PISTON)
-- **Observers** (OBSERVER)
-- **Dispensers** (DISPENSER, DROPPER)
-- **Repeaters** (REPEATER, COMPARATOR)
-- **Hoppers** (HOPPER)
-- All other redstone components use the **GLOBAL** threshold
-
-### Example Scenarios
-
-**Normal redstone farm:**
-- A typical automatic farm activates pistons 2-3 times per reset period
-- Will function normally with default settings
-
-**Lag machine:**
-- Rapid clock that activates pistons 50+ times per second
-- Gets neutralized when it exceeds the threshold (6 activations per 4 seconds)
-- Prevents server lag without affecting legitimate builds
-
-### Tuning Recommendations
-
-**For creative/building servers:**
-```yaml
-redstone-limiter:
-  enabled: true
-  blocks:
-    threshold:
-      PISTON: 10           # Allow more complex contraptions
-      OBSERVER: 20
-      REPEATER: 15
-  chunks:
-    threshold: 8000        # Higher limit for creative builds
-```
-
-**For survival servers with farms:**
-```yaml
-redstone-limiter:
-  enabled: true
-  blocks:
-    threshold:
-      PISTON: 6            # Standard settings work well
-      OBSERVER: 12
-  chunks:
-    threshold: 4000
-```
-
-**For servers with lag issues:**
-```yaml
-redstone-limiter:
-  enabled: true
-  blocks:
-    threshold:
-      PISTON: 4            # Stricter limits
-      OBSERVER: 8
-      REPEATER: 6
-  chunks:
-    threshold: 2000        # Lower chunk threshold
-  max-piston-push: 8       # Reduce piston push limit
-```
-
-### Testing Your Settings
-
-1. Enable the redstone limiter with default settings
-2. Monitor server TPS with `/lagg tps`
-3. Test your redstone farms to ensure they still work
-4. If legitimate farms are getting limited, increase the threshold for specific blocks
-5. If you still have lag, decrease thresholds or lower the reset period
-
-### Important Notes
-
-- The limiter is **disabled by default** - you must enable it in config.yml
-- Changes require a `/lagg reload` to take effect
-- The limiter only neutralizes excessive activity, it doesn't break or remove blocks
-- Players won't receive notifications when redstone is limited (happens silently)
-
-</details>
-

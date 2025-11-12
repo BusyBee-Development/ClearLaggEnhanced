@@ -3,7 +3,6 @@ package com.clearlagenhanced.managers;
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -14,8 +13,6 @@ public class LagPreventionManager {
 
     private final PlatformScheduler scheduler;
     private final AtomicInteger maxMobsPerChunk;
-    private final boolean hopperLimiterEnabled;
-    private final boolean redstoneLimiterEnabled;
     private final boolean mobLimiterEnabled;
 
     public LagPreventionManager(@NotNull ClearLaggEnhanced plugin) {
@@ -23,8 +20,6 @@ public class LagPreventionManager {
         this.scheduler = ClearLaggEnhanced.scheduler();
         this.mobLimiterEnabled = configManager.getBoolean("lag-prevention.mob-limiter.enabled", true);
         this.maxMobsPerChunk = new AtomicInteger(configManager.getInt("lag-prevention.mob-limiter.max-mobs-per-chunk", 50));
-        this.hopperLimiterEnabled = configManager.getBoolean("lag-prevention.hopper-limiter.enabled", true);
-        this.redstoneLimiterEnabled = configManager.getBoolean("lag-prevention.redstone-limiter.enabled", true);
     }
 
     public boolean isMobLimitReached(@NotNull Chunk chunk) {
@@ -42,16 +37,8 @@ public class LagPreventionManager {
         return mobCount.get() >= maxMobsPerChunk.get();
     }
 
-    public boolean isRedstoneExcessive(@NotNull Chunk chunk) {
-        return false;
-    }
-
-    public boolean areHoppersExcessive(@NotNull Chunk chunk) {
-        return false;
-    }
-
-    public void optimizeChunk(@NotNull Chunk chunk, @NotNull Location location) {
-        scheduler.runAtLocation(location, task -> {
+    public void optimizeChunk(@NotNull Chunk chunk) {
+        scheduler.runAtLocation(chunk.getBlock(0, 0, 0).getLocation(), task -> {
             if (!isMobLimitReached(chunk)) {
                 return;
             }
@@ -75,7 +62,7 @@ public class LagPreventionManager {
 
                 if (entity instanceof LivingEntity
                         && entity.getType() != EntityType.PLAYER
-                        && entity.getCustomName() == null) {
+                        && entity.customName() == null) { // Changed getCustomName() to customName()
 
                     final Entity toRemove = entity;
 
@@ -85,7 +72,7 @@ public class LagPreventionManager {
 
                         boolean removed = false;
 
-                        if (toRemove.getType() != EntityType.PLAYER && toRemove.getCustomName() == null && !toRemove.isDead()) {
+                        if (toRemove.getType() != EntityType.PLAYER && toRemove.customName() == null && !toRemove.isDead()) { // Changed getCustomName() to customName()
                             toRemove.remove();
                             removed = true;
                         }

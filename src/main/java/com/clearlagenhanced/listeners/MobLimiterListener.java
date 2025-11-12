@@ -4,7 +4,6 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.managers.ConfigManager;
 import com.clearlagenhanced.managers.LagPreventionManager;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -97,8 +96,7 @@ public class MobLimiterListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onCreatureSpawnMonitor(@NotNull CreatureSpawnEvent event) {
         final Chunk chunk = event.getEntity().getLocation().getChunk();
-        final Location location = event.getEntity().getLocation();
-        limiter.optimizeChunk(chunk, location);
+        limiter.optimizeChunk(chunk);
     }
 
     private boolean isCountable(@NotNull Entity entity) {

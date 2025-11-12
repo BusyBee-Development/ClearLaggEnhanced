@@ -116,8 +116,6 @@ public class GUIManager implements Listener {
         lagMeta.lore(Arrays.asList(
                 lore("Configure lag prevention modules", NamedTextColor.GRAY),
                 lore("• Mob Limiter (per-type limits)", NamedTextColor.YELLOW),
-                lore("• Redstone Limiter (lag machines)", NamedTextColor.YELLOW),
-                lore("• Hopper Limiter (transfer throttle)", NamedTextColor.YELLOW),
                 lore("• Spawner Limiter", NamedTextColor.YELLOW),
                 Component.empty(),
                 lore("Click to open settings", NamedTextColor.GREEN)
@@ -224,8 +222,6 @@ public class GUIManager implements Listener {
     public void openLagPreventionGUI(@NotNull Player player) {
         Inventory gui = Bukkit.createInventory(new GUIHolder("lag-prevention"), 36, Component.text("Lag Prevention Modules").color(NamedTextColor.GOLD));
         boolean mobLimiter = configManager.getBoolean("lag-prevention.mob-limiter.enabled", true);
-        boolean redstoneLimiter = configManager.getBoolean("lag-prevention.redstone-limiter.enabled", true);
-        boolean hopperLimiter = configManager.getBoolean("lag-prevention.hopper-limiter.enabled", true);
         boolean spawnerLimiter = configManager.getBoolean("lag-prevention.spawner-limiter.enabled", true);
         int maxMobs = configManager.getInt("lag-prevention.mob-limiter.max-mobs-per-chunk", 50);
 
@@ -241,36 +237,12 @@ public class GUIManager implements Listener {
         mobItem.setItemMeta(mobMeta);
         gui.setItem(10, mobItem);
 
-        ItemStack redstoneItem = new ItemStack(redstoneLimiter ? Material.GREEN_WOOL : Material.RED_WOOL);
-        ItemMeta redstoneMeta = redstoneItem.getItemMeta();
-        redstoneMeta.displayName(Component.text("Redstone Limiter: " + (redstoneLimiter ? "Enabled" : "Disabled")).color(redstoneLimiter ? NamedTextColor.GREEN : NamedTextColor.RED));
-        redstoneMeta.lore(Arrays.asList(
-                lore("Prevents redstone lag machines", NamedTextColor.GRAY),
-                lore("Limits pistons, dispensers, etc", NamedTextColor.DARK_GRAY),
-                lore("Per-block-type limits per tick", NamedTextColor.DARK_GRAY),
-                Component.empty(),
-                lore("Click to " + (redstoneLimiter ? "disable" : "enable"), NamedTextColor.YELLOW)));
-        redstoneItem.setItemMeta(redstoneMeta);
-        gui.setItem(12, redstoneItem);
-
-        ItemStack hopperItem = new ItemStack(hopperLimiter ? Material.GREEN_WOOL : Material.RED_WOOL);
-        ItemMeta hopperMeta = hopperItem.getItemMeta();
-        hopperMeta.displayName(Component.text("Hopper Limiter: " + (hopperLimiter ? "Enabled" : "Disabled")).color(hopperLimiter ? NamedTextColor.GREEN : NamedTextColor.RED));
-        hopperMeta.lore(Arrays.asList(
-                lore("Throttles hopper item transfers", NamedTextColor.GRAY),
-                lore("Adds cooldown between transfers", NamedTextColor.DARK_GRAY),
-                lore("Independent from redstone limiter", NamedTextColor.DARK_GRAY),
-                Component.empty(),
-                lore("Click to " + (hopperLimiter ? "disable" : "enable"), NamedTextColor.YELLOW)));
-        hopperItem.setItemMeta(hopperMeta);
-        gui.setItem(14, hopperItem);
-
         ItemStack spawnerItem = new ItemStack(spawnerLimiter ? Material.GREEN_WOOL : Material.RED_WOOL);
         ItemMeta spawnerMeta = spawnerItem.getItemMeta();
         spawnerMeta.displayName(Component.text("Spawner Limiter: " + (spawnerLimiter ? "Enabled" : "Disabled")).color(spawnerLimiter ? NamedTextColor.GREEN : NamedTextColor.RED));
         spawnerMeta.lore(Collections.singletonList(lore("Click to " + (spawnerLimiter ? "disable" : "enable"), NamedTextColor.YELLOW)));
         spawnerItem.setItemMeta(spawnerMeta);
-        gui.setItem(16, spawnerItem);
+        gui.setItem(12, spawnerItem);
 
         ItemStack backItem = new ItemStack(Material.ARROW);
         ItemMeta backMeta = backItem.getItemMeta();
@@ -402,18 +374,6 @@ public class GUIManager implements Listener {
                 openLagPreventionGUI(player);
             }
             case 12 -> {
-                boolean redstoneLimiter = configManager.getBoolean("lag-prevention.redstone-limiter.enabled", true);
-                configManager.set("lag-prevention.redstone-limiter.enabled", !redstoneLimiter);
-                plugin.saveConfig();
-                openLagPreventionGUI(player);
-            }
-            case 14 -> {
-                boolean hopperLimiter = configManager.getBoolean("lag-prevention.hopper-limiter.enabled", true);
-                configManager.set("lag-prevention.hopper-limiter.enabled", !hopperLimiter);
-                plugin.saveConfig();
-                openLagPreventionGUI(player);
-            }
-            case 16 -> {
                 boolean spawnerLimiter = configManager.getBoolean("lag-prevention.spawner-limiter.enabled", true);
                 configManager.set("lag-prevention.spawner-limiter.enabled", !spawnerLimiter);
                 plugin.saveConfig();
