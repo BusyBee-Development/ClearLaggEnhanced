@@ -3,7 +3,7 @@
 ###############################################################################
 
 # Config version - DO NOT MODIFY (used for automatic updates)
-config-version: 3
+config-version: 4
 
 # ============================================================================ #
 #                            Database Settings                                 #
@@ -153,8 +153,11 @@ notifications:
   # Warning broadcast times before clearing (in seconds)
   broadcast-times: [60, 30, 10, 5]
   
-  # Notification display type: CHAT, ACTION_BAR, or TITLE
-  type: "ACTION_BAR"
+  # Notification display types: CHAT, ACTION_BAR, or TITLE
+  # You can specify multiple types, and they will be used in the order they are listed.
+  types:
+    - "ACTION_BAR"
+    - "CHAT"
   
   # Display console notifications when entities are cleared
   console-notifications: false

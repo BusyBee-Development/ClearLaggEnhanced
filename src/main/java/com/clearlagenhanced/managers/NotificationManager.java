@@ -59,7 +59,11 @@ public class NotificationManager {
     }
 
     private void sendWarning(int seconds) {
-        String notificationType = configManager.getString("notifications.type", "ACTION_BAR").toUpperCase();
+        List<String> notificationTypes = configManager.getStringList("notifications.types");
+        if (notificationTypes.isEmpty()) {
+            notificationTypes.add("ACTION_BAR");
+        }
+
         boolean soundEnabled = configManager.getBoolean("notifications.sound.enabled", true);
         String soundName = configManager.getString("notifications.sound.name", "BLOCK_NOTE_BLOCK_PLING");
         float volume = (float) configManager.getDouble("notifications.sound.volume", 1.0);
@@ -71,25 +75,24 @@ public class NotificationManager {
         Component message = messageManager.getMessage("warnings.entity-clear", placeholders);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            switch (notificationType) {
-                case "CHAT" -> player.sendMessage(message);
-                case "ACTION_BAR" -> player.sendActionBar(message);
-                case "TITLE" -> {
-                    Component titleMain = messageManager.getMessage("warnings.title", java.util.Collections.emptyMap(), player);
-                    Title title = Title.title(
-                            titleMain,
-                            message,
-                            Title.Times.times(
-                                    Duration.ofMillis(500), // fade in
-                                    Duration.ofSeconds(2),  // stay
-                                    Duration.ofMillis(500)  // fade out
-                            )
-                    );
-                    player.showTitle(title);
-                }
-                default -> {
-                    player.sendActionBar(message);
-                    plugin.getLogger().warning("Invalid notification type: " + notificationType + ". Using ACTION_BAR as fallback.");
+            for (String notificationType : notificationTypes) {
+                switch (notificationType.toUpperCase()) {
+                    case "CHAT" -> player.sendMessage(message);
+                    case "ACTION_BAR" -> player.sendActionBar(message);
+                    case "TITLE" -> {
+                        Component titleMain = messageManager.getMessage("warnings.title", java.util.Collections.emptyMap(), player);
+                        Title title = Title.title(
+                                titleMain,
+                                message,
+                                Title.Times.times(
+                                        Duration.ofMillis(500), // fade in
+                                        Duration.ofSeconds(2),  // stay
+                                        Duration.ofMillis(500)  // fade out
+                                )
+                        );
+                        player.showTitle(title);
+                    }
+                    default -> plugin.getLogger().warning("Invalid notification type: " + notificationType);
                 }
             }
 
