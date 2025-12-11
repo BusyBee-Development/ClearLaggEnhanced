@@ -203,3 +203,11 @@ notifications:
 performance:
   # Update interval in ticks (20 ticks = 1 second)
   update-interval: 20
+
+# ============================================================================ #
+#                              Debug Settings                                  #
+#============================================================================ #
+
+debug:
+  # Enable detailed logging for entity clearing operations
+  entity-clearing: true

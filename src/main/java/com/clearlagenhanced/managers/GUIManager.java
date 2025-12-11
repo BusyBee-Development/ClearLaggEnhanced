@@ -340,7 +340,10 @@ public class GUIManager implements Listener {
         UUID playerId = player.getUniqueId();
         switch (slot) {
             case 10 -> {
-                toggleAndRefresh(player, "entity-clearing.enabled");
+                boolean currentEnabled = configManager.getBoolean("entity-clearing.enabled", true);
+                configManager.set("entity-clearing.enabled", !currentEnabled);
+                configManager.save();
+                openEntityClearingGUI(player);
             }
             case 12 -> {
                 scheduler.runAtEntity(player, task -> player.closeInventory());
@@ -350,13 +353,22 @@ public class GUIManager implements Listener {
                 MessageUtils.sendMessage(player, "gui.type-cancel");
             }
             case 14 -> {
-                toggleAndRefresh(player, "entity-clearing.protect-named-entities");
+                boolean currentNamed = configManager.getBoolean("entity-clearing.protect-named-entities", true);
+                configManager.set("entity-clearing.protect-named-entities", !currentNamed);
+                configManager.save();
+                openEntityClearingGUI(player);
             }
             case 16 -> {
-                toggleAndRefresh(player, "entity-clearing.protect-tamed-entities");
+                boolean currentTamed = configManager.getBoolean("entity-clearing.protect-tamed-entities", true);
+                configManager.set("entity-clearing.protect-tamed-entities", !currentTamed);
+                configManager.save();
+                openEntityClearingGUI(player);
             }
             case 20 -> {
-                toggleAndRefresh(player, "entity-clearing.protect-stacked-entities");
+                boolean currentStacked = configManager.getBoolean("entity-clearing.protect-stacked-entities", true);
+                configManager.set("entity-clearing.protect-stacked-entities", !currentStacked);
+                configManager.save();
+                openEntityClearingGUI(player);
             }
             case 31 -> openMainGUI(player);
         }
@@ -365,107 +377,21 @@ public class GUIManager implements Listener {
     private void handleLagPreventionClick(@NotNull Player player, int slot) {
         switch (slot) {
             case 10 -> {
-                toggleAndRefresh(player, "lag-prevention.mob-limiter.enabled");
+                boolean mobLimiter = configManager.getBoolean("lag-prevention.mob-limiter.enabled", true);
+                configManager.set("lag-prevention.mob-limiter.enabled", !mobLimiter);
+                configManager.save();
+                openLagPreventionGUI(player);
             }
             case 12 -> {
-                toggleAndRefresh(player, "lag-prevention.spawner-limiter.enabled");
+                boolean spawnerLimiter = configManager.getBoolean("lag-prevention.spawner-limiter.enabled", true);
+                configManager.set("lag-prevention.spawner-limiter.enabled", !spawnerLimiter);
+                configManager.save();
+                openLagPreventionGUI(player);
             }
             case 31 -> openMainGUI(player);
         }
     }
 
-    private void refreshEntityClearingGUI(@NotNull Player player) {
-        Inventory gui = player.getOpenInventory().getTopInventory();
-        if (!(gui.getHolder() instanceof GUIHolder holder) || !"entity-clearing".equals(holder.id())) {
-            return;
-        }
-
-        boolean enabled = configManager.getBoolean("entity-clearing.enabled", true);
-        int interval = configManager.getInt("entity-clearing.interval", 300);
-        boolean protectNamed = configManager.getBoolean("entity-clearing.protect-named-entities", true);
-        boolean protectTamed = configManager.getBoolean("entity-clearing.protect-tamed-entities", true);
-        boolean protectStacked = configManager.getBoolean("entity-clearing.protect-stacked-entities", true);
-
-        ItemStack toggleItem = new ItemStack(enabled ? Material.GREEN_WOOL : Material.RED_WOOL);
-        ItemMeta toggleMeta = toggleItem.getItemMeta();
-        toggleMeta.displayName(Component.text("Entity Clearing: " + (enabled ? "Enabled" : "Disabled")).color(enabled ? NamedTextColor.GREEN : NamedTextColor.RED));
-        toggleMeta.lore(Collections.singletonList(lore("Click to " + (enabled ? "disable" : "enable"), NamedTextColor.GRAY)));
-        toggleItem.setItemMeta(toggleMeta);
-        gui.setItem(10, toggleItem);
-
-        ItemStack intervalItem = new ItemStack(Material.CLOCK);
-        ItemMeta intervalMeta = intervalItem.getItemMeta();
-        intervalMeta.displayName(Component.text("Clearing Interval: " + interval + "s").color(NamedTextColor.YELLOW));
-        intervalMeta.lore(Arrays.asList(lore("Current interval: " + interval + " seconds", NamedTextColor.GRAY), Component.empty(), lore("Click to change", NamedTextColor.GREEN)));
-        intervalItem.setItemMeta(intervalMeta);
-        gui.setItem(12, intervalItem);
-
-        ItemStack namedItem = new ItemStack(protectNamed ? Material.NAME_TAG : Material.PAPER);
-        ItemMeta namedMeta = namedItem.getItemMeta();
-        namedMeta.displayName(Component.text("Protect Named: " + (protectNamed ? "Yes" : "No")).color(protectNamed ? NamedTextColor.GREEN : NamedTextColor.RED));
-        namedMeta.lore(Collections.singletonList(lore("Click to " + (protectNamed ? "disable" : "enable"), NamedTextColor.GRAY)));
-        namedItem.setItemMeta(namedMeta);
-        gui.setItem(14, namedItem);
-
-        ItemStack tamedItem = new ItemStack(protectTamed ? Material.BONE : Material.STICK);
-        ItemMeta tamedMeta = tamedItem.getItemMeta();
-        tamedMeta.displayName(Component.text("Protect Tamed: " + (protectTamed ? "Yes" : "No")).color(protectTamed ? NamedTextColor.GREEN : NamedTextColor.RED));
-        tamedMeta.lore(Collections.singletonList(lore("Click to " + (protectTamed ? "disable" : "enable"), NamedTextColor.GRAY)));
-        tamedItem.setItemMeta(tamedMeta);
-        gui.setItem(16, tamedItem);
-
-        ItemStack stackedItem = new ItemStack(protectStacked ? Material.CHEST : Material.ENDER_CHEST);
-        ItemMeta stackedMeta = stackedItem.getItemMeta();
-        stackedMeta.displayName(Component.text("Protect Stacked: " + (protectStacked ? "Yes" : "No")).color(protectStacked ? NamedTextColor.GREEN : NamedTextColor.RED));
-        stackedMeta.lore(Collections.singletonList(lore("Click to " + (protectStacked ? "disable" : "enable"), NamedTextColor.GRAY)));
-        stackedItem.setItemMeta(stackedMeta);
-        gui.setItem(20, stackedItem);
-    }
-
-    private void refreshLagPreventionGUI(@NotNull Player player) {
-        Inventory gui = player.getOpenInventory().getTopInventory();
-        if (!(gui.getHolder() instanceof GUIHolder holder) || !"lag-prevention".equals(holder.id())) {
-            return;
-        }
-
-        boolean mobLimiter = configManager.getBoolean("lag-prevention.mob-limiter.enabled", true);
-        boolean spawnerLimiter = configManager.getBoolean("lag-prevention.spawner-limiter.enabled", true);
-        int maxMobs = configManager.getInt("lag-prevention.mob-limiter.max-mobs-per-chunk", 50);
-
-        ItemStack mobItem = new ItemStack(mobLimiter ? Material.GREEN_WOOL : Material.RED_WOOL);
-        ItemMeta mobMeta = mobItem.getItemMeta();
-        mobMeta.displayName(Component.text("Mob Limiter: " + (mobLimiter ? "Enabled" : "Disabled")).color(mobLimiter ? NamedTextColor.GREEN : NamedTextColor.RED));
-        mobMeta.lore(Arrays.asList(
-                lore("Limits mob spawns per chunk", NamedTextColor.GRAY),
-                lore("Global: " + maxMobs + " mobs/chunk", NamedTextColor.GRAY),
-                lore("Per-type limits in config.yml", NamedTextColor.DARK_GRAY),
-                Component.empty(),
-                lore("Click to " + (mobLimiter ? "disable" : "enable"), NamedTextColor.YELLOW)));
-        mobItem.setItemMeta(mobMeta);
-        gui.setItem(10, mobItem);
-
-        ItemStack spawnerItem = new ItemStack(spawnerLimiter ? Material.GREEN_WOOL : Material.RED_WOOL);
-        ItemMeta spawnerMeta = spawnerItem.getItemMeta();
-        spawnerMeta.displayName(Component.text("Spawner Limiter: " + (spawnerLimiter ? "Enabled" : "Disabled")).color(spawnerLimiter ? NamedTextColor.GREEN : NamedTextColor.RED));
-        spawnerMeta.lore(Collections.singletonList(lore("Click to " + (spawnerLimiter ? "disable" : "enable"), NamedTextColor.YELLOW)));
-        spawnerItem.setItemMeta(spawnerMeta);
-        gui.setItem(12, spawnerItem);
-    }
-
-    private void toggleAndRefresh(Player player, String path) {
-        boolean currentValue = configManager.getBoolean(path, true);
-        configManager.set(path, !currentValue);
-        configManager.save();
-
-        String guiId = openGUIs.get(player.getUniqueId());
-        scheduler.runAtEntity(player, task -> {
-            if ("entity-clearing".equals(guiId)) {
-                refreshEntityClearingGUI(player);
-            } else if ("lag-prevention".equals(guiId)) {
-                refreshLagPreventionGUI(player);
-            }
-        });
-    }
 
     @EventHandler
     public void onInventoryClose(@NotNull InventoryCloseEvent event) {

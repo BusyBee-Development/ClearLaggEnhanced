@@ -117,20 +117,42 @@ public class EntityManager {
                     if (!entity.isValid() || entity.isDead()) {
                         return;
                     }
-                    
+
                     boolean isStacked = stackerManager.isStacked(entity);
 
-                    if (isStacked && protectStacked && !isManual) {
+                    // Debug logging
+                    if (configManager.getBoolean("debug.entity-clearing", false)) {
+                        plugin.getLogger().info("Checking entity: " + entity.getType() +
+                            " | Stacked: " + isStacked +
+                            " | ProtectStacked: " + protectStacked);
+                    }
+
+                    // Protection logic: if protect-stacked is enabled, skip ONLY stacked entities
+                    if (isStacked && protectStacked) {
+                        if (configManager.getBoolean("debug.entity-clearing", false)) {
+                            plugin.getLogger().info("Skipping stacked entity: " + entity.getType());
+                        }
                         return;
                     }
 
-                    if (!shouldClearEntity(entity, whitelist, itemWhitelist, whitelistAllMobs, isStacked)) {
+                    // Check other clearing rules (whitelist, named, tamed, etc.)
+                    if (!shouldClearEntity(entity, whitelist, itemWhitelist, whitelistAllMobs)) {
+                        if (configManager.getBoolean("debug.entity-clearing", false)) {
+                            plugin.getLogger().info("Entity protection rule triggered for: " + entity.getType());
+                        }
                         return;
                     }
 
+                    // Clear the entity (stacked or not)
                     if (isStacked) {
+                        if (configManager.getBoolean("debug.entity-clearing", false)) {
+                            plugin.getLogger().info("Removing stacked entity: " + entity.getType());
+                        }
                         stackerManager.removeStack(entity);
                     } else {
+                        if (configManager.getBoolean("debug.entity-clearing", false)) {
+                            plugin.getLogger().info("Removing non-stacked entity: " + entity.getType());
+                        }
                         entity.remove();
                     }
                     cleared.incrementAndGet();
@@ -158,49 +180,60 @@ public class EntityManager {
         return cleared.get();
     }
 
-    private boolean shouldClearEntity(Entity entity, List<String> whitelist, List<String> itemWhitelist, boolean whitelistAllMobs, boolean isStacked) {
+    private boolean shouldClearEntity(Entity entity, List<String> whitelist, List<String> itemWhitelist, boolean whitelistAllMobs) {
         EntityType type = entity.getType();
         String typeName = type.name();
+        boolean debug = configManager.getBoolean("debug.entity-clearing", false);
 
         if (type == EntityType.PLAYER) {
+            if (debug) plugin.getLogger().info("  -> Protection: Player entity");
             return false;
         }
 
         // Don't clear vehicles (boats, minecarts) if they have passengers (players or mobs)
         if (entity instanceof Vehicle && !entity.getPassengers().isEmpty()) {
+            if (debug) plugin.getLogger().info("  -> Protection: Vehicle with passengers");
             return false;
         }
 
         // Don't clear mobs that are inside vehicles
         if (entity instanceof LivingEntity && entity.isInsideVehicle()) {
+            if (debug) plugin.getLogger().info("  -> Protection: Mob inside vehicle");
             return false;
         }
 
-        if (whitelistAllMobs && entity instanceof LivingEntity && !isStacked) {
+        // If whitelist-all-mobs is enabled, don't clear any living entities (mobs)
+        if (whitelistAllMobs && entity instanceof LivingEntity) {
+            if (debug) plugin.getLogger().info("  -> Protection: Whitelist-all-mobs enabled");
             return false;
         }
 
         if (whitelist.contains(typeName)) {
+            if (debug) plugin.getLogger().info("  -> Protection: Entity type '" + typeName + "' is in whitelist");
             return false;
         }
 
         if (entity instanceof Item) {
             String materialName = ((Item) entity).getItemStack().getType().name();
             if (itemWhitelist.contains(materialName)) {
+                if (debug) plugin.getLogger().info("  -> Protection: Item material '" + materialName + "' is in item-whitelist");
                 return false;
             }
         }
 
         if (configManager.getBoolean("entity-clearing.protect-named-entities", true) && entity.getCustomName() != null) {
+            if (debug) plugin.getLogger().info("  -> Protection: Entity has custom name");
             return false;
         }
 
         if (configManager.getBoolean("entity-clearing.protect-tamed-entities", true) && entity instanceof Tameable tameable) {
             if (tameable.isTamed()) {
+                if (debug) plugin.getLogger().info("  -> Protection: Entity is tamed");
                 return false;
             }
         }
 
+        if (debug) plugin.getLogger().info("  -> SHOULD CLEAR: " + typeName);
         return true;
     }
 
