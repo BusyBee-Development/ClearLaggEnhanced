@@ -13,6 +13,7 @@ import com.clearlagenhanced.managers.MessageManager;
 import com.clearlagenhanced.managers.MiscEntitySweepService;
 import com.clearlagenhanced.managers.NotificationManager;
 import com.clearlagenhanced.managers.PerformanceManager;
+import com.clearlagenhanced.managers.StackerManager;
 import com.clearlagenhanced.utils.MessageUtils;
 import com.clearlagenhanced.utils.VersionCheck;
 import com.tcoded.folialib.FoliaLib;
@@ -32,6 +33,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private DatabaseManager databaseManager;
     @Getter private ConfigManager configManager;
     @Getter private MessageManager messageManager;
+    @Getter private StackerManager stackerManager;
     @Getter private EntityManager entityManager;
     @Getter private LagPreventionManager lagPreventionManager;
     @Getter private PerformanceManager performanceManager;
@@ -75,48 +77,45 @@ public class ClearLaggEnhanced extends JavaPlugin {
     }
 
     public void reloadAll() {
+        reloadAll(null);
+    }
+
+    public void reloadAll(org.bukkit.command.CommandSender sender) {
         HandlerList.unregisterAll(this);
 
         shutdown(entityManager);
         shutdown(guiManager);
         stopMiscLimiterIfRunning();
 
-        if (configManager != null) {
-            configManager.reload();
-        }
-
-        if (messageManager == null) {
-            messageManager = new MessageManager(this);
-        } else {
-            messageManager.reload();
-        }
-
-        MessageUtils.initialize(messageManager);
-
-        entityManager = new EntityManager(this);
-        lagPreventionManager = new LagPreventionManager(this);
-        performanceManager = new PerformanceManager(this);
-        notificationManager = new NotificationManager(this);
-        guiManager = new GUIManager(this);
+        // Re-initialize managers in the correct order
+        initializeManagers();
 
         registerListeners();
-
         startMiscLimiterIfEnabled();
 
-        getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
+        // Send reload complete message if sender provided
+        if (sender != null) {
+            com.clearlagenhanced.utils.MessageUtils.sendMessage(sender, "notifications.reload-complete");
+        }
     }
 
     private void initializeManagers() {
+        // Config and basic managers first
         configManager = new ConfigManager(this);
+        configManager.reload(); // Ensure config is loaded
         messageManager = new MessageManager(this);
+        MessageUtils.initialize(messageManager);
         databaseManager = new DatabaseManager(this);
+
+        // StackerManager before EntityManager
+        stackerManager = new StackerManager(this);
+
+        // Managers that depend on others
         entityManager = new EntityManager(this);
         lagPreventionManager = new LagPreventionManager(this);
         performanceManager = new PerformanceManager(this);
         notificationManager = new NotificationManager(this);
         guiManager = new GUIManager(this);
-
-        MessageUtils.initialize(messageManager);
 
         getLogger().info("All managers initialized successfully!");
     }
@@ -135,6 +134,9 @@ public class ClearLaggEnhanced extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MobLimiterListener(this), this);
         getServer().getPluginManager().registerEvents(new SpawnerLimiterListener(this), this);
         getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
+        if (guiManager != null) {
+            getServer().getPluginManager().registerEvents(guiManager, this);
+        }
     }
 
     private void startMiscLimiterIfEnabled() {

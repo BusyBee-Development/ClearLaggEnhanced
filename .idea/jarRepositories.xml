@@ -2,6 +2,21 @@
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
     <remote-repository>
+      <option name="id" value="rosewood-repo" />
+      <option name="name" value="rosewood-repo" />
+      <option name="url" value="https://repo.rosewooddev.io/repository/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="rose-studios-repo" />
+      <option name="name" value="rose-studios-repo" />
+      <option name="url" value="https://repo.rose-studios.com/repository/releases/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="bg-software-repo" />
+      <option name="name" value="bg-software-repo" />
+      <option name="url" value="https://repo.bg-software.com/repository/api/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
       <option name="url" value="https://repo.maven.apache.org/maven2" />

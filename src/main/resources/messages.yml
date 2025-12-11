@@ -2,19 +2,11 @@
 #                      ClearLaggEnhanced Messages                             #
 ###############################################################################
 # Color Scheme:
-#   - Primary: <gold> (highlights, headers)
-#   - Success: <green> (confirmations, positive actions)
-#   - Warning: <yellow> (warnings, alerts)
-#   - Error: <red> (errors, negative actions)
-#   - Info: <aqua> (informational)
-#   - Accent: <white> (values, emphasis)
-#   - Subtle: <gray> (secondary text)
-#
 # Supports MiniMessage format: https://docs.advntr.dev/minimessage/format.html
 ###############################################################################
 
 # DO NOT MODIFY - Used for automatic updates
-version: 3
+version: 4
 
 # ============================================================================ #
 #                                 Global Prefix                                #

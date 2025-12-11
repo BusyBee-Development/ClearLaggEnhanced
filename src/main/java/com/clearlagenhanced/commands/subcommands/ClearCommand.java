@@ -17,7 +17,8 @@ public class ClearCommand implements SubCommand {
 
         ClearLaggEnhanced.scheduler().runAsync(task -> {
             long startTime = System.currentTimeMillis();
-            int cleared = ClearLaggEnhanced.getInstance().getEntityManager().clearEntities();
+            // Pass true to indicate a manual clear, bypassing stack protection
+            int cleared = ClearLaggEnhanced.getInstance().getEntityManager().clearEntities(true);
             long duration = System.currentTimeMillis() - startTime;
 
             Map<String, String> ph = new ConcurrentHashMap<>();

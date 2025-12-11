@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class MessageManager {
 
-    private static final int CURRENT_MESSAGES_VERSION = 3;
+    private static final int CURRENT_MESSAGES_VERSION = 4;
 
     private final ClearLaggEnhanced plugin;
     private FileConfiguration messages;

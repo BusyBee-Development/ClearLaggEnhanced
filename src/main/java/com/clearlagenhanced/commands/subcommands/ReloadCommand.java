@@ -10,8 +10,7 @@ public class ReloadCommand implements SubCommand {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
-        ClearLaggEnhanced.getInstance().reloadAll();
-        MessageUtils.sendMessage(sender, "notifications.reload-complete");
+        ClearLaggEnhanced.getInstance().reloadAll(sender);
         return true;
     }
 
