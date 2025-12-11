@@ -37,7 +37,6 @@ public class NotificationManager {
         List<Integer> broadcastTimes = configManager.getIntegerList("notifications.broadcast-times");
 
         if (broadcastTimes.isEmpty()) {
-            // If no warnings, schedule the clear to happen on the next tick.
             warningTasks.add(scheduler.runLater(this::performClear, 1L));
             return;
         }
@@ -46,7 +45,6 @@ public class NotificationManager {
 
         for (int seconds : broadcastTimes) {
             long delayTicks = (maxTime - seconds) * 20L;
-            // Send warning immediately if its time has passed or is now
             if (delayTicks <= 0L) {
                 sendWarning(seconds);
             } else {
@@ -54,7 +52,6 @@ public class NotificationManager {
             }
         }
 
-        // Schedule the final clear action
         long clearDelayTicks = maxTime * 20L;
         if (clearDelayTicks <= 0L) {
             performClear();
@@ -115,7 +112,6 @@ public class NotificationManager {
     private void performClear() {
         scheduler.runAsync(task -> {
             long startTime = System.currentTimeMillis();
-            // Pass false to indicate an automatic, non-manual clear
             int cleared = plugin.getEntityManager().clearEntities(false);
             long duration = System.currentTimeMillis() - startTime;
 
@@ -125,7 +121,6 @@ public class NotificationManager {
 
             Component message = messageManager.getMessage("notifications.clear-complete", placeholders);
 
-            // Only send if there were entities cleared
             if (cleared > 0) {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     player.sendMessage(message);

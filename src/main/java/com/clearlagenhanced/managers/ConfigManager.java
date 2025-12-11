@@ -12,12 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 public class ConfigManager {
 
-    private static final int CURRENT_CONFIG_VERSION = 5; // Updated to match latest config.yml
+    private static final int CURRENT_CONFIG_VERSION = 5;
 
     private final ClearLaggEnhanced plugin;
     @Getter private FileConfiguration config;
@@ -50,33 +51,28 @@ public class ConfigManager {
             File configFile = new File(plugin.getDataFolder(), "config.yml");
             File backupFile = new File(plugin.getDataFolder(), "config.yml.backup-v" + fromVersion);
 
-            // Backup the old config
             if (configFile.exists()) {
                 YamlConfiguration oldConfig = YamlConfiguration.loadConfiguration(configFile);
                 oldConfig.save(backupFile);
                 plugin.getLogger().info("Backed up old config to: " + backupFile.getName());
             }
 
-            // Load the current user config (which might be outdated)
             FileConfiguration userConfig = YamlConfiguration.loadConfiguration(configFile);
 
-            // Load the default config from the plugin's JAR
             InputStream defaultStream = plugin.getResource("config.yml");
             if (defaultStream == null) {
                 plugin.getLogger().severe("Could not find default config.yml in plugin JAR!");
                 return;
             }
+
             FileConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
 
-            // Merge default config into user config, preserving user's values
             mergeConfigs(userConfig, defaultConfig);
 
-            // Update version
             userConfig.set("config-version", CURRENT_CONFIG_VERSION);
 
-            // Save the merged and updated config
             userConfig.save(configFile);
-            this.config = userConfig; // Update the active config instance
+            this.config = userConfig;
             plugin.getLogger().info("Config successfully updated to version " + CURRENT_CONFIG_VERSION);
 
         } catch (IOException e) {
@@ -93,21 +89,17 @@ public class ConfigManager {
     private void mergeConfigs(@NotNull FileConfiguration userConfig, @NotNull FileConfiguration defaultConfig) {
         for (String key : defaultConfig.getKeys(false)) {
             if (!userConfig.contains(key)) {
-                // If user config doesn't have this key, add it from default
                 userConfig.set(key, defaultConfig.get(key));
             } else if (defaultConfig.isConfigurationSection(key)) {
-                // If both have it and it's a section, recurse
                 ConfigurationSection userSection = userConfig.getConfigurationSection(key);
                 ConfigurationSection defaultSection = defaultConfig.getConfigurationSection(key);
                 if (userSection != null && defaultSection != null) {
                     mergeConfigs(userSection, defaultSection);
                 }
             }
-            // If user config has the key and it's not a section, do nothing (preserve user's value)
         }
     }
 
-    // Overloaded mergeConfigs for ConfigurationSection
     private void mergeConfigs(@NotNull ConfigurationSection userSection, @NotNull ConfigurationSection defaultSection) {
         for (String key : defaultSection.getKeys(false)) {
             if (!userSection.contains(key)) {
@@ -162,24 +154,24 @@ public class ConfigManager {
         return config.getIntegerList(path);
     }
 
-    public java.util.Map<String, Object> getConfigSection(@NotNull String path) {
+    public Map<String, Object> getConfigSection(@NotNull String path) {
         if (config.isConfigurationSection(path)) {
-            java.util.Map<String, Object> result = new java.util.HashMap<>();
-            org.bukkit.configuration.ConfigurationSection section = config.getConfigurationSection(path);
+            Map<String, Object> result = new HashMap<>();
+            ConfigurationSection section = config.getConfigurationSection(path);
             if (section != null) {
                 for (String key : section.getKeys(false)) {
                     result.put(key, section.get(key));
                 }
             }
+
             return result;
         }
+
         return null;
     }
 
     public void set(@NotNull String path, @NotNull Object value) {
         config.set(path, value);
-        // No need to save here, as save() is called after each set in GUI,
-        // and plugin.saveConfig() is called after reloadAll().
     }
 
     public void save() {

@@ -330,7 +330,7 @@ public class GUIManager implements Listener {
             case 12 -> openEntityClearingGUI(player);
             case 14 -> openLagPreventionGUI(player);
             case 16 -> {
-                player.closeInventory();
+                scheduler.runAtEntity(player, task -> player.closeInventory());
                 plugin.reloadAll(player);
             }
         }
@@ -391,7 +391,6 @@ public class GUIManager implements Listener {
             case 31 -> openMainGUI(player);
         }
     }
-
 
     @EventHandler
     public void onInventoryClose(@NotNull InventoryCloseEvent event) {

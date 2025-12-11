@@ -19,6 +19,7 @@ import com.clearlagenhanced.utils.VersionCheck;
 import com.tcoded.folialib.FoliaLib;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import lombok.Getter;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -80,37 +81,32 @@ public class ClearLaggEnhanced extends JavaPlugin {
         reloadAll(null);
     }
 
-    public void reloadAll(org.bukkit.command.CommandSender sender) {
+    public void reloadAll(CommandSender sender) {
         HandlerList.unregisterAll(this);
 
         shutdown(entityManager);
         shutdown(guiManager);
         stopMiscLimiterIfRunning();
 
-        // Re-initialize managers in the correct order
         initializeManagers();
 
         registerListeners();
         startMiscLimiterIfEnabled();
 
-        // Send reload complete message if sender provided
         if (sender != null) {
-            com.clearlagenhanced.utils.MessageUtils.sendMessage(sender, "notifications.reload-complete");
+            MessageUtils.sendMessage(sender, "notifications.reload-complete");
         }
     }
 
     private void initializeManagers() {
-        // Config and basic managers first
         configManager = new ConfigManager(this);
-        configManager.reload(); // Ensure config is loaded
+        configManager.reload();
         messageManager = new MessageManager(this);
         MessageUtils.initialize(messageManager);
         databaseManager = new DatabaseManager(this);
 
-        // StackerManager before EntityManager
         stackerManager = new StackerManager(this);
 
-        // Managers that depend on others
         entityManager = new EntityManager(this);
         lagPreventionManager = new LagPreventionManager(this);
         performanceManager = new PerformanceManager(this);

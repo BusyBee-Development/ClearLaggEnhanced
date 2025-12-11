@@ -90,8 +90,10 @@ public class EntityManager {
                 if (!worlds.isEmpty() && !worlds.contains(world.getName())) {
                     continue;
                 }
+
                 snapshot.addAll(world.getEntities());
             }
+
             snapshotLatch.countDown();
         });
         try {
@@ -132,6 +134,7 @@ public class EntityManager {
                         if (configManager.getBoolean("debug.entity-clearing", false)) {
                             plugin.getLogger().info("Skipping stacked entity: " + entity.getType());
                         }
+
                         return;
                     }
 
@@ -140,6 +143,7 @@ public class EntityManager {
                         if (configManager.getBoolean("debug.entity-clearing", false)) {
                             plugin.getLogger().info("Entity protection rule triggered for: " + entity.getType());
                         }
+
                         return;
                     }
 
@@ -148,11 +152,13 @@ public class EntityManager {
                         if (configManager.getBoolean("debug.entity-clearing", false)) {
                             plugin.getLogger().info("Removing stacked entity: " + entity.getType());
                         }
+
                         stackerManager.removeStack(entity);
                     } else {
                         if (configManager.getBoolean("debug.entity-clearing", false)) {
                             plugin.getLogger().info("Removing non-stacked entity: " + entity.getType());
                         }
+
                         entity.remove();
                     }
                     cleared.incrementAndGet();
@@ -186,43 +192,64 @@ public class EntityManager {
         boolean debug = configManager.getBoolean("debug.entity-clearing", false);
 
         if (type == EntityType.PLAYER) {
-            if (debug) plugin.getLogger().info("  -> Protection: Player entity");
+            if (debug) {
+                plugin.getLogger().info("  -> Protection: Player entity");
+            }
+
             return false;
         }
 
         // Don't clear vehicles (boats, minecarts) if they have passengers (players or mobs)
         if (entity instanceof Vehicle && !entity.getPassengers().isEmpty()) {
-            if (debug) plugin.getLogger().info("  -> Protection: Vehicle with passengers");
+            if (debug) {
+                plugin.getLogger().info("  -> Protection: Vehicle with passengers");
+            }
+
             return false;
         }
 
         // Don't clear mobs that are inside vehicles
         if (entity instanceof LivingEntity && entity.isInsideVehicle()) {
-            if (debug) plugin.getLogger().info("  -> Protection: Mob inside vehicle");
+            if (debug) {
+                plugin.getLogger().info("  -> Protection: Mob inside vehicle");
+            }
+
             return false;
         }
 
         // If whitelist-all-mobs is enabled, don't clear any living entities (mobs)
         if (whitelistAllMobs && entity instanceof LivingEntity) {
-            if (debug) plugin.getLogger().info("  -> Protection: Whitelist-all-mobs enabled");
+            if (debug) {
+                plugin.getLogger().info("  -> Protection: Whitelist-all-mobs enabled");
+            }
+
             return false;
         }
 
         if (whitelist.contains(typeName)) {
-            if (debug) plugin.getLogger().info("  -> Protection: Entity type '" + typeName + "' is in whitelist");
+            if (debug) {
+                plugin.getLogger().info("  -> Protection: Entity type '" + typeName + "' is in whitelist");
+            }
+
             return false;
         }
 
         if (entity instanceof Item) {
             String materialName = ((Item) entity).getItemStack().getType().name();
             if (itemWhitelist.contains(materialName)) {
-                if (debug) plugin.getLogger().info("  -> Protection: Item material '" + materialName + "' is in item-whitelist");
+                if (debug){
+                    plugin.getLogger().info("  -> Protection: Item material '" + materialName + "' is in item-whitelist");
+                }
+
                 return false;
             }
         }
 
         if (configManager.getBoolean("entity-clearing.protect-named-entities", true) && entity.getCustomName() != null) {
-            if (debug) plugin.getLogger().info("  -> Protection: Entity has custom name");
+            if (debug) {
+                plugin.getLogger().info("  -> Protection: Entity has custom name");
+            }
+
             return false;
         }
 
@@ -233,7 +260,10 @@ public class EntityManager {
             }
         }
 
-        if (debug) plugin.getLogger().info("  -> SHOULD CLEAR: " + typeName);
+        if (debug) {
+            plugin.getLogger().info("  -> SHOULD CLEAR: " + typeName);
+        }
+
         return true;
     }
 
@@ -241,6 +271,7 @@ public class EntityManager {
         if (clearTask == null || !configManager.getBoolean("entity-clearing.enabled", true)) {
             return -1;
         }
+
         long currentTime = System.currentTimeMillis();
         long timeUntil = (nextClearTime - currentTime) / 1000;
         return Math.max(0, timeUntil);
@@ -251,11 +282,14 @@ public class EntityManager {
         if (seconds == -1) {
             return "Auto Clearing is Disabled";
         }
+
         if (seconds == 0) {
             return "0s";
         }
+
         long minutes = seconds / 60;
         long remainingSeconds = seconds % 60;
+
         if (minutes > 0) {
             return String.format("%dm %ds", minutes, remainingSeconds);
         } else {
