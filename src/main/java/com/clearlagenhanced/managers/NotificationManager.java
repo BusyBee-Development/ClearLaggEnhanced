@@ -32,6 +32,8 @@ public class NotificationManager {
     }
 
     public void sendClearWarnings() {
+        cancelWarnings();
+
         List<Integer> broadcastTimes = configManager.getIntegerList("notifications.broadcast-times");
 
         if (broadcastTimes.isEmpty()) {
@@ -134,15 +136,11 @@ public class NotificationManager {
 
     public void cancelWarnings() {
         if (!warningTasks.isEmpty()) {
-            for (WrappedTask t : warningTasks) {
-                scheduler.cancelTask(t);
+            for (WrappedTask task : warningTasks) {
+                scheduler.cancelTask(task);
             }
 
             warningTasks.clear();
         }
-    }
-
-    public void sendImmediateWarning(int seconds) {
-        scheduler.runNextTick(task -> sendWarning(seconds));
     }
 }
