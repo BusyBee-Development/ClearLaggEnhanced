@@ -13,7 +13,6 @@ import org.bukkit.entity.LivingEntity;
 public class WildStackerHook implements StackerHook {
 
     private static final String PLUGIN_NAME = "WildStacker";
-
     private final PlatformScheduler scheduler = ClearLaggEnhanced.scheduler();
 
     @Override
@@ -28,14 +27,16 @@ public class WildStackerHook implements StackerHook {
 
     @Override
     public boolean isStacked(Entity entity) {
+        if (!isEnabled()) return false;
+
         if (entity instanceof LivingEntity livingEntity) {
             StackedEntity stack = WildStackerAPI.getStackedEntity(livingEntity);
-            return stack != null;
+            return stack != null && stack.getStackAmount() > 1;
         }
 
         if (entity instanceof Item item) {
             StackedItem stack = WildStackerAPI.getStackedItem(item);
-            return stack != null;
+            return stack != null && stack.getStackAmount() > 1;
         }
 
         return false;
@@ -43,18 +44,25 @@ public class WildStackerHook implements StackerHook {
 
     @Override
     public void removeStack(Entity entity) {
+        if (!isEnabled()) {
+            entity.remove();
+            return;
+        }
+
         if (entity instanceof LivingEntity livingEntity) {
             StackedEntity stack = WildStackerAPI.getStackedEntity(livingEntity);
             if (stack != null) {
-                stack.setStackAmount(1, true);
+                stack.remove();
             }
         } else if (entity instanceof Item item) {
             StackedItem stack = WildStackerAPI.getStackedItem(item);
             if (stack != null) {
-                stack.setStackAmount(1, true);
+                stack.remove();
             }
         }
 
-        entity.remove();
+        if (entity.isValid()) {
+            entity.remove();
+        }
     }
 }

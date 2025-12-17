@@ -126,13 +126,16 @@ public class EntityManager {
                                 " | ProtectStacked: " + protectStacked);
                     }
 
+                    // 1. MASTER SWITCH LOGIC
+                    // If protect-stacked is TRUE, we save EVERYTHING (Mobs AND Items).
                     if (isStacked && protectStacked) {
                         if (configManager.getBoolean("debug.entity-clearing", false)) {
-                            plugin.getLogger().info("Skipping stacked entity: " + entity.getType());
+                            plugin.getLogger().info("Skipping stacked entity (Protection ON): " + entity.getType());
                         }
                         return;
                     }
 
+                    // 2. CLEARING LOGIC (Protection is FALSE or Entity is NOT stacked)
                     if (!shouldClearEntity(entity, whitelist, itemWhitelist, whitelistAllMobs, isStacked)) {
                         return;
                     }
@@ -180,9 +183,12 @@ public class EntityManager {
         boolean debug = configManager.getBoolean("debug.entity-clearing", false);
 
         if (type == EntityType.PLAYER) return false;
+
         if (entity instanceof Vehicle && !entity.getPassengers().isEmpty()) return false;
         if (entity instanceof LivingEntity && entity.isInsideVehicle()) return false;
+
         if (whitelistAllMobs && entity instanceof LivingEntity) return false;
+
         if (whitelist.contains(typeName)) return false;
 
         if (entity instanceof Item) {
@@ -191,15 +197,18 @@ public class EntityManager {
         }
 
         if (configManager.getBoolean("entity-clearing.protect-named-entities", true) && entity.getCustomName() != null) {
+            // BYPASS LOGIC:
+            // If we are here, we know "protect-stacked-entities" is FALSE (otherwise we would have returned earlier).
+            // So if it IS stacked and IS an item, we IGNORE the name protection so it gets cleared.
             if (entity instanceof Item && isStacked) {
                 if (debug) plugin.getLogger().info("  -> Bypassing Name Protection: Entity is a Stacked Item & Protection is OFF");
+                // Do nothing (allow return true)
             } else {
                 if (debug) plugin.getLogger().info("  -> Protection: Entity has custom name");
                 return false;
             }
         }
 
-        // Tamed Protection
         if (configManager.getBoolean("entity-clearing.protect-tamed-entities", true) && entity instanceof Tameable tameable) {
             if (tameable.isTamed()) return false;
         }
