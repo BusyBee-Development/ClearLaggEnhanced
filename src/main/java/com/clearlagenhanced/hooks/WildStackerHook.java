@@ -30,12 +30,12 @@ public class WildStackerHook implements StackerHook {
     public boolean isStacked(Entity entity) {
         if (entity instanceof LivingEntity livingEntity) {
             StackedEntity stack = WildStackerAPI.getStackedEntity(livingEntity);
-            return stack != null && stack.getStackAmount() > 1;
+            return stack != null;
         }
 
         if (entity instanceof Item item) {
             StackedItem stack = WildStackerAPI.getStackedItem(item);
-            return stack != null && stack.getStackAmount() > 1;
+            return stack != null;
         }
 
         return false;
@@ -48,8 +48,13 @@ public class WildStackerHook implements StackerHook {
             if (stack != null) {
                 stack.setStackAmount(1, true);
             }
+        } else if (entity instanceof Item item) {
+            StackedItem stack = WildStackerAPI.getStackedItem(item);
+            if (stack != null) {
+                stack.setStackAmount(1, true);
+            }
         }
 
-        scheduler.runAtEntity(entity, task -> entity.remove());
+        entity.remove();
     }
 }

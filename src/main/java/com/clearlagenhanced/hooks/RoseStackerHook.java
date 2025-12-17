@@ -13,9 +13,7 @@ import org.bukkit.entity.LivingEntity;
 public class RoseStackerHook implements StackerHook {
 
     private static final String PLUGIN_NAME = "RoseStacker";
-
     private RoseStackerAPI api;
-
     private final PlatformScheduler scheduler = ClearLaggEnhanced.scheduler();
 
     @Override
@@ -29,14 +27,23 @@ public class RoseStackerHook implements StackerHook {
             return false;
         }
 
-        this.api = RoseStackerAPI.getInstance();
-        return true;
+        try {
+            this.api = RoseStackerAPI.getInstance();
+            return this.api != null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public boolean isStacked(Entity entity) {
+        if (api == null) return false;
+
         if (entity instanceof LivingEntity livingEntity) {
             StackedEntity stack = api.getStackedEntity(livingEntity);
+            // FIX: Strictly require stack size > 1.
+            // If size is 1, treat it as a normal entity so ClearLag can handle it normally.
             return stack != null && stack.getStackSize() > 1;
         }
 
@@ -50,16 +57,29 @@ public class RoseStackerHook implements StackerHook {
 
     @Override
     public void removeStack(Entity entity) {
+        if (api == null) {
+            entity.remove();
+            return;
+        }
+
         if (entity instanceof LivingEntity livingEntity) {
             StackedEntity stack = api.getStackedEntity(livingEntity);
             if (stack != null) {
-                scheduler.runAtEntity(entity, task -> stack.getEntity().remove());
+                api.removeEntityStack(stack);
+                if (livingEntity.isValid()) livingEntity.remove();
+            } else {
+                livingEntity.remove();
             }
         } else if (entity instanceof Item item) {
             StackedItem stack = api.getStackedItem(item);
             if (stack != null) {
-                scheduler.runAtEntity(entity, task -> stack.getItem().remove());
+                api.removeItemStack(stack);
+                if (item.isValid()) item.remove();
+            } else {
+                item.remove();
             }
+        } else {
+            entity.remove();
         }
     }
 }
