@@ -57,43 +57,10 @@ entity-clearing:
   whitelist:
     # Friendly & Utility Mobs
     - "VILLAGER"
-    - "IRON_GOLEM"
-    - "SNOW_GOLEM"
-    - "CAT"
-    - "PARROT"
-    - "ALLAY"
-    - "AXOLOTL"
-    - "FROG"
-    - "GOAT"
-    - "GLOW_SQUID"
-    - "SNIFFER"
-    - "CAMEL"
-    - "ARMADILLO"
-    
-    # Hostile Mobs (that might be farmed or kept)
-    - "WARDEN"
-    - "BOGGED"
-    - "BREEZE"
-    - "CREAKING"
-
-    # Decorative / Utility
-    - "ARMOR_STAND"
-    - "ITEM_FRAME"
-    - "GLOW_ITEM_FRAME"
-    - "PAINTING"
 
   item-whitelist:
     - "NETHERITE_INGOT"
-    - "NETHERITE_SWORD"
-    - "NETHERITE_PICKAXE"
-    - "NETHERITE_AXE"
-    - "NETHERITE_SHOVEL"
-    - "NETHERITE_HOE"
-    - "NETHERITE_HELMET"
-    - "NETHERITE_CHESTPLATE"
-    - "NETHERITE_LEGGINGS"
-    - "NETHERITE_BOOTS"
-    - "NETHERITE_BLOCK"
+
 
 # ============================================================================ #
 #                          Lag Prevention Modules                              #
