@@ -8,12 +8,13 @@ A modern, high-performance lag prevention plugin for Minecraft servers running P
 
 ### Core Systems
 - **Automatic Entity Clearing** - Remove entities at configurable intervals with smart whitelisting
-- **Smart Protection System** - Protect named entities, tamed animals, and custom-tagged entities
-- **Advanced Lag Prevention** - Five specialized modules to target different lag sources
+- **Smart Protection System** - Protect named entities, tamed animals, stacked entities, and custom-tagged entities
+- **Advanced Lag Prevention** - Three specialized modules to target different lag sources
 - **Real-Time Monitoring** - Live TPS and memory tracking with color-coded indicators
 - **Interactive Admin GUI** - Graphical interface for easy configuration and monitoring
 - **Folia Support** - Full compatibility with Folia's regionized threading system
 - **Performance Database** - Optimized SQLite/MySQL storage with HikariCP connection pooling
+- **Stacking Plugin Integration** - Full support for RoseStacker and WildStacker
 
 ### Lag Prevention Modules
 
@@ -27,11 +28,13 @@ A modern, high-performance lag prevention plugin for Minecraft servers running P
 
 ## 📦 Requirements
 
-- **Minecraft Version:** 1.20 – 1.21.9
+- **Minecraft Version:** 1.20+
 - **Server Software:** Paper, Spigot, or Folia
 - **Java Version:** 17 or higher
 - **Optional Dependencies:**
   - PlaceholderAPI (for placeholder support in other plugins)
+  - RoseStacker (for stacked entity protection)
+  - WildStacker (for stacked entity protection)
 
 ---
 
@@ -87,28 +90,31 @@ Configure automatic entity clearing in `config.yml`:
 
 ```yaml
 entity-clearing:
-  enabled: true              # Enable/disable automatic clearing
-  interval: 300              # Clear interval in seconds (300 = 5 minutes)
-  protect-named-entities: true   # Protect entities with custom names
-  protect-tamed-entities: true   # Protect tamed animals (pets)
-  worlds: []                 # Target specific worlds (empty = all worlds)
+  enabled: true                      # Enable/disable automatic clearing
+  interval: 300                      # Clear interval in seconds (300 = 5 minutes)
+  protect-named-entities: true       # Protect entities with custom names
+  protect-tamed-entities: true       # Protect tamed animals (pets)
+  protect-stacked-entities: true     # Protect stacked entities (RoseStacker/WildStacker)
+  whitelist-all-mobs: false          # If true, protect all living mobs (only clear items/projectiles)
+  worlds: []                         # Target specific worlds (empty = all worlds)
 
   # Whitelist: Entities that will NEVER be cleared
   whitelist:
     - "VILLAGER"
-    - "IRON_GOLEM"
-    - "ARMOR_STAND"
-    - "ITEM_FRAME"
-    - "PAINTING"
-    - "MINECART"
-    - "BOAT"
+
+  # Item Whitelist: Items that will NEVER be cleared
+  item-whitelist:
+    - "NETHERITE_INGOT"
 ```
 
 **How it works:**
-- Any entity **NOT** in the whitelist will be cleared (except players, named, and tamed)
+- Any entity **NOT** in the whitelist will be cleared (except players, named, tamed, and stacked)
 - Players are always protected
 - Named entities are protected when `protect-named-entities: true`
 - Tamed animals are protected when `protect-tamed-entities: true`
+- Stacked entities are protected when `protect-stacked-entities: true` (requires RoseStacker or WildStacker)
+- Items in the `item-whitelist` will never be cleared
+- Set `whitelist-all-mobs: true` to protect all living mobs and only clear items/projectiles
 
 **Common entity types:** `DROPPED_ITEM`, `EXPERIENCE_ORB`, `ARROW`, `ZOMBIE`, `SKELETON`, `CREEPER`, `SPIDER`, `ENDERMAN`, `COW`, `SHEEP`, `PIG`, `CHICKEN`, `PRIMED_TNT`
 
@@ -219,7 +225,8 @@ Configure entity clearing warnings and notifications:
 ```yaml
 notifications:
   broadcast-times: [60, 30, 10, 5]  # Warning times in seconds
-  type: "ACTION_BAR"                # Display type: CHAT, ACTION_BAR, or TITLE
+  types:                             # Display types (can specify multiple)
+    - "ACTION_BAR"
   console-notifications: false       # Show notifications in console
 
   sound:
@@ -233,6 +240,7 @@ notifications:
 - `CHAT` - Send warnings in chat
 - `ACTION_BAR` - Display above the hotbar (recommended)
 - `TITLE` - Show as large title overlay
+- Multiple types can be specified and will be used in order
 
 ---
 
@@ -252,7 +260,6 @@ database:
     database: "clearlagg"
     username: "root"
     password: "password"
-    ssl: false
 ```
 
 **Database features:**
@@ -389,8 +396,11 @@ misc-entity-limiter:
 
 **Check these settings:**
 - Is the entity in the whitelist? Remove it if it should be cleared
+- Is the entity a stacked entity? Set `protect-stacked-entities: false` to clear stacks
 - Is `protect-named-entities: true`? Named entities won't be cleared
 - Is the entity tamed? Set `protect-tamed-entities: false` to clear tamed animals
+- Is `whitelist-all-mobs: true`? This protects all living mobs
+- Is the item in the `item-whitelist`? Remove it to allow clearing
 - Is entity clearing enabled? Check `entity-clearing.enabled: true`
 
 ### Performance Still Poor
@@ -454,10 +464,10 @@ We welcome feature requests! Please:
 ## 🙏 Credits
 
 - **bob7l** - Original ClearLagg developer
-- **djtmk** - ClearLaggEnhanced developer
+- **djtmk** - ClearLaggEnhanced developer and maintainer
 - **BusyBee Development** - Development team
-- **R00tB33rMan** - Folia support and Contributor
-- All contributors and community members
+- **R00tB33rMan** - Folia support and contributor
+- All contributors and community members who help improve this plugin
 
 ---
 

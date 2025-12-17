@@ -120,18 +120,9 @@ public class EntityManager {
 
                     boolean isStacked = stackerManager.isStacked(entity);
 
-                    if (configManager.getBoolean("debug.entity-clearing", false)) {
-                        plugin.getLogger().info("Checking entity: " + entity.getType() +
-                                " | Stacked: " + isStacked +
-                                " | ProtectStacked: " + protectStacked);
-                    }
-
                     // 1. MASTER SWITCH LOGIC
                     // If protect-stacked is TRUE, we save EVERYTHING (Mobs AND Items).
                     if (isStacked && protectStacked) {
-                        if (configManager.getBoolean("debug.entity-clearing", false)) {
-                            plugin.getLogger().info("Skipping stacked entity (Protection ON): " + entity.getType());
-                        }
                         return;
                     }
 
@@ -142,14 +133,8 @@ public class EntityManager {
 
                     // 3. REMOVAL
                     if (isStacked) {
-                        if (configManager.getBoolean("debug.entity-clearing", false)) {
-                            plugin.getLogger().info("Removing stacked entity: " + entity.getType());
-                        }
                         stackerManager.removeStack(entity);
                     } else {
-                        if (configManager.getBoolean("debug.entity-clearing", false)) {
-                            plugin.getLogger().info("Removing entity: " + entity.getType());
-                        }
                         entity.remove();
                     }
                     cleared.incrementAndGet();
@@ -180,7 +165,6 @@ public class EntityManager {
     private boolean shouldClearEntity(Entity entity, List<String> whitelist, List<String> itemWhitelist, boolean whitelistAllMobs, boolean isStacked) {
         EntityType type = entity.getType();
         String typeName = type.name();
-        boolean debug = configManager.getBoolean("debug.entity-clearing", false);
 
         if (type == EntityType.PLAYER) return false;
 
@@ -201,10 +185,8 @@ public class EntityManager {
             // If we are here, we know "protect-stacked-entities" is FALSE (otherwise we would have returned earlier).
             // So if it IS stacked and IS an item, we IGNORE the name protection so it gets cleared.
             if (entity instanceof Item && isStacked) {
-                if (debug) plugin.getLogger().info("  -> Bypassing Name Protection: Entity is a Stacked Item & Protection is OFF");
                 // Do nothing (allow return true)
             } else {
-                if (debug) plugin.getLogger().info("  -> Protection: Entity has custom name");
                 return false;
             }
         }

@@ -54,7 +54,6 @@ public class StackerManager {
         for (StackerHook hook : hooks) {
             try {
                 if (hook.isStacked(entity)) {
-                    logDebug(entity, hook);
                     return Optional.of(hook);
                 }
             } catch (Exception e) {
@@ -63,11 +62,5 @@ public class StackerManager {
         }
 
         return Optional.empty();
-    }
-
-    private void logDebug(Entity entity, StackerHook hook) {
-        if (plugin.getConfigManager().getBoolean("debug.entity-clearing", false)) {
-            plugin.getLogger().info("Entity " + entity.getType() + " is stacked (detected by " + hook.getName() + ")");
-        }
     }
 }
