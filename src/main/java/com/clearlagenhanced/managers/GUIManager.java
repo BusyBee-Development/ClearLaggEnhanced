@@ -473,7 +473,7 @@ public class GUIManager implements Listener {
 
     public void shutdown() {
         if (performanceUpdateTask != null) {
-            scheduler.cancelTask(performanceUpdateTask);
+            performanceUpdateTask.cancel();
         }
 
         openGUIs.clear();

@@ -68,6 +68,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
         closeQuietlyDatabase();
         shutdown(entityManager);
         shutdown(guiManager);
+        shutdown(notificationManager);
         stopMiscLimiterIfRunning();
 
         getLogger().info("ClearLaggEnhanced has been disabled!");
@@ -86,6 +87,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
         shutdown(entityManager);
         shutdown(guiManager);
+        shutdown(notificationManager);
         stopMiscLimiterIfRunning();
 
         initializeManagers();
@@ -165,6 +167,8 @@ public class ClearLaggEnhanced extends JavaPlugin {
             gm.shutdown();
         } else if (o instanceof EntityManager em) {
             em.shutdown();
+        } else if (o instanceof NotificationManager nm) {
+            nm.shutdown();
         }
     }
 }

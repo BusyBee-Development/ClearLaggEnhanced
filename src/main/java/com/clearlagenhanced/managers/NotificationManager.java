@@ -131,11 +131,16 @@ public class NotificationManager {
 
     public void cancelWarnings() {
         if (!warningTasks.isEmpty()) {
-            for (WrappedTask task : warningTasks) {
-                scheduler.cancelTask(task);
+            for (WrappedTask t : warningTasks) {
+                if (t != null) {
+                    t.cancel();
+                }
             }
-
             warningTasks.clear();
         }
+    }
+
+    public void shutdown() {
+        cancelWarnings();
     }
 }
