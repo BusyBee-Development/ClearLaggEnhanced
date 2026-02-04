@@ -2,6 +2,7 @@ package com.clearlagenhanced;
 
 import com.clearlagenhanced.commands.LaggCommand;
 import com.clearlagenhanced.database.DatabaseManager;
+import com.clearlagenhanced.hooks.ClearLaggEnhancedExpansion;
 import com.clearlagenhanced.listeners.MiscEntityLimiterListener;
 import com.clearlagenhanced.listeners.MobLimiterListener;
 import com.clearlagenhanced.listeners.SpawnerLimiterListener;
@@ -19,6 +20,7 @@ import com.clearlagenhanced.utils.VersionCheck;
 import com.tcoded.folialib.FoliaLib;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import lombok.Getter;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.HandlerList;
@@ -54,11 +56,15 @@ public class ClearLaggEnhanced extends JavaPlugin {
         FoliaLib foliaLib = new FoliaLib(this);
         scheduler = foliaLib.getScheduler();
 
+        // Initialize bStats
+        new Metrics(this, 26743);
+
         saveDefaultConfig();
         initializeManagers();
         registerCommands();
         registerListeners();
         startMiscLimiterIfEnabled();
+        registerPlaceholders();
 
         getLogger().info("ClearLaggEnhanced has been enabled!");
     }
@@ -134,6 +140,13 @@ public class ClearLaggEnhanced extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
         if (guiManager != null) {
             getServer().getPluginManager().registerEvents(guiManager, this);
+        }
+    }
+
+    private void registerPlaceholders() {
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new ClearLaggEnhancedExpansion(this).register();
+            getLogger().info("PlaceholderAPI expansion registered successfully!");
         }
     }
 
