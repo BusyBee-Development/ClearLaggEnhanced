@@ -32,10 +32,12 @@ public class NotificationManager {
     }
 
     public void sendClearWarnings() {
+        cancelWarnings();
+
         List<Integer> broadcastTimes = configManager.getIntegerList("notifications.broadcast-times");
 
         if (broadcastTimes.isEmpty()) {
-            warningTasks.add(scheduler.runLater(this::performClear, 20L));
+            warningTasks.add(scheduler.runLater(this::performClear, 1L));
             return;
         }
 
@@ -110,7 +112,7 @@ public class NotificationManager {
     private void performClear() {
         scheduler.runAsync(task -> {
             long startTime = System.currentTimeMillis();
-            int cleared = plugin.getEntityManager().clearEntities();
+            int cleared = plugin.getEntityManager().clearEntities(false);
             long duration = System.currentTimeMillis() - startTime;
 
             Map<String, String> placeholders = new HashMap<>();
@@ -119,8 +121,10 @@ public class NotificationManager {
 
             Component message = messageManager.getMessage("notifications.clear-complete", placeholders);
 
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendMessage(message);
+            if (cleared > 0) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.sendMessage(message);
+                }
             }
         });
     }
@@ -128,14 +132,15 @@ public class NotificationManager {
     public void cancelWarnings() {
         if (!warningTasks.isEmpty()) {
             for (WrappedTask t : warningTasks) {
-                scheduler.cancelTask(t);
+                if (t != null) {
+                    t.cancel();
+                }
             }
-
             warningTasks.clear();
         }
     }
 
-    public void sendImmediateWarning(int seconds) {
-        scheduler.runNextTick(task -> sendWarning(seconds));
+    public void shutdown() {
+        cancelWarnings();
     }
 }

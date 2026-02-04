@@ -66,7 +66,6 @@ public class GUIManager implements Listener {
         this.openGUIs = new ConcurrentHashMap<>();
         this.awaitingInput = new ConcurrentHashMap<>();
         this.inputPaths = new ConcurrentHashMap<>();
-        Bukkit.getPluginManager().registerEvents(this, plugin);
         startPerformanceUpdateTask();
     }
 
@@ -79,14 +78,14 @@ public class GUIManager implements Listener {
             if ("main".equals(entry.getValue())) {
                 Player player = Bukkit.getPlayer(entry.getKey());
                 if (player != null) {
-                    player.getOpenInventory().getTopInventory();
-                    updatePerformanceItem(player.getOpenInventory().getTopInventory());
+                    if (player.getOpenInventory().getTopInventory().getHolder() instanceof GUIHolder) {
+                        updatePerformanceItem(player.getOpenInventory().getTopInventory());
+                    }
                 }
             }
         }
     }
 
-    // Helper method to create non-italic lore text
     private Component lore(String text, NamedTextColor color) {
         return Component.text(text).color(color).decoration(TextDecoration.ITALIC, false);
     }
@@ -127,7 +126,7 @@ public class GUIManager implements Listener {
         ItemMeta reloadMeta = reloadItem.getItemMeta();
         reloadMeta.displayName(Component.text("Reload Config").color(NamedTextColor.AQUA));
         reloadMeta.lore(Arrays.asList(
-                lore("Reload configuration from file", NamedTextColor.GRAY),
+                lore("Reload all plugin configurations", NamedTextColor.GRAY),
                 Component.empty(),
                 lore("Click to reload", NamedTextColor.GREEN)
         ));
@@ -180,6 +179,7 @@ public class GUIManager implements Listener {
         int interval = configManager.getInt("entity-clearing.interval", 300);
         boolean protectNamed = configManager.getBoolean("entity-clearing.protect-named-entities", true);
         boolean protectTamed = configManager.getBoolean("entity-clearing.protect-tamed-entities", true);
+        boolean protectStacked = configManager.getBoolean("entity-clearing.protect-stacked-entities", true);
 
         ItemStack toggleItem = new ItemStack(enabled ? Material.GREEN_WOOL : Material.RED_WOOL);
         ItemMeta toggleMeta = toggleItem.getItemMeta();
@@ -208,6 +208,13 @@ public class GUIManager implements Listener {
         tamedMeta.lore(Collections.singletonList(lore("Click to " + (protectTamed ? "disable" : "enable"), NamedTextColor.GRAY)));
         tamedItem.setItemMeta(tamedMeta);
         gui.setItem(16, tamedItem);
+
+        ItemStack stackedItem = new ItemStack(protectStacked ? Material.CHEST : Material.ENDER_CHEST);
+        ItemMeta stackedMeta = stackedItem.getItemMeta();
+        stackedMeta.displayName(Component.text("Protect Stacked: " + (protectStacked ? "Yes" : "No")).color(protectStacked ? NamedTextColor.GREEN : NamedTextColor.RED));
+        stackedMeta.lore(Collections.singletonList(lore("Click to " + (protectStacked ? "disable" : "enable"), NamedTextColor.GRAY)));
+        stackedItem.setItemMeta(stackedMeta);
+        gui.setItem(20, stackedItem);
 
         ItemStack backItem = new ItemStack(Material.ARROW);
         ItemMeta backMeta = backItem.getItemMeta();
@@ -272,10 +279,6 @@ public class GUIManager implements Listener {
 
         if (clickedTop) {
             event.setCancelled(true);
-            ItemStack clicked = event.getCurrentItem();
-            if (clicked == null || clicked.getType().isAir()) {
-                return;
-            }
 
             switch (guiHolder.id()) {
                 case "main" -> handleMainGUIClick(player, raw);
@@ -327,8 +330,8 @@ public class GUIManager implements Listener {
             case 12 -> openEntityClearingGUI(player);
             case 14 -> openLagPreventionGUI(player);
             case 16 -> {
-                configManager.reload();
-                MessageUtils.sendMessage(player, "gui.reload-complete");
+                scheduler.runAtEntity(player, task -> player.closeInventory());
+                plugin.reloadAll(player);
             }
         }
     }
@@ -339,7 +342,7 @@ public class GUIManager implements Listener {
             case 10 -> {
                 boolean currentEnabled = configManager.getBoolean("entity-clearing.enabled", true);
                 configManager.set("entity-clearing.enabled", !currentEnabled);
-                plugin.saveConfig();
+                configManager.save();
                 openEntityClearingGUI(player);
             }
             case 12 -> {
@@ -352,13 +355,19 @@ public class GUIManager implements Listener {
             case 14 -> {
                 boolean currentNamed = configManager.getBoolean("entity-clearing.protect-named-entities", true);
                 configManager.set("entity-clearing.protect-named-entities", !currentNamed);
-                plugin.saveConfig();
+                configManager.save();
                 openEntityClearingGUI(player);
             }
             case 16 -> {
                 boolean currentTamed = configManager.getBoolean("entity-clearing.protect-tamed-entities", true);
                 configManager.set("entity-clearing.protect-tamed-entities", !currentTamed);
-                plugin.saveConfig();
+                configManager.save();
+                openEntityClearingGUI(player);
+            }
+            case 20 -> {
+                boolean currentStacked = configManager.getBoolean("entity-clearing.protect-stacked-entities", true);
+                configManager.set("entity-clearing.protect-stacked-entities", !currentStacked);
+                configManager.save();
                 openEntityClearingGUI(player);
             }
             case 31 -> openMainGUI(player);
@@ -370,13 +379,13 @@ public class GUIManager implements Listener {
             case 10 -> {
                 boolean mobLimiter = configManager.getBoolean("lag-prevention.mob-limiter.enabled", true);
                 configManager.set("lag-prevention.mob-limiter.enabled", !mobLimiter);
-                plugin.saveConfig();
+                configManager.save();
                 openLagPreventionGUI(player);
             }
             case 12 -> {
                 boolean spawnerLimiter = configManager.getBoolean("lag-prevention.spawner-limiter.enabled", true);
                 configManager.set("lag-prevention.spawner-limiter.enabled", !spawnerLimiter);
-                plugin.saveConfig();
+                configManager.save();
                 openLagPreventionGUI(player);
             }
             case 31 -> openMainGUI(player);
@@ -444,7 +453,8 @@ public class GUIManager implements Listener {
                     }
 
                     configManager.set(configPath, interval);
-                    plugin.saveConfig();
+                    configManager.save();
+                    configManager.reload();
                     Map<String, String> ph2 = new ConcurrentHashMap<>();
                     ph2.put("interval", String.valueOf(interval));
                     MessageUtils.sendMessage(player, "gui.interval-set", ph2);
@@ -463,7 +473,7 @@ public class GUIManager implements Listener {
 
     public void shutdown() {
         if (performanceUpdateTask != null) {
-            scheduler.cancelTask(performanceUpdateTask);
+            performanceUpdateTask.cancel();
         }
 
         openGUIs.clear();

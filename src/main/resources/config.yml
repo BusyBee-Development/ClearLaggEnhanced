@@ -3,7 +3,7 @@
 ###############################################################################
 
 # Config version - DO NOT MODIFY (used for automatic updates)
-config-version: 4
+config-version: 5
 
 # ============================================================================ #
 #                            Database Settings                                 #
@@ -39,33 +39,28 @@ entity-clearing:
   protect-named-entities: true
   protect-tamed-entities: true
   
+  # If true, entities stacked by other plugins (e.g., RoseStacker, WildStacker) will be protected from clearing.
+  # If false, the entire stack will be removed.
+  protect-stacked-entities: true
+  
+  # If true, all living entities (mobs) will be exempt from clearing.
+  # This keeps item and other entity clearing active.
+  whitelist-all-mobs: false
+  
   # Target worlds (empty list = all worlds)
   worlds: []
 
   # -------------------------------- Whitelist --------------------------------- #
   # Entities that will NEVER be cleared (protected)
   # All entities NOT in this list will be cleared (except players, named, and tamed)
+  # The whitelist section works as 1 list.
   whitelist:
-    # Friendly Mobs
+    # Friendly & Utility Mobs
     - "VILLAGER"
-    - "IRON_GOLEM"
-    - "SNOW_GOLEM"
-    - "CAT"
-    - "PARROT"
 
-    # Decorative / Utility
-    - "ARMOR_STAND"
-    - "ITEM_FRAME"
-    - "GLOW_ITEM_FRAME"
-    - "PAINTING"
+  item-whitelist:
+    - "NETHERITE_INGOT"
 
-    # Vehicles
-    - "MINECART"
-    - "CHEST_MINECART"
-    - "FURNACE_MINECART"
-    - "HOPPER_MINECART"
-    - "BOAT"
-    - "CHEST_BOAT"
 
 # ============================================================================ #
 #                          Lag Prevention Modules                              #
@@ -157,7 +152,6 @@ notifications:
   # You can specify multiple types, and they will be used in the order they are listed.
   types:
     - "ACTION_BAR"
-    - "CHAT"
   
   # Display console notifications when entities are cleared
   console-notifications: false
@@ -176,4 +170,3 @@ notifications:
 performance:
   # Update interval in ticks (20 ticks = 1 second)
   update-interval: 20
-

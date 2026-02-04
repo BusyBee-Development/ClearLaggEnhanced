@@ -7,7 +7,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Vehicle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,7 @@ public class EntityManager {
 
     private final ClearLaggEnhanced plugin;
     private final ConfigManager configManager;
+    private final StackerManager stackerManager;
     private final PlatformScheduler scheduler;
     private WrappedTask clearTask;
     private long nextClearTime;
@@ -26,6 +30,7 @@ public class EntityManager {
     public EntityManager(ClearLaggEnhanced plugin) {
         this.plugin = plugin;
         this.configManager = plugin.getConfigManager();
+        this.stackerManager = plugin.getStackerManager();
         this.scheduler = ClearLaggEnhanced.scheduler();
         startAutoClearTask();
     }
@@ -69,10 +74,13 @@ public class EntityManager {
         plugin.getLogger().info("Entity clearing task started with interval: " + clearInterval + " seconds");
     }
 
-    public int clearEntities() {
+    public int clearEntities(boolean isManual) {
         final long startNanos = System.nanoTime();
 
         final List<String> whitelist = configManager.getStringList("entity-clearing.whitelist");
+        final List<String> itemWhitelist = configManager.getStringList("entity-clearing.item-whitelist");
+        final boolean whitelistAllMobs = configManager.getBoolean("entity-clearing.whitelist-all-mobs", false);
+        final boolean protectStacked = configManager.getBoolean("entity-clearing.protect-stacked-entities", true);
         final List<String> worlds = configManager.getStringList("entity-clearing.worlds");
 
         final List<Entity> snapshot = new ArrayList<>();
@@ -82,10 +90,8 @@ public class EntityManager {
                 if (!worlds.isEmpty() && !worlds.contains(world.getName())) {
                     continue;
                 }
-
                 snapshot.addAll(world.getEntities());
             }
-
             snapshotLatch.countDown();
         });
         try {
@@ -99,7 +105,6 @@ public class EntityManager {
             if (configManager.getBoolean("notifications.console-notifications", true)) {
                 plugin.getLogger().info("Cleared 0 entities in 0ms");
             }
-
             return 0;
         }
 
@@ -113,10 +118,26 @@ public class EntityManager {
                         return;
                     }
 
-                    if (shouldClearEntity(entity, whitelist)) {
-                        entity.remove();
-                        cleared.incrementAndGet();
+                    boolean isStacked = stackerManager.isStacked(entity);
+
+                    // 1. MASTER SWITCH LOGIC
+                    // If protect-stacked is TRUE, we save EVERYTHING (Mobs AND Items).
+                    if (isStacked && protectStacked) {
+                        return;
                     }
+
+                    // 2. CLEARING LOGIC (Protection is FALSE or Entity is NOT stacked)
+                    if (!shouldClearEntity(entity, whitelist, itemWhitelist, whitelistAllMobs, isStacked)) {
+                        return;
+                    }
+
+                    // 3. REMOVAL
+                    if (isStacked) {
+                        stackerManager.removeStack(entity);
+                    } else {
+                        entity.remove();
+                    }
+                    cleared.incrementAndGet();
                 } catch (Throwable ex) {
                     plugin.getLogger().warning("Error while clearing " + entity.getType() + ": " + ex.getMessage());
                 } finally {
@@ -141,59 +162,55 @@ public class EntityManager {
         return cleared.get();
     }
 
-    private boolean shouldClearEntity(Entity entity, List<String> whitelist) {
+    private boolean shouldClearEntity(Entity entity, List<String> whitelist, List<String> itemWhitelist, boolean whitelistAllMobs, boolean isStacked) {
         EntityType type = entity.getType();
         String typeName = type.name();
 
-        if (type == EntityType.PLAYER) {
-            return false;
-        }
+        if (type == EntityType.PLAYER) return false;
 
-        if (whitelist.contains(typeName)) {
-            return false;
+        if (entity instanceof Vehicle && !entity.getPassengers().isEmpty()) return false;
+        if (entity instanceof LivingEntity && entity.isInsideVehicle()) return false;
+
+        if (whitelistAllMobs && entity instanceof LivingEntity) return false;
+
+        if (whitelist.contains(typeName)) return false;
+
+        if (entity instanceof Item) {
+            String materialName = ((Item) entity).getItemStack().getType().name();
+            if (itemWhitelist.contains(materialName)) return false;
         }
 
         if (configManager.getBoolean("entity-clearing.protect-named-entities", true) && entity.getCustomName() != null) {
-            return false;
+            // BYPASS LOGIC:
+            // If we are here, we know "protect-stacked-entities" is FALSE (otherwise we would have returned earlier).
+            // So if it IS stacked and IS an item, we IGNORE the name protection so it gets cleared.
+            if (entity instanceof Item && isStacked) {
+                // Do nothing (allow return true)
+            } else {
+                return false;
+            }
         }
 
         if (configManager.getBoolean("entity-clearing.protect-tamed-entities", true) && entity instanceof Tameable tameable) {
-            return !tameable.isTamed();
+            if (tameable.isTamed()) return false;
         }
 
         return true;
     }
 
     public long getTimeUntilNextClear() {
-        if (clearTask == null || !configManager.getBoolean("entity-clearing.enabled", true)) {
-            return -1;
-        }
-
+        if (clearTask == null || !configManager.getBoolean("entity-clearing.enabled", true)) return -1;
         long currentTime = System.currentTimeMillis();
-        long timeUntil = (nextClearTime - currentTime) / 1000;
-
-        return Math.max(0, timeUntil);
+        return Math.max(0, (nextClearTime - currentTime) / 1000);
     }
 
     public String getFormattedTimeUntilNextClear() {
         long seconds = getTimeUntilNextClear();
-
-        if (seconds == -1) {
-            return "Auto Clearing is Disabled";
-        }
-
-        if (seconds == 0) {
-            return "0s";
-        }
-
+        if (seconds == -1) return "Auto Clearing is Disabled";
+        if (seconds == 0) return "0s";
         long minutes = seconds / 60;
         long remainingSeconds = seconds % 60;
-
-        if (minutes > 0) {
-            return String.format("%dm %ds", minutes, remainingSeconds);
-        } else {
-            return String.format("%ds", seconds);
-        }
+        return minutes > 0 ? String.format("%dm %ds", minutes, remainingSeconds) : String.format("%ds", seconds);
     }
 
     public void shutdown() {

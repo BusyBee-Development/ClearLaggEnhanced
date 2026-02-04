@@ -3,6 +3,7 @@ package com.clearlagenhanced.commands.subcommands;
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.commands.SubCommand;
 import com.clearlagenhanced.utils.MessageUtils;
+import com.tcoded.folialib.impl.PlatformScheduler;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,13 +12,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClearCommand implements SubCommand {
 
+    private final PlatformScheduler scheduler = ClearLaggEnhanced.scheduler();
+
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         MessageUtils.sendMessage(sender, "commands.clear.starting");
 
-        ClearLaggEnhanced.scheduler().runAsync(task -> {
+        scheduler.runAsync(task -> {
             long startTime = System.currentTimeMillis();
-            int cleared = ClearLaggEnhanced.getInstance().getEntityManager().clearEntities();
+            int cleared = ClearLaggEnhanced.getInstance().getEntityManager().clearEntities(true);
             long duration = System.currentTimeMillis() - startTime;
 
             Map<String, String> ph = new ConcurrentHashMap<>();
