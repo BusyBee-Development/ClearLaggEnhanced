@@ -1,17 +1,50 @@
-Apache License
-Version 2.0, January 2004
-http://www.apache.org/licenses/
+================================================================================
+COPYRIGHT AND SOFTWARE LICENSE AGREEMENT
+================================================================================
+Copyright (c) 2026 Busy Bee Development. All Rights Reserved.
 
-Copyright (c) 2025, djtmk
+PROJECT: ClearLaggEnhanced
+AUTHOR: BusyBee Development
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at:
+1. OWNERSHIP AND INTELLECTUAL PROPERTY
+The software known as ClearLaggEnhanced, including but not limited to its source 
+code, compiled binaries, assets, graphics, and documentation, is the exclusive 
+intellectual property of BusyBee Development ("The Author"). All rights not 
+expressly granted in this license are reserved by the Author.
 
-   http://www.apache.org/licenses/LICENSE-2.0
+2. GRANT OF LICENSE
+Subject to the terms of this agreement, the Author hereby grants you a 
+personal, non-exclusive, and non-transferable license to download, install, 
+and use the software for its intended purpose. 
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+3. RESTRICTIONS
+You are strictly prohibited from performing the following actions without 
+prior express written consent from Busy Bee Development:
+
+    * REDISTRIBUTION: You may not redistribute, sub-license, rent, lease, 
+      or sell the software or its source code, in whole or in part, to any 
+      third party or on any public platform.
+    * MODIFICATION: You may not modify, adapt, or create derivative works 
+      based upon the software for the purpose of public distribution.
+    * REVERSE ENGINEERING: You may not decompile, reverse engineer, or 
+      attempt to derive the source code of the software, except where 
+      permitted by applicable law.
+    * ATTRIBUTION: You may not remove or alter any copyright notices, 
+      watermarks, or "Busy Bee Development" branding embedded within 
+      the software.
+
+4. TERMINATION
+This license is effective until terminated. Your rights under this license 
+will terminate automatically without notice if you fail to comply with any 
+of its terms. Upon termination, you must cease all use of the software and 
+destroy all copies in your possession.
+
+5. DISCLAIMER OF WARRANTY
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+AUTHOR OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING 
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+DEALINGS IN THE SOFTWARE.
+================================================================================
