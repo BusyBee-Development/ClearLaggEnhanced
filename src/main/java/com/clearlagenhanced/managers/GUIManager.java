@@ -57,6 +57,7 @@ public class GUIManager implements Listener {
     private final Map<UUID, String> awaitingInput;
     private final Map<UUID, String> inputPaths;
     private WrappedTask performanceUpdateTask;
+    private final boolean usePaperChatEvent;
 
     public GUIManager(@NotNull ClearLaggEnhanced plugin) {
         this.plugin = plugin;
@@ -66,7 +67,17 @@ public class GUIManager implements Listener {
         this.openGUIs = new ConcurrentHashMap<>();
         this.awaitingInput = new ConcurrentHashMap<>();
         this.inputPaths = new ConcurrentHashMap<>();
+        this.usePaperChatEvent = checkPaperChatEvent();
         startPerformanceUpdateTask();
+    }
+
+    private boolean checkPaperChatEvent() {
+        try {
+            Class.forName("io.papermc.paper.event.player.AsyncChatEvent");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     private void startPerformanceUpdateTask() {
@@ -400,6 +411,10 @@ public class GUIManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncChat(@NotNull AsyncChatEvent event) {
+        if (!usePaperChatEvent) {
+            return;
+        }
+
         final Player player = event.getPlayer();
         final UUID playerId = player.getUniqueId();
         if (!awaitingInput.containsKey(playerId)) {
@@ -414,6 +429,10 @@ public class GUIManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncPlayerChat(@NotNull AsyncPlayerChatEvent event) {
+        if (usePaperChatEvent) {
+            return;
+        }
+
         final Player player = event.getPlayer();
         final UUID playerId = player.getUniqueId();
         if (!awaitingInput.containsKey(playerId)) return;
@@ -449,6 +468,12 @@ public class GUIManager implements Listener {
                         Map<String, String> ph = new ConcurrentHashMap<>();
                         ph.put("min", String.valueOf(10));
                         MessageUtils.sendMessage(player, "gui.interval-min", ph);
+                        return;
+                    }
+                    if (interval > 86400) { // Max 24 hours (86400 seconds)
+                        Map<String, String> ph = new ConcurrentHashMap<>();
+                        ph.put("max", String.valueOf(86400));
+                        MessageUtils.sendMessage(player, "gui.interval-max", ph);
                         return;
                     }
 

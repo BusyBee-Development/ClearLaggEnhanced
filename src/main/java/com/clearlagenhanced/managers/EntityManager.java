@@ -108,38 +108,50 @@ public class EntityManager {
             return 0;
         }
 
-        final CountDownLatch latch = new CountDownLatch(snapshot.size());
+        final int BATCH_SIZE = 50;
+        final List<List<Entity>> batches = new ArrayList<>();
+        for (int i = 0; i < snapshot.size(); i += BATCH_SIZE) {
+            batches.add(snapshot.subList(i, Math.min(i + BATCH_SIZE, snapshot.size())));
+        }
+
+        final CountDownLatch latch = new CountDownLatch(batches.size());
         final AtomicInteger cleared = new AtomicInteger(0);
 
-        for (Entity entity : snapshot) {
-            scheduler.runAtEntity(entity, task -> {
+        for (List<Entity> batch : batches) {
+            if (batch.isEmpty()) {
+                latch.countDown();
+                continue;
+            }
+
+            Entity firstEntity = batch.get(0);
+            scheduler.runAtEntity(firstEntity, task -> {
                 try {
-                    if (!entity.isValid() || entity.isDead()) {
-                        return;
-                    }
+                    for (Entity entity : batch) {
+                        try {
+                            if (!entity.isValid() || entity.isDead()) {
+                                continue;
+                            }
 
-                    boolean isStacked = stackerManager.isStacked(entity);
+                            boolean isStacked = stackerManager.isStacked(entity);
 
-                    // 1. MASTER SWITCH LOGIC
-                    // If protect-stacked is TRUE, we save EVERYTHING (Mobs AND Items).
-                    if (isStacked && protectStacked) {
-                        return;
-                    }
+                            if (isStacked && protectStacked) {
+                                continue;
+                            }
 
-                    // 2. CLEARING LOGIC (Protection is FALSE or Entity is NOT stacked)
-                    if (!shouldClearEntity(entity, whitelist, itemWhitelist, whitelistAllMobs, isStacked)) {
-                        return;
-                    }
+                            if (!shouldClearEntity(entity, whitelist, itemWhitelist, whitelistAllMobs, isStacked)) {
+                                continue;
+                            }
 
-                    // 3. REMOVAL
-                    if (isStacked) {
-                        stackerManager.removeStack(entity);
-                    } else {
-                        entity.remove();
+                            if (isStacked) {
+                                stackerManager.removeStack(entity);
+                            } else {
+                                entity.remove();
+                            }
+                            cleared.incrementAndGet();
+                        } catch (Throwable ex) {
+                            plugin.getLogger().warning("Error while clearing " + entity.getType() + ": " + ex.getMessage());
+                        }
                     }
-                    cleared.incrementAndGet();
-                } catch (Throwable ex) {
-                    plugin.getLogger().warning("Error while clearing " + entity.getType() + ": " + ex.getMessage());
                 } finally {
                     latch.countDown();
                 }
@@ -167,12 +179,9 @@ public class EntityManager {
         String typeName = type.name();
 
         if (type == EntityType.PLAYER) return false;
-
         if (entity instanceof Vehicle && !entity.getPassengers().isEmpty()) return false;
         if (entity instanceof LivingEntity && entity.isInsideVehicle()) return false;
-
         if (whitelistAllMobs && entity instanceof LivingEntity) return false;
-
         if (whitelist.contains(typeName)) return false;
 
         if (entity instanceof Item) {
@@ -181,11 +190,7 @@ public class EntityManager {
         }
 
         if (configManager.getBoolean("entity-clearing.protect-named-entities", true) && entity.getCustomName() != null) {
-            // BYPASS LOGIC:
-            // If we are here, we know "protect-stacked-entities" is FALSE (otherwise we would have returned earlier).
-            // So if it IS stacked and IS an item, we IGNORE the name protection so it gets cleared.
             if (entity instanceof Item && isStacked) {
-                // Do nothing (allow return true)
             } else {
                 return false;
             }

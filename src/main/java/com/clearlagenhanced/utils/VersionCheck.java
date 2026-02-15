@@ -40,7 +40,10 @@ public final class VersionCheck implements Listener {
         CompletableFuture.runAsync(() -> {
             try {
                 URL url = new URL(MODRINTH_VERSIONS_API);
-                try (InputStreamReader reader = new InputStreamReader(url.openStream())) {
+                java.net.URLConnection connection = url.openConnection();
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(10000);
+                try (InputStreamReader reader = new InputStreamReader(connection.getInputStream())) {
                     JsonArray versionList = JsonParser.parseReader(reader).getAsJsonArray();
                     if (versionList != null && !versionList.isEmpty()) {
                         JsonObject selected = null;

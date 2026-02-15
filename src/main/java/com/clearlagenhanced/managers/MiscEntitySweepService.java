@@ -31,6 +31,8 @@ public class MiscEntitySweepService {
     private WrappedTask sweepTask;
     private final AtomicInteger cursor = new AtomicInteger(0);
     private final Map<String, Long> lastNotifyTick = new ConcurrentHashMap<>();
+    private List<Chunk> cachedChunks = null;
+    private int cachedChunkIndex = 0;
 
     public MiscEntitySweepService(@NotNull ClearLaggEnhanced plugin, @NotNull ConfigManager cfg) {
         this.plugin = plugin;
@@ -100,24 +102,25 @@ public class MiscEntitySweepService {
     }
 
     private void tick() {
-        List<World> worlds = plugin.getServer().getWorlds();
-        List<Chunk> chunks = new ArrayList<>();
-        for (World w : worlds) {
-            if (!isWorldAllowed(w)) {
-                continue;
+        if (cachedChunks == null || cachedChunkIndex >= cachedChunks.size()) {
+            List<World> worlds = plugin.getServer().getWorlds();
+            cachedChunks = new ArrayList<>();
+            for (World w : worlds) {
+                if (!isWorldAllowed(w)) {
+                    continue;
+                }
+                cachedChunks.addAll(Arrays.asList(w.getLoadedChunks()));
             }
-
-            chunks.addAll(Arrays.asList(w.getLoadedChunks()));
+            cachedChunkIndex = 0;
         }
 
-        if (chunks.isEmpty()) {
+        if (cachedChunks.isEmpty()) {
             return;
         }
 
-        int size = chunks.size();
-        for (int processed = 0; processed < maxChunksPerTick; processed++) {
-            int i = Math.floorMod(cursor.getAndIncrement(), size);
-            Chunk chunk = chunks.get(i);
+        int toProcess = Math.min(maxChunksPerTick, cachedChunks.size() - cachedChunkIndex);
+        for (int processed = 0; processed < toProcess; processed++) {
+            Chunk chunk = cachedChunks.get(cachedChunkIndex++);
             scheduler.runAtLocation(chunk.getBlock(0, 0, 0).getLocation(), task -> enforceChunk(chunk));
         }
     }

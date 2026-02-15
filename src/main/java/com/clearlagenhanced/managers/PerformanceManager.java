@@ -19,16 +19,31 @@ public class PerformanceManager {
 
     private final ConfigManager configManager;
     private final PlatformScheduler scheduler;
+    private final boolean isPaperServer;
 
     public PerformanceManager(@NotNull ClearLaggEnhanced plugin) {
         this.configManager = plugin.getConfigManager();
         this.scheduler = ClearLaggEnhanced.scheduler();
+        this.isPaperServer = checkPaperServer();
+    }
+
+    private boolean checkPaperServer() {
+        try {
+            Class.forName("com.destroystokyo.paper.PaperConfig");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     public double getTPS() {
-        try {
-            return Bukkit.getServer().getTPS()[0];
-        } catch (Exception e) {
+        if (isPaperServer) {
+            try {
+                return Bukkit.getServer().getTPS()[0];
+            } catch (Exception e) {
+                return 20.0;
+            }
+        } else {
             return 20.0;
         }
     }
@@ -41,17 +56,15 @@ public class PerformanceManager {
     public long getTotalMemory() {
         return Runtime.getRuntime().totalMemory();
     }
-
     public long getMaxMemory() {
         return Runtime.getRuntime().maxMemory();
     }
-
     public double getMemoryUsagePercentage() {
         return (double) getUsedMemory() / getMaxMemory() * 100.0;
     }
 
     public String getFormattedMemoryUsage() {
-        long used = getUsedMemory() / 1024 / 1024; // Convert to MB
+        long used = getUsedMemory() / 1024 / 1024;
         long max = getMaxMemory() / 1024 / 1024;
         return used + "MB / " + max + "MB";
     }
@@ -102,57 +115,39 @@ public class PerformanceManager {
             return;
         }
 
-        AtomicInteger pending = new AtomicInteger(targets.size());
+        final int BATCH_SIZE = 25;
+        final List<List<int[]>> batches = new ArrayList<>();
+        for (int i = 0; i < targets.size(); i += BATCH_SIZE) {
+            batches.add(targets.subList(i, Math.min(i + BATCH_SIZE, targets.size())));
+        }
 
-        for (int[] coord : targets) {
-            int cx = coord[0];
-            int cz = coord[1];
+        AtomicInteger pending = new AtomicInteger(batches.size());
 
-            Location location = new Location(world, (cx << 4), 0, (cz << 4));
+        for (List<int[]> batch : batches) {
+            if (batch.isEmpty()) {
+                pending.decrementAndGet();
+                continue;
+            }
+
+            int[] firstCoord = batch.get(0);
+            Location location = new Location(world, (firstCoord[0] << 4), 0, (firstCoord[1] << 4));
 
             scheduler.runAtLocation(location, task -> {
-                if (!world.isChunkLoaded(cx, cz)) {
-                    if (pending.decrementAndGet() == 0) {
-                        scheduler.runNextTick(nextTask -> {
-                            if (laggyChunks.isEmpty()) {
-                                Map<String, String> ph = new ConcurrentHashMap<>();
-                                ph.put("radius", String.valueOf(radius));
-                                MessageUtils.sendMessage(player, "chunkfinder.none-found", ph);
-                            } else {
-                                MessageUtils.sendMessage(player, "chunkfinder.header");
+                for (int[] coord : batch) {
+                    int cx = coord[0];
+                    int cz = coord[1];
 
-                                laggyChunks.sort((a, b) -> Integer.compare(b.entityCount, a.entityCount));
-
-                                int maxResults = Math.min(laggyChunks.size(), 10);
-                                for (int i = 0; i < maxResults; i++) {
-                                    ChunkInfo chunkInfo = laggyChunks.get(i);
-
-                                    Map<String, String> ph = new ConcurrentHashMap<>();
-                                    ph.put("x", String.valueOf(chunkInfo.x));
-                                    ph.put("z", String.valueOf(chunkInfo.z));
-                                    ph.put("count", String.valueOf(chunkInfo.entityCount));
-                                    ph.put("distance", String.valueOf(chunkInfo.distance));
-                                    MessageUtils.sendMessage(player, "chunkfinder.entry", ph);
-                                }
-
-                                if (laggyChunks.size() > 10) {
-                                    Map<String, String> phMore = new ConcurrentHashMap<>();
-                                    phMore.put("more", String.valueOf(laggyChunks.size() - 10));
-                                    MessageUtils.sendMessage(player, "chunkfinder.more", phMore);
-                                }
-                            }
-                        });
+                    if (!world.isChunkLoaded(cx, cz)) {
+                        continue;
                     }
 
-                    return;
-                }
+                    Chunk chunk = world.getChunkAt(cx, cz);
+                    Entity[] entities = chunk.getEntities();
 
-                Chunk chunk = world.getChunkAt(cx, cz);
-                Entity[] entities = chunk.getEntities();
-
-                if (entities.length >= entityThreshold) {
-                    int distance = Math.max(Math.abs(cx - playerX), Math.abs(cz - playerZ));
-                    laggyChunks.add(new ChunkInfo(cx, cz, entities.length, distance));
+                    if (entities.length >= entityThreshold) {
+                        int distance = Math.max(Math.abs(cx - playerX), Math.abs(cz - playerZ));
+                        laggyChunks.add(new ChunkInfo(cx, cz, entities.length, distance));
+                    }
                 }
 
                 if (pending.decrementAndGet() == 0) {

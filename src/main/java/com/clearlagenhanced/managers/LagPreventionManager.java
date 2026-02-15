@@ -62,7 +62,7 @@ public class LagPreventionManager {
 
                 if (entity instanceof LivingEntity
                         && entity.getType() != EntityType.PLAYER
-                        && entity.customName() == null) { // Changed getCustomName() to customName()
+                        && entity.getCustomName() == null) {
 
                     final Entity toRemove = entity;
 
@@ -72,7 +72,7 @@ public class LagPreventionManager {
 
                         boolean removed = false;
 
-                        if (toRemove.getType() != EntityType.PLAYER && toRemove.customName() == null && !toRemove.isDead()) { // Changed getCustomName() to customName()
+                        if (toRemove.getType() != EntityType.PLAYER && toRemove.getCustomName() == null && !toRemove.isDead()) {
                             toRemove.remove();
                             removed = true;
                         }
