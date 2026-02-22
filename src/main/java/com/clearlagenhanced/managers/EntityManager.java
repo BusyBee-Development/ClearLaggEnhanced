@@ -83,6 +83,8 @@ public class EntityManager {
         final boolean protectStacked = configManager.getBoolean("entity-clearing.protect-stacked-entities", true);
         final List<String> worlds = configManager.getStringList("entity-clearing.worlds");
 
+
+
         final List<Entity> snapshot = new ArrayList<>();
         final CountDownLatch snapshotLatch = new CountDownLatch(1);
         scheduler.runNextTick(task -> {
@@ -142,6 +144,8 @@ public class EntityManager {
                                 continue;
                             }
 
+
+
                             if (isStacked) {
                                 stackerManager.removeStack(entity);
                             } else {
@@ -182,6 +186,7 @@ public class EntityManager {
         if (entity instanceof Vehicle && !entity.getPassengers().isEmpty()) return false;
         if (entity instanceof LivingEntity && entity.isInsideVehicle()) return false;
         if (whitelistAllMobs && entity instanceof LivingEntity) return false;
+
         if (whitelist.contains(typeName)) return false;
 
         if (entity instanceof Item) {

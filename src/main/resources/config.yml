@@ -57,6 +57,10 @@ entity-clearing:
   whitelist:
     # Friendly & Utility Mobs
     - "VILLAGER"
+    - "ARMOR_STAND"
+    - "ITEM_FRAME"
+    - "GLOW_ITEM_FRAME"
+    - "LEASH_HITCH"
 
   item-whitelist:
     - "NETHERITE_INGOT"
@@ -102,12 +106,13 @@ lag-prevention:
     
     # Per-chunk entity limits (-1 or missing = unlimited)
     limits-per-chunk:
-      ARMOR_STAND: 5
+      ARMOR_STAND: -1
       BOAT: 5
       CHEST_BOAT: 5
       MINECART: 5
-      ITEM_FRAME: 5
-      GLOW_ITEM_FRAME: 5
+      ITEM_FRAME: -1
+      GLOW_ITEM_FRAME: -1
+      LEASH_HITCH: -1
       PAINTING: 5
     
     # Protection settings
