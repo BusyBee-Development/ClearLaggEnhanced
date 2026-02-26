@@ -10,6 +10,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 
+/**
+ * Hook for WildStacker integration.
+ *
+ * <p>WildStacker does not inherently support Folia, but this hook is
+ * implemented for parity reasons with non-Folia server environments.</p>
+ */
 public class WildStackerHook implements StackerHook {
 
     private static final String PLUGIN_NAME = "WildStacker";
@@ -49,20 +55,22 @@ public class WildStackerHook implements StackerHook {
             return;
         }
 
-        if (entity instanceof LivingEntity livingEntity) {
-            StackedEntity stack = WildStackerAPI.getStackedEntity(livingEntity);
-            if (stack != null) {
-                stack.remove();
+        scheduler.runAtEntity(entity, task -> {
+            if (entity instanceof LivingEntity livingEntity) {
+                StackedEntity stack = WildStackerAPI.getStackedEntity(livingEntity);
+                if (stack != null) {
+                    stack.remove();
+                }
+            } else if (entity instanceof Item item) {
+                StackedItem stack = WildStackerAPI.getStackedItem(item);
+                if (stack != null) {
+                    stack.remove();
+                }
             }
-        } else if (entity instanceof Item item) {
-            StackedItem stack = WildStackerAPI.getStackedItem(item);
-            if (stack != null) {
-                stack.remove();
-            }
-        }
 
-        if (entity.isValid()) {
-            entity.remove();
-        }
+            if (entity.isValid()) {
+                entity.remove();
+            }
+        });
     }
 }

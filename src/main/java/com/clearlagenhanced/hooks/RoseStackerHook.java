@@ -10,6 +10,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 
+/**
+ * Hook for RoseStacker integration.
+ *
+ * <p>RoseStacker does not inherently support Folia, but this hook is
+ * implemented for parity reasons with non-Folia server environments.</p>
+ */
 public class RoseStackerHook implements StackerHook {
 
     private static final String PLUGIN_NAME = "RoseStacker";
@@ -29,7 +35,7 @@ public class RoseStackerHook implements StackerHook {
 
         try {
             this.api = RoseStackerAPI.getInstance();
-            return this.api != null;
+            return true;
         } catch (Exception e) {
             return false;
         }
@@ -61,24 +67,26 @@ public class RoseStackerHook implements StackerHook {
             return;
         }
 
-        if (entity instanceof LivingEntity livingEntity) {
-            StackedEntity stack = api.getStackedEntity(livingEntity);
-            if (stack != null) {
-                api.removeEntityStack(stack);
-                if (livingEntity.isValid()) livingEntity.remove();
+        scheduler.runAtEntity(entity, task -> {
+            if (entity instanceof LivingEntity livingEntity) {
+                StackedEntity stack = api.getStackedEntity(livingEntity);
+                if (stack != null) {
+                    api.removeEntityStack(stack);
+                    if (livingEntity.isValid()) livingEntity.remove();
+                } else {
+                    livingEntity.remove();
+                }
+            } else if (entity instanceof Item item) {
+                StackedItem stack = api.getStackedItem(item);
+                if (stack != null) {
+                    api.removeItemStack(stack);
+                    if (item.isValid()) item.remove();
+                } else {
+                    item.remove();
+                }
             } else {
-                livingEntity.remove();
+                entity.remove();
             }
-        } else if (entity instanceof Item item) {
-            StackedItem stack = api.getStackedItem(item);
-            if (stack != null) {
-                api.removeItemStack(stack);
-                if (item.isValid()) item.remove();
-            } else {
-                item.remove();
-            }
-        } else {
-            entity.remove();
-        }
+        });
     }
 }

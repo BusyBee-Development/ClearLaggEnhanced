@@ -4,6 +4,7 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vehicle;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,7 +76,7 @@ public class EntityManager {
         plugin.getLogger().info("Entity clearing task started with interval: " + clearInterval + " seconds");
     }
 
-    public int clearEntities(boolean isManual) {
+    public int clearEntities() {
         final long startNanos = System.nanoTime();
 
         final List<String> whitelist = configManager.getStringList("entity-clearing.whitelist");
@@ -83,49 +85,38 @@ public class EntityManager {
         final boolean protectStacked = configManager.getBoolean("entity-clearing.protect-stacked-entities", true);
         final List<String> worlds = configManager.getStringList("entity-clearing.worlds");
 
-
-
-        final List<Entity> snapshot = new ArrayList<>();
-        final CountDownLatch snapshotLatch = new CountDownLatch(1);
+        // Collect loaded chunks from each world on the global thread.
+        // getLoadedChunks() is safe from the global thread - it reads chunk state, not entity state.
+        final List<Chunk> allChunks = new ArrayList<>();
+        final CountDownLatch chunkLatch = new CountDownLatch(1);
         scheduler.runNextTick(task -> {
             for (World world : Bukkit.getWorlds()) {
                 if (!worlds.isEmpty() && !worlds.contains(world.getName())) {
                     continue;
                 }
-                snapshot.addAll(world.getEntities());
+
+                Collections.addAll(allChunks, world.getLoadedChunks());
             }
-            snapshotLatch.countDown();
+
+            chunkLatch.countDown();
         });
         try {
-            snapshotLatch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            chunkLatch.await();
+        } catch (InterruptedException ignored) {
         }
 
-        if (snapshot.isEmpty()) {
+        if (allChunks.isEmpty()) {
             nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
             return 0;
         }
 
-        final int BATCH_SIZE = 50;
-        final List<List<Entity>> batches = new ArrayList<>();
-        for (int i = 0; i < snapshot.size(); i += BATCH_SIZE) {
-            batches.add(snapshot.subList(i, Math.min(i + BATCH_SIZE, snapshot.size())));
-        }
-
-        final CountDownLatch latch = new CountDownLatch(batches.size());
+        final CountDownLatch latch = new CountDownLatch(allChunks.size());
         final AtomicInteger cleared = new AtomicInteger(0);
 
-        for (List<Entity> batch : batches) {
-            if (batch.isEmpty()) {
-                latch.countDown();
-                continue;
-            }
-
-            Entity firstEntity = batch.get(0);
-            scheduler.runAtEntity(firstEntity, task -> {
+        for (Chunk chunk : allChunks) {
+            scheduler.runAtLocation(chunk.getBlock(0, 0, 0).getLocation(), task -> {
                 try {
-                    for (Entity entity : batch) {
+                    for (Entity entity : chunk.getEntities()) {
                         try {
                             if (!entity.isValid() || entity.isDead()) {
                                 continue;
@@ -146,6 +137,7 @@ public class EntityManager {
                             } else {
                                 entity.remove();
                             }
+
                             cleared.incrementAndGet();
                         } catch (Throwable ex) {
                             plugin.getLogger().warning("Error while clearing " + entity.getType() + ": " + ex.getMessage());
@@ -159,8 +151,7 @@ public class EntityManager {
 
         try {
             latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        } catch (InterruptedException ignored) {
         }
 
         final long tookMs = (System.nanoTime() - startNanos) / 1_000_000L;
@@ -190,14 +181,13 @@ public class EntityManager {
         }
 
         if (configManager.getBoolean("entity-clearing.protect-named-entities", true) && entity.getCustomName() != null) {
-            if (entity instanceof Item && isStacked) {
-            } else {
+            if (!(entity instanceof Item && isStacked)) {
                 return false;
             }
         }
 
         if (configManager.getBoolean("entity-clearing.protect-tamed-entities", true) && entity instanceof Tameable tameable) {
-            if (tameable.isTamed()) return false;
+            return !tameable.isTamed();
         }
 
         return true;

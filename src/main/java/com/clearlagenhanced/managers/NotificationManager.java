@@ -112,7 +112,7 @@ public class NotificationManager {
     private void performClear() {
         scheduler.runAsync(task -> {
             long startTime = System.currentTimeMillis();
-            int cleared = plugin.getEntityManager().clearEntities(false);
+            int cleared = plugin.getEntityManager().clearEntities();
             long duration = System.currentTimeMillis() - startTime;
 
             Map<String, String> placeholders = new HashMap<>();
@@ -123,7 +123,7 @@ public class NotificationManager {
 
             if (cleared > 0) {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(message);
+                    scheduler.runAtEntity(player, t -> player.sendMessage(message));
                 }
             }
         });

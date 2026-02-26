@@ -151,7 +151,8 @@ public class PerformanceManager {
                 }
 
                 if (pending.decrementAndGet() == 0) {
-                    scheduler.runNextTick(task1 -> {
+                    // Schedule on the player's entity thread, not the global tick thread
+                    scheduler.runAtEntity(player, task1 -> {
                         if (laggyChunks.isEmpty()) {
                             Map<String, String> ph = new ConcurrentHashMap<>();
                             ph.put("radius", String.valueOf(radius));

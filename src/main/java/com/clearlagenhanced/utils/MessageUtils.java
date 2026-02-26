@@ -67,16 +67,4 @@ public class MessageUtils {
         placeholders.put(placeholder, value);
         sendMessage(sender, path, placeholders);
     }
-
-    public static Component getMessage(@NotNull String path) {
-        return getMessage(path, new HashMap<>());
-    }
-    
-    public static Component getMessage(@NotNull String path, @NotNull Map<String, String> placeholders) {
-        if (messageManager == null) {
-            return Component.text("MessageManager not initialized!");
-        }
-        
-        return messageManager.getMessage(path, placeholders);
-    }
 }

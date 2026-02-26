@@ -29,7 +29,6 @@ public class MiscEntitySweepService {
     private final String adminPerm;
 
     private WrappedTask sweepTask;
-    private final AtomicInteger cursor = new AtomicInteger(0);
     private final Map<String, Long> lastNotifyTick = new ConcurrentHashMap<>();
     private List<Chunk> cachedChunks = null;
     private int cachedChunkIndex = 0;

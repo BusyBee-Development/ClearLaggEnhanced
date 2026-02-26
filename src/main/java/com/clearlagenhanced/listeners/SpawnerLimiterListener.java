@@ -12,9 +12,7 @@ import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SpawnerLimiterListener implements Listener {
 
@@ -50,7 +48,7 @@ public class SpawnerLimiterListener implements Listener {
         }
 
         CreatureSpawner spawner = event.getSpawner();
-        if (!isWorldAllowed(spawner.getWorld())) {
+        if (spawner == null || !isWorldAllowed(spawner.getWorld())) {
             return;
         }
 

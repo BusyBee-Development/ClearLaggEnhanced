@@ -20,7 +20,7 @@ public class ClearCommand implements SubCommand {
 
         scheduler.runAsync(task -> {
             long startTime = System.currentTimeMillis();
-            int cleared = ClearLaggEnhanced.getInstance().getEntityManager().clearEntities(true);
+            int cleared = ClearLaggEnhanced.getInstance().getEntityManager().clearEntities();
             long duration = System.currentTimeMillis() - startTime;
 
             Map<String, String> ph = new ConcurrentHashMap<>();

@@ -84,10 +84,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         return guiManager;
     }
 
-    public void reloadAll() {
-        reloadAll(null);
-    }
-
     public void reloadAll(CommandSender sender) {
         HandlerList.unregisterAll(this);
 

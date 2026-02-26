@@ -19,13 +19,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MobLimiterListener implements Listener {
 
-    private final ClearLaggEnhanced plugin;
     private final LagPreventionManager limiter;
     private final boolean enablePerTypeLimits;
     private final Map<EntityType, Integer> perTypeLimits = new HashMap<>();
 
     public MobLimiterListener(@NotNull ClearLaggEnhanced plugin) {
-        this.plugin = plugin;
         this.limiter = plugin.getLagPreventionManager();
 
         // Load per-type limits from config

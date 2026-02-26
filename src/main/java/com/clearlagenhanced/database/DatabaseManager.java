@@ -102,107 +102,6 @@ public class DatabaseManager {
         }
     }
 
-    public CompletableFuture<Void> logClearingHistory(int entitiesCleared, List<String> worlds,
-                                                      String clearType, long durationMs) {
-        return CompletableFuture.runAsync(() -> {
-            String sql = """
-                INSERT INTO clearing_history (timestamp, entities_cleared, worlds_affected, clear_type, duration_ms)
-                VALUES (?, ?, ?, ?, ?)
-            """;
-
-            try (Connection conn = dataSource().getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, LocalDateTime.now().toString());
-                stmt.setInt(2, entitiesCleared);
-                stmt.setString(3, String.join(",", worlds));
-                stmt.setString(4, clearType);
-                stmt.setLong(5, durationMs);
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                plugin.getLogger().warning("Failed to log clearing history: " + e.getMessage());
-            }
-        });
-    }
-
-    public CompletableFuture<Void> logPerformanceData(double tps, long ramUsed, long ramMax, int entityCount) {
-        return CompletableFuture.runAsync(() -> {
-            String sql = """
-                INSERT INTO performance_data (timestamp, tps, ram_used, ram_max, entity_count)
-                VALUES (?, ?, ?, ?, ?)
-            """;
-
-            try (Connection conn = dataSource().getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, LocalDateTime.now().toString());
-                stmt.setDouble(2, tps);
-                stmt.setLong(3, ramUsed);
-                stmt.setLong(4, ramMax);
-                stmt.setInt(5, entityCount);
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                plugin.getLogger().warning("Failed to log performance data: " + e.getMessage());
-            }
-        });
-    }
-
-    public CompletableFuture<List<LaggyChunkData>> getLaggyChunks(int limit) {
-        return CompletableFuture.supplyAsync(() -> {
-            List<LaggyChunkData> chunks = new ArrayList<>();
-            String sql = "SELECT world, chunk_x, chunk_z, entity_count FROM laggy_chunks ORDER BY entity_count DESC LIMIT ?";
-
-            try (Connection conn = dataSource().getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, limit);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    while (rs.next()) {
-                        chunks.add(new LaggyChunkData(
-                                rs.getString("world"),
-                                rs.getInt("chunk_x"),
-                                rs.getInt("chunk_z"),
-                                rs.getInt("entity_count")
-                        ));
-                    }
-                }
-            } catch (SQLException e) {
-                plugin.getLogger().warning("Failed to get laggy chunks: " + e.getMessage());
-            }
-
-            return chunks;
-        });
-    }
-
-    public CompletableFuture<Void> updateLaggyChunks(List<LaggyChunkData> chunks) {
-        return CompletableFuture.runAsync(() -> {
-            String deleteSql = "DELETE FROM laggy_chunks";
-            String insertSql = """
-                    INSERT INTO laggy_chunks (world, chunk_x, chunk_z, entity_count, last_scanned)
-                    VALUES (?, ?, ?, ?, ?)
-                """;
-            try (Connection conn = dataSource().getConnection()) {
-                boolean oldAuto = conn.getAutoCommit();
-                conn.setAutoCommit(false);
-                try (Statement del = conn.createStatement()) {
-                    del.execute(deleteSql);
-                }
-                try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
-                    for (LaggyChunkData chunk : chunks) {
-                        stmt.setString(1, chunk.world());
-                        stmt.setInt(2, chunk.chunkX());
-                        stmt.setInt(3, chunk.chunkZ());
-                        stmt.setInt(4, chunk.entityCount());
-                        stmt.setString(5, LocalDateTime.now().toString());
-                        stmt.addBatch();
-                    }
-                    stmt.executeBatch();
-                }
-                conn.commit();
-                conn.setAutoCommit(oldAuto);
-            } catch (SQLException e) {
-                plugin.getLogger().warning("Failed to update laggy chunks: " + e.getMessage());
-            }
-        });
-    }
-
     public void close() {
         if (dataSource != null) {
             try {
@@ -211,8 +110,5 @@ public class DatabaseManager {
                 plugin.getLogger().warning("Error closing database pool: " + e.getMessage());
             }
         }
-    }
-
-    public record LaggyChunkData(String world, int chunkX, int chunkZ, int entityCount) {
     }
 }

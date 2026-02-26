@@ -126,24 +126,12 @@ public class ConfigManager {
         return config.getInt(path, defaultValue);
     }
 
-    public int getInt(@NotNull String path) {
-        return config.getInt(path);
-    }
-
     public double getDouble(@NotNull String path, double defaultValue) {
         return config.getDouble(path, defaultValue);
     }
 
-    public double getDouble(@NotNull String path) {
-        return config.getDouble(path);
-    }
-
     public String getString(@NotNull String path, @NotNull String defaultValue) {
         return config.getString(path, defaultValue);
-    }
-
-    public String getString(@NotNull String path) {
-        return config.getString(path);
     }
 
     public List<String> getStringList(@NotNull String path) {

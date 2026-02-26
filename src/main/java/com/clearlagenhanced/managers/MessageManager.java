@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,10 +25,8 @@ public class MessageManager {
     private FileConfiguration messages;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.legacyAmpersand();
-    private static final Pattern PLAIN_HEX = Pattern.compile("#([A-Fa-f0-9]{6})");
     private static final Pattern AMP_HEX = Pattern.compile("&#([A-Fa-f0-9]{6})");
     private static final Pattern LEGACY_X_HEX = Pattern.compile("(?i)&x(?:&([0-9A-F])){6}");
-    private static final Pattern LEGACY_COLOR_CODE = Pattern.compile("(?i)&([0-9A-FK-OR])");
 
     private final boolean placeholderAPIEnabled;
 
@@ -118,10 +115,6 @@ public class MessageManager {
 
         return count;
     }
-    
-    public void reload() {
-        loadMessages();
-    }
 
     public FileConfiguration getConfig() {
         return messages;
@@ -129,10 +122,6 @@ public class MessageManager {
 
     public String getRawMessage(@NotNull String path) {
         return messages.getString(path, "Message not found: " + path);
-    }
-
-    public String getRawMessage(@NotNull String path, @NotNull String defaultValue) {
-        return messages.getString(path, defaultValue);
     }
 
     public Component getMessage(@NotNull String path, @NotNull Map<String, String> placeholders) {
@@ -143,10 +132,6 @@ public class MessageManager {
     public Component getMessage(@NotNull String path, @NotNull Map<String, String> placeholders, @NotNull Player player) {
         String message = getRawMessage(path);
         return parseMessage(message, placeholders, player);
-    }
-
-    public Component getMessage(@NotNull String path) {
-        return getMessage(path, new HashMap<>());
     }
 
     public Component parseMessage(@NotNull String message, Map<String, String> placeholders, Player player) {
@@ -259,13 +244,5 @@ public class MessageManager {
             case 'r' -> "reset";
             default -> null;
         };
-    }
-
-    public void saveMessages() {
-        try {
-            messages.save(new File(plugin.getDataFolder(), "messages.yml"));
-        } catch (IOException e) {
-            plugin.getLogger().severe("Could not save messages.yml: " + e.getMessage());
-        }
     }
 }

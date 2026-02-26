@@ -31,17 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class GUIManager implements Listener {
 
-    private static class GUIHolder implements InventoryHolder {
-
-        private final String id;
-
-        GUIHolder(String id) {
-            this.id = id;
-        }
-
-        String id() {
-            return id;
-        }
+    private record GUIHolder(String id) implements InventoryHolder {
 
         @Override
         public Inventory getInventory() {
