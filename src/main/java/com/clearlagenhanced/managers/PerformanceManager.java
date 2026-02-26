@@ -11,7 +11,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -105,75 +108,61 @@ public class PerformanceManager {
             return;
         }
 
-        final int BATCH_SIZE = 25;
-        final List<List<int[]>> batches = new ArrayList<>();
-        for (int i = 0; i < targets.size(); i += BATCH_SIZE) {
-            batches.add(targets.subList(i, Math.min(i + BATCH_SIZE, targets.size())));
-        }
+        AtomicInteger pending = new AtomicInteger(targets.size());
 
-        AtomicInteger pending = new AtomicInteger(batches.size());
-
-        for (List<int[]> batch : batches) {
-            if (batch.isEmpty()) {
-                pending.decrementAndGet();
-                continue;
-            }
-
-            int[] firstCoord = batch.get(0);
-            Location location = new Location(world, (firstCoord[0] << 4), 0, (firstCoord[1] << 4));
+        for (int[] coord : targets) {
+            int cx = coord[0];
+            int cz = coord[1];
+            Location location = new Location(world, (cx << 4), 0, (cz << 4));
 
             scheduler.runAtLocation(location, task -> {
-                for (int[] coord : batch) {
-                    int cx = coord[0];
-                    int cz = coord[1];
+                Chunk chunk = isPaperServer
+                        ? world.getChunkAtAsync(cx, cz).join()
+                        : world.getChunkAt(cx, cz);
 
-                    if (!world.isChunkLoaded(cx, cz)) {
-                        continue;
-                    }
-
-                    Chunk chunk = world.getChunkAt(cx, cz);
-                    Entity[] entities = chunk.getEntities();
-
-                    if (entities.length >= entityThreshold) {
-                        int distance = Math.max(Math.abs(cx - playerX), Math.abs(cz - playerZ));
-                        laggyChunks.add(new ChunkInfo(cx, cz, entities.length, distance));
-                    }
+                Entity[] entities = chunk.getEntities();
+                if (entities.length >= entityThreshold) {
+                    int distance = Math.max(Math.abs(cx - playerX), Math.abs(cz - playerZ));
+                    laggyChunks.add(new ChunkInfo(cx, cz, entities.length, distance));
                 }
 
                 if (pending.decrementAndGet() == 0) {
-                    // Schedule on the player's entity thread, not the global tick thread
-                    scheduler.runAtEntity(player, task1 -> {
-                        if (laggyChunks.isEmpty()) {
-                            Map<String, String> ph = new ConcurrentHashMap<>();
-                            ph.put("radius", String.valueOf(radius));
-                            MessageUtils.sendMessage(player, "chunkfinder.none-found", ph);
-                        } else {
-                            MessageUtils.sendMessage(player, "chunkfinder.header");
-
-                            laggyChunks.sort((a, b) -> Integer.compare(b.entityCount, a.entityCount));
-
-                            int maxResults = Math.min(laggyChunks.size(), 10);
-                            for (int i = 0; i < maxResults; i++) {
-                                ChunkInfo chunkInfo = laggyChunks.get(i);
-
-                                Map<String, String> ph = new ConcurrentHashMap<>();
-                                ph.put("x", String.valueOf(chunkInfo.x));
-                                ph.put("z", String.valueOf(chunkInfo.z));
-                                ph.put("count", String.valueOf(chunkInfo.entityCount));
-                                ph.put("distance", String.valueOf(chunkInfo.distance));
-                                MessageUtils.sendMessage(player, "chunkfinder.entry", ph);
-                            }
-
-                            if (laggyChunks.size() > 10) {
-                                Map<String, String> phMore = new ConcurrentHashMap<>();
-                                phMore.put("more", String.valueOf(laggyChunks.size() - 10));
-                                MessageUtils.sendMessage(player, "chunkfinder.more", phMore);
-                            }
-                        }
-                    });
+                    sendChunkFinderResults(player, laggyChunks, radius);
                 }
             });
         }
+    }
+
+    private void sendChunkFinderResults(@NotNull Player player, @NotNull List<ChunkInfo> laggyChunks, int radius) {
+        scheduler.runAtEntity(player, task -> {
+            if (laggyChunks.isEmpty()) {
+                Map<String, String> ph = new ConcurrentHashMap<>();
+                ph.put("radius", String.valueOf(radius));
+                MessageUtils.sendMessage(player, "chunkfinder.none-found", ph);
+            } else {
+                MessageUtils.sendMessage(player, "chunkfinder.header");
+
+                laggyChunks.sort((a, b) -> Integer.compare(b.entityCount, a.entityCount));
+
+                int maxResults = Math.min(laggyChunks.size(), 10);
+                for (int i = 0; i < maxResults; i++) {
+                    ChunkInfo chunkInfo = laggyChunks.get(i);
+
+                    Map<String, String> ph = new ConcurrentHashMap<>();
+                    ph.put("x", String.valueOf(chunkInfo.x));
+                    ph.put("z", String.valueOf(chunkInfo.z));
+                    ph.put("count", String.valueOf(chunkInfo.entityCount));
+                    ph.put("distance", String.valueOf(chunkInfo.distance));
+                    MessageUtils.sendMessage(player, "chunkfinder.entry", ph);
+                }
+
+                if (laggyChunks.size() > 10) {
+                    Map<String, String> phMore = new ConcurrentHashMap<>();
+                    phMore.put("more", String.valueOf(laggyChunks.size() - 10));
+                    MessageUtils.sendMessage(player, "chunkfinder.more", phMore);
+                }
+            }
+        });
     }
 
     private record ChunkInfo(int x, int z, int entityCount, int distance) {

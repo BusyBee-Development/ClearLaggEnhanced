@@ -7,10 +7,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
 import java.io.File;
 import java.sql.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class DatabaseManager {
 
