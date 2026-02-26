@@ -123,7 +123,7 @@ public class NotificationManager {
 
             if (cleared > 0) {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    scheduler.runAtEntity(player, t -> player.sendMessage(message));
+                    player.sendMessage(message);
                 }
             }
         });
