@@ -53,12 +53,10 @@ public class PerformanceManager {
         return runtime.totalMemory() - runtime.freeMemory();
     }
 
-    public long getTotalMemory() {
-        return Runtime.getRuntime().totalMemory();
-    }
     public long getMaxMemory() {
         return Runtime.getRuntime().maxMemory();
     }
+
     public double getMemoryUsagePercentage() {
         return (double) getUsedMemory() / getMaxMemory() * 100.0;
     }
@@ -76,14 +74,6 @@ public class PerformanceManager {
         }
 
         return total;
-    }
-
-    public boolean isServerLagging() {
-        return getTPS() < 18.0;
-    }
-
-    public boolean isMemoryHigh() {
-        return getMemoryUsagePercentage() > 85.0;
     }
 
     public void findLaggyChunksAsync(@NotNull Player player) {
