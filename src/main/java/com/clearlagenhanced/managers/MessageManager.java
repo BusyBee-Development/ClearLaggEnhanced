@@ -92,7 +92,6 @@ public class MessageManager {
             plugin.getLogger().info("Added " + countNewKeys(oldMessages, newMessages) + " new messages while preserving your customizations");
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to migrate messages: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

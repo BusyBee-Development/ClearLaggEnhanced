@@ -31,7 +31,6 @@ public class RoseStackerHook implements StackerHook {
             this.api = RoseStackerAPI.getInstance();
             return this.api != null;
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }

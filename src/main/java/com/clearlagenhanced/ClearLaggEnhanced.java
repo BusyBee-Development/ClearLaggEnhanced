@@ -120,8 +120,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         performanceManager = new PerformanceManager(this);
         notificationManager = new NotificationManager(this);
         guiManager = new GUIManager(this);
-
-        getLogger().info("All managers initialized successfully!");
     }
 
     private void registerCommands() {
@@ -146,7 +144,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
     private void registerPlaceholders() {
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new ClearLaggEnhancedExpansion(this).register();
-            getLogger().info("PlaceholderAPI expansion registered successfully!");
         }
     }
 

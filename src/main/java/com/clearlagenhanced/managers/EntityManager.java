@@ -104,9 +104,6 @@ public class EntityManager {
 
         if (snapshot.isEmpty()) {
             nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
-            if (configManager.getBoolean("notifications.console-notifications", true)) {
-                plugin.getLogger().info("Cleared 0 entities in 0ms");
-            }
             return 0;
         }
 
@@ -144,8 +141,6 @@ public class EntityManager {
                                 continue;
                             }
 
-
-
                             if (isStacked) {
                                 stackerManager.removeStack(entity);
                             } else {
@@ -171,7 +166,7 @@ public class EntityManager {
         final long tookMs = (System.nanoTime() - startNanos) / 1_000_000L;
         nextClearTime = System.currentTimeMillis() + (clearInterval * 1000L);
 
-        if (configManager.getBoolean("notifications.console-notifications", true)) {
+        if (cleared.get() > 0 && configManager.getBoolean("notifications.console-notifications", true)) {
             plugin.getLogger().info("Cleared " + cleared.get() + " entities in " + tookMs + "ms");
         }
 

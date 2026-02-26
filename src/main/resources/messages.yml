@@ -99,27 +99,6 @@ misc-entity-limiter:
   trimmed: "<gold>✂</gold> <gray>[<gold>MiscLimiter</gold>]</gray> <gray>Trimmed</gray> <yellow>{removed}</yellow> <yellow>{type}</yellow> <gray>in chunk</gray> <white>[{x}, {z}]</white>"
 
 # ============================================================================ #
-#                           Debug/Limiter Messages                             #
-# ============================================================================ #
-
-mob-limiter:
-  cancelled: "<gray>[<aqua>MobLimiter</aqua>]</gray> <gray>Cancelled</gray> <yellow>{type}</yellow> <gray>spawn in chunk</gray> <white>[{x}, {z}]</white> <dark_gray>(limit reached)</dark_gray>"
-
-spawner-limiter:
-  cancelled: "<gray>[<aqua>SpawnerLimiter</aqua>]</gray> <gray>Cancelled spawn at chunk</gray> <white>[{x}, {z}]</white> <dark_gray>(mob cap reached)</dark_gray>"
-  set-delay: "<gray>[<aqua>SpawnerLimiter</aqua>]</gray> <gray>Set delay to</gray> <yellow>{delay}</yellow> <gray>at</gray> <white>{world} [{x}, {y}, {z}]</white>"
-  error: "<gray>[<red>SpawnerLimiter</red>]</gray> <red>Failed to adjust delay:</red> <white>{error}</white>"
-
-redstone:
-  neutralized: "<gray>[<gold>RedstoneLimiter</gold>]</gray> <gray>Neutralized change at</gray> <white>{world} [{x}, {y}, {z}]</white> <dark_gray>(chunk [{cx}, {cz}])</dark_gray>"
-  piston-extend: "<gray>[<gold>RedstoneLimiter</gold>]</gray> <gray>Cancelled piston extend at</gray> <white>{world} [{x}, {y}, {z}]</white> <dark_gray>(chunk [{cx}, {cz}])</dark_gray>"
-  piston-retract: "<gray>[<gold>RedstoneLimiter</gold>]</gray> <gray>Cancelled piston retract at</gray> <white>{world} [{x}, {y}, {z}]</white> <dark_gray>(chunk [{cx}, {cz}])</dark_gray>"
-  dispense: "<gray>[<gold>RedstoneLimiter</gold>]</gray> <gray>Cancelled dispense at</gray> <white>{world} [{x}, {y}, {z}]</white> <dark_gray>(chunk [{cx}, {cz}])</dark_gray>"
-
-hopper:
-  throttling: "<gray>[<aqua>HopperLimiter</aqua>]</gray> <gray>Throttling transfers in chunk</gray> <white>[{x}, {z}]</white>"
-
-# ============================================================================ #
 #                              GUI Messages                                    #
 # ============================================================================ #
 
