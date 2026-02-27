@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class ConfigManager {
 
-    private static final int CURRENT_CONFIG_VERSION = 5;
+    private static final int CURRENT_CONFIG_VERSION = 6;
 
     private final ClearLaggEnhanced plugin;
     @Getter private FileConfiguration config;
@@ -90,6 +90,8 @@ public class ConfigManager {
         for (String key : defaultConfig.getKeys(false)) {
             if (!userConfig.contains(key)) {
                 userConfig.set(key, defaultConfig.get(key));
+                userConfig.setComments(key, defaultConfig.getComments(key));
+                userConfig.setInlineComments(key, defaultConfig.getInlineComments(key));
             } else if (defaultConfig.isConfigurationSection(key)) {
                 ConfigurationSection userSection = userConfig.getConfigurationSection(key);
                 ConfigurationSection defaultSection = defaultConfig.getConfigurationSection(key);
@@ -104,6 +106,8 @@ public class ConfigManager {
         for (String key : defaultSection.getKeys(false)) {
             if (!userSection.contains(key)) {
                 userSection.set(key, defaultSection.get(key));
+                userSection.setComments(key, defaultSection.getComments(key));
+                userSection.setInlineComments(key, defaultSection.getInlineComments(key));
             } else if (defaultSection.isConfigurationSection(key)) {
                 ConfigurationSection userSubSection = userSection.getConfigurationSection(key);
                 ConfigurationSection defaultSubSection = defaultSection.getConfigurationSection(key);

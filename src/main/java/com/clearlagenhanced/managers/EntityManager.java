@@ -181,7 +181,7 @@ public class EntityManager {
         }
 
         if (configManager.getBoolean("entity-clearing.protect-named-entities", true) && entity.getCustomName() != null) {
-            if (!(entity instanceof Item && isStacked)) {
+            if (!isStacked) {
                 return false;
             }
         }

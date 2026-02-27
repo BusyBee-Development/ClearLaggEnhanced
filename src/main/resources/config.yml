@@ -3,7 +3,7 @@
 ###############################################################################
 
 # Config version - DO NOT MODIFY (used for automatic updates)
-config-version: 5
+config-version: 6
 
 # ============================================================================ #
 #                            Database Settings                                 #
@@ -41,7 +41,7 @@ entity-clearing:
   
   # If true, entities stacked by other plugins (e.g., RoseStacker, WildStacker) will be protected from clearing.
   # If false, the entire stack will be removed.
-  protect-stacked-entities: true
+  protect-stacked-entities: false
   
   # If true, all living entities (mobs) will be exempt from clearing.
   # This keeps item and other entity clearing active.
