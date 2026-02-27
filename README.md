@@ -14,6 +14,7 @@ A modern, high-performance lag prevention plugin for Minecraft servers running P
 - **Interactive Admin GUI** - Graphical interface for easy configuration and monitoring
 - **Folia Support** - Full compatibility with Folia's regionized threading system
 - **Performance Database** - Optimized SQLite/MySQL storage with HikariCP connection pooling
+- **Smart Configuration Updates** - Automatically adds new features while preserving your existing changes and comments
 - **Stacking Plugin Integration** - Full support for RoseStacker and WildStacker
 
 ### Lag Prevention Modules
@@ -94,7 +95,7 @@ entity-clearing:
   interval: 300                      # Clear interval in seconds (300 = 5 minutes)
   protect-named-entities: true       # Protect entities with custom names
   protect-tamed-entities: true       # Protect tamed animals (pets)
-  protect-stacked-entities: true     # Protect stacked entities (RoseStacker/WildStacker)
+  protect-stacked-entities: false    # If false, entire stacks will be removed even if named
   whitelist-all-mobs: false          # If true, protect all living mobs (only clear items/projectiles)
   worlds: []                         # Target specific worlds (empty = all worlds)
 
@@ -110,9 +111,9 @@ entity-clearing:
 **How it works:**
 - Any entity **NOT** in the whitelist will be cleared (except players, named, tamed, and stacked)
 - Players are always protected
-- Named entities are protected when `protect-named-entities: true`
+- Named entities are protected when `protect-named-entities: true` (unless they are stacked)
 - Tamed animals are protected when `protect-tamed-entities: true`
-- Stacked entities are protected when `protect-stacked-entities: true` (requires RoseStacker or WildStacker)
+- Stacked entities are protected when `protect-stacked-entities: true`. If `false`, the entire stack is removed, bypassing name protection (requires RoseStacker or WildStacker).
 - Items in the `item-whitelist` will never be cleared
 - Set `whitelist-all-mobs: true` to protect all living mobs and only clear items/projectiles
 
@@ -176,12 +177,12 @@ misc-entity-limiter:
 
   # Per-chunk entity limits (-1 = unlimited)
   limits-per-chunk:
-    ARMOR_STAND: 5
+    ARMOR_STAND: -1
     BOAT: 5
     CHEST_BOAT: 5
     MINECART: 5
-    ITEM_FRAME: 5
-    GLOW_ITEM_FRAME: 5
+    ITEM_FRAME: -1
+    GLOW_ITEM_FRAME: -1
     PAINTING: 5
 
   # Protection settings
@@ -396,8 +397,8 @@ misc-entity-limiter:
 
 **Check these settings:**
 - Is the entity in the whitelist? Remove it if it should be cleared
-- Is the entity a stacked entity? Set `protect-stacked-entities: false` to clear stacks
-- Is `protect-named-entities: true`? Named entities won't be cleared
+- Is the entity a stacked entity? By default, `protect-stacked-entities: false` allows clearing stacks
+- Is `protect-named-entities: true`? Named entities won't be cleared (except stacked ones if protection is off)
 - Is the entity tamed? Set `protect-tamed-entities: false` to clear tamed animals
 - Is `whitelist-all-mobs: true`? This protects all living mobs
 - Is the item in the `item-whitelist`? Remove it to allow clearing
