@@ -5,6 +5,7 @@ import com.clearlagenhanced.hooks.RoseStackerHook;
 import com.clearlagenhanced.hooks.StackerHook;
 import com.clearlagenhanced.hooks.WildStackerHook;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +38,12 @@ public class StackerManager {
     }
 
     public boolean isStacked(Entity entity) {
+        if (entity instanceof Player) return false;
         return findHookFor(entity).isPresent();
     }
 
     public void removeStack(Entity entity) {
+        if (entity instanceof Player) return;
         findHookFor(entity).ifPresent(hook -> {
             try {
                 hook.removeStack(entity);
