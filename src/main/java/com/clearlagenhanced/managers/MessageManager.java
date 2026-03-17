@@ -1,6 +1,7 @@
 package com.clearlagenhanced.managers;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
+import com.clearlagenhanced.utils.ConfigMigrator;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -35,13 +36,18 @@ public class MessageManager {
     }
 
     private void loadMessages() {
-        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
+        // Use ConfigMigrator to automatically update messages.yml with new keys
+        ConfigMigrator migrator = new ConfigMigrator(plugin);
+        messages = migrator.migrate("messages.yml");
 
-        if (!messagesFile.exists()) {
-            plugin.saveResource("messages.yml", false);
+        // Fallback to standard loading if migration failed
+        if (messages == null) {
+            File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
+            if (!messagesFile.exists()) {
+                plugin.saveResource("messages.yml", false);
+            }
+            messages = YamlConfiguration.loadConfiguration(messagesFile);
         }
-
-        messages = YamlConfiguration.loadConfiguration(messagesFile);
     }
 
     public FileConfiguration getConfig() {

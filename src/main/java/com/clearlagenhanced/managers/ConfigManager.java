@@ -1,6 +1,7 @@
 package com.clearlagenhanced.managers;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
+import com.clearlagenhanced.utils.ConfigMigrator;
 import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,13 +16,20 @@ public class ConfigManager {
 
     public ConfigManager(@NotNull ClearLaggEnhanced plugin) {
         this.plugin = plugin;
-        plugin.saveDefaultConfig();
         this.reload();
     }
 
     public void reload() {
-        plugin.reloadConfig();
-        config = plugin.getConfig();
+        // Use ConfigMigrator to automatically update config with new keys
+        ConfigMigrator migrator = new ConfigMigrator(plugin);
+        config = migrator.migrate("config.yml");
+
+        // Fallback to standard reload if migration failed
+        if (config == null) {
+            plugin.saveDefaultConfig();
+            plugin.reloadConfig();
+            config = plugin.getConfig();
+        }
     }
 
     public boolean getBoolean(@NotNull String path, boolean defaultValue) {
