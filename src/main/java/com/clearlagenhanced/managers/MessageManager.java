@@ -19,8 +19,6 @@ import java.util.regex.Pattern;
 
 public class MessageManager {
 
-    private static final int CURRENT_MESSAGES_VERSION = 5;
-
     private final ClearLaggEnhanced plugin;
     private FileConfiguration messages;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
@@ -44,76 +42,6 @@ public class MessageManager {
         }
 
         messages = YamlConfiguration.loadConfiguration(messagesFile);
-        checkMessagesVersion();
-    }
-
-    private void checkMessagesVersion() {
-        int messagesVersion = messages.getInt("version", 1);
-
-        if (messagesVersion < CURRENT_MESSAGES_VERSION) {
-            plugin.getLogger().info("Messages file version " + messagesVersion + " is outdated. Updating to version " + CURRENT_MESSAGES_VERSION + "...");
-            migrateMessages(messagesVersion);
-        } else if (messagesVersion > CURRENT_MESSAGES_VERSION) {
-            plugin.getLogger().warning("Messages file version " + messagesVersion + " is newer than supported version " + CURRENT_MESSAGES_VERSION + "!");
-        }
-    }
-
-    private void migrateMessages(int fromVersion) {
-        try {
-            File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
-            File backupFile = new File(plugin.getDataFolder(), "messages.yml.backup-v" + fromVersion);
-
-            if (messagesFile.exists()) {
-                YamlConfiguration oldMessages = YamlConfiguration.loadConfiguration(messagesFile);
-                oldMessages.save(backupFile);
-                plugin.getLogger().info("Backed up old messages to: " + backupFile.getName());
-            }
-
-            File tempNewFile = new File(plugin.getDataFolder(), "messages.yml.new");
-            plugin.saveResource("messages.yml", true);
-            File defaultFile = new File(plugin.getDataFolder(), "messages.yml");
-            defaultFile.renameTo(tempNewFile);
-
-            YamlConfiguration oldMessages = YamlConfiguration.loadConfiguration(backupFile);
-            YamlConfiguration newMessages = YamlConfiguration.loadConfiguration(tempNewFile);
-
-            mergeMessages(oldMessages, newMessages);
-
-            newMessages.set("version", CURRENT_MESSAGES_VERSION);
-            newMessages.save(messagesFile);
-
-            tempNewFile.delete();
-            messages = YamlConfiguration.loadConfiguration(messagesFile);
-
-            plugin.getLogger().info("Messages successfully updated to version " + CURRENT_MESSAGES_VERSION);
-            plugin.getLogger().info("Added " + countNewKeys(oldMessages, newMessages) + " new messages while preserving your customizations");
-        } catch (IOException e) {
-            plugin.getLogger().severe("Failed to migrate messages: " + e.getMessage());
-        }
-    }
-
-    private void mergeMessages(@NotNull FileConfiguration oldMessages, @NotNull FileConfiguration newMessages) {
-        for (String key : oldMessages.getKeys(true)) {
-            if (key.equals("version")) {
-                continue;
-            }
-
-            if (newMessages.contains(key) && !oldMessages.isConfigurationSection(key)) {
-                Object value = oldMessages.get(key);
-                newMessages.set(key, value);
-            }
-        }
-    }
-
-    private int countNewKeys(@NotNull FileConfiguration oldMessages, @NotNull FileConfiguration newMessages) {
-        int count = 0;
-        for (String key : newMessages.getKeys(true)) {
-            if (!key.equals("version") && !oldMessages.contains(key) && !newMessages.isConfigurationSection(key)) {
-                count++;
-            }
-        }
-
-        return count;
     }
 
     public FileConfiguration getConfig() {

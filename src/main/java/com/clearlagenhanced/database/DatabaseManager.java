@@ -45,6 +45,7 @@ public class DatabaseManager {
         hc.setConnectionTimeout(10_000);
         hc.setIdleTimeout(60_000);
         hc.setMaxLifetime(30 * 60_000);
+
         this.dataSource = new HikariDataSource(hc);
     }
 
