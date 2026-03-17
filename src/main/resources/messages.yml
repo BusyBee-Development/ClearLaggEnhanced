@@ -1,39 +1,23 @@
-###############################################################################
-#                      ClearLaggEnhanced Messages                             #
-###############################################################################
+# ============================================================================ #
+#                        ClearLaggEnhanced Messages                            #
+# ============================================================================ #
 # Supports MiniMessage format: https://docs.advntr.dev/minimessage/format.html
-###############################################################################
 
-# DO NOT MODIFY - Used for automatic updates
-version: 5
-
-# ============================================================================ #
-#                                 Global Prefix                                #
-# ============================================================================ #
-
+# Global Prefix
 prefix: "<gray>[</gray><gold>ClearLagg</gold><gray>]</gray>"
 
-# ============================================================================ #
-#                            Entity Clear Warnings                             #
-# ============================================================================ #
-
+# Entity Clear Warnings
 warnings:
   entity-clear: "<gold>⚠</gold> <yellow>Entities will be cleared in <white>{seconds}</white> seconds!</yellow>"
   title: "<gold><bold>Entity Clear Warning</bold></gold>"
 
-# ============================================================================ #
-#                             General Notifications                            #
-# ============================================================================ #
-
+# General Notifications
 notifications:
   clear-complete: "<green>✓</green> <green>Cleared <white>{count}</white> entities in <gray>{time}ms</gray></green>"
   no-permission: "<red>✗</red> <red>You don't have permission to use this command.</red>"
   reload-complete: "<green>✓</green> <green>Configuration reloaded successfully!</green>"
 
-# ============================================================================ #
-#                               Command Messages                               #
-# ============================================================================ #
-
+# Commands
 commands:
   help:
     header: "<gold><bold>═══ ClearLaggEnhanced Help ═══</bold></gold>"
@@ -48,18 +32,12 @@ commands:
   clear:
     starting: "<aqua>⟳</aqua> <aqua>Clearing entities...</aqua>"
 
-# ============================================================================ #
-#                               Error Messages                                 #
-# ============================================================================ #
-
+# Errors
 errors:
   player-only: "<red>✗</red> <red>This command can only be used by players.</red>"
   message-manager-not-initialized: "<red>✗</red> <red>MessageManager not initialized.</red>"
 
-# ============================================================================ #
-#                          Performance Monitoring                              #
-# ============================================================================ #
-
+# Performance Monitoring
 performance:
   tps: "<aqua>⚡</aqua> <aqua>Current TPS:</aqua> <white>{tps}</white>"
   memory: "<aqua>⚡</aqua> <aqua>Memory:</aqua> <white>{usage}</white> <gray>({percentage}%)</gray>"
@@ -70,19 +48,13 @@ performance:
     max: "<gold>▪</gold> <gold>Max:</gold> <white>{max}</white> <gray>MB</gray>"
   entities: "<aqua>⚡</aqua> <aqua>Total Entities:</aqua> <white>{count}</white>"
 
-# ============================================================================ #
-#                            Next Clear Information                            #
-# ============================================================================ #
-
+# Next Clear Information
 next-clear:
   disabled: "<yellow>⚠</yellow> <yellow>Automatic entity clearing is disabled</yellow>"
   imminent: "<green>⏰</green> <green>Next clear:</green> <white>Any moment now!</white>"
   scheduled: "<green>⏰</green> <green>Next automatic clear in:</green> <white>{time}</white>"
 
-# ============================================================================ #
-#                              Chunk Finder Tool                               #
-# ============================================================================ #
-
+# Chunk Finder
 chunkfinder:
   scanning: "<aqua>⟳</aqua> <aqua>Scanning for laggy chunks...</aqua>"
   none-found: "<green>✓</green> <green>No laggy chunks found within <white>{radius}</white> chunks!</green>"
@@ -90,18 +62,12 @@ chunkfinder:
   entry: "<yellow>▪</yellow> <yellow>Chunk [<white>{x}</white>, <white>{z}</white>]</yellow> <gray>-</gray> <gold>{count}</gold> <gray>entities</gray> <dark_gray>({distance} chunks away)</dark_gray>"
   more: "<gray>... and <yellow>{more}</yellow> more laggy chunks</gray>"
 
-# ============================================================================ #
-#                         Misc Entity Limiter Messages                         #
-# ============================================================================ #
-
+# Misc Entity Limiter
 misc-entity-limiter:
   blocked: "<red>⛔</red> <gray>[<red>MiscLimiter</red>]</gray> <gray>Blocked</gray> <yellow>{type}</yellow> <gray>in chunk</gray> <white>[{x}, {z}]</white>"
   trimmed: "<gold>✂</gold> <gray>[<gold>MiscLimiter</gold>]</gray> <gray>Trimmed</gray> <yellow>{removed}</yellow> <yellow>{type}</yellow> <gray>in chunk</gray> <white>[{x}, {z}]</white>"
 
-# ============================================================================ #
-#                              GUI Messages                                    #
-# ============================================================================ #
-
+# GUI Messages
 gui:
   reload-complete: "<green>✓</green> <green>Configuration reloaded successfully!</green>"
   enter-interval: "<aqua>▶</aqua> <aqua>Enter new clearing interval in seconds:</aqua>"
@@ -111,10 +77,7 @@ gui:
   interval-set: "<green>✓</green> <green>Entity clearing interval set to <white>{interval}</white> seconds!</green>"
   invalid-number: "<red>✗</red> <red>Invalid number! Please enter a valid integer.</red>"
 
-# ============================================================================ #
-#                            Update Notifications                              #
-# ============================================================================ #
-
+# Update Notifications
 update-notifier:
   - ""
   - "<yellow>⚠</yellow> <yellow><bold>Update Available!</bold></yellow>"

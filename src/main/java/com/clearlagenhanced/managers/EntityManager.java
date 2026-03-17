@@ -84,10 +84,8 @@ public class EntityManager {
         final boolean whitelistAllMobs = configManager.getBoolean("entity-clearing.whitelist-all-mobs", false);
         final boolean protectStacked = configManager.getBoolean("entity-clearing.protect-stacked-entities", true);
         final List<String> worlds = configManager.getStringList("entity-clearing.worlds");
-
-        // Collect loaded chunks from each world on the global thread.
-        // getLoadedChunks() is safe from the global thread - it reads chunk state, not entity state.
         final List<Chunk> allChunks = new ArrayList<>();
+
         final CountDownLatch chunkLatch = new CountDownLatch(1);
         scheduler.runNextTick(task -> {
             for (World world : Bukkit.getWorlds()) {

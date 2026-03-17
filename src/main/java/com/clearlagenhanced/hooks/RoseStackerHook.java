@@ -47,8 +47,6 @@ public class RoseStackerHook implements StackerHook {
 
         if (entity instanceof LivingEntity livingEntity) {
             StackedEntity stack = api.getStackedEntity(livingEntity);
-            // FIX: Strictly require stack size > 1.
-            // If size is 1, treat it as a normal entity so ClearLag can handle it normally.
             return stack != null && stack.getStackSize() > 1;
         }
 

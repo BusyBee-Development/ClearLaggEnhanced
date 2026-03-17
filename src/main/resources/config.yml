@@ -1,22 +1,11 @@
-###############################################################################
-#                         ClearLaggEnhanced Configuration                     #
-###############################################################################
-
-# Config version - DO NOT MODIFY (used for automatic updates)
-config-version: 6
-
 # ============================================================================ #
-#                            Database Settings                                 #
+#                       ClearLaggEnhanced Configuration                        #
 # ============================================================================ #
 
+# Database Settings
 database:
-  # Database type: sqlite or mysql
   type: "sqlite"
-
-  # SQLite database file name
   file: "clearlagg.db"
-
-  # MySQL configuration (only used if type is "mysql")
   mysql:
     host: "localhost"
     port: 3306
@@ -24,60 +13,41 @@ database:
     username: "root"
     password: "password"
 
-# ============================================================================ #
-#                           Entity Clearing System                             #
-# ============================================================================ #
-
+# Entity Clearing
 entity-clearing:
-  # Enable automatic entity clearing
   enabled: true
-  
-  # Clear interval in seconds (default: 300 = 5 minutes)
+  # seconds (300 = 5 minutes)
   interval: 300
-  
-  # Protection settings
+
+  # Protection
   protect-named-entities: true
   protect-tamed-entities: true
-  
-  # If true, entities stacked by other plugins (e.g., RoseStacker, WildStacker) will be protected from clearing.
-  # If false, the entire stack will be removed.
   protect-stacked-entities: false
-  
-  # If true, all living entities (mobs) will be exempt from clearing.
-  # This keeps item and other entity clearing active.
   whitelist-all-mobs: false
-  
-  # Target worlds (empty list = all worlds)
+
+  # Target worlds (empty = all worlds)
   worlds: []
 
-  # -------------------------------- Whitelist --------------------------------- #
-  # Entities that will NEVER be cleared (protected)
-  # All entities NOT in this list will be cleared (except players, named, and tamed)
-  # The whitelist section works as 1 list.
+  # Protected entities (will never be cleared)
   whitelist:
-    # Friendly & Utility Mobs
     - "VILLAGER"
     - "ARMOR_STAND"
     - "ITEM_FRAME"
     - "GLOW_ITEM_FRAME"
     - "LEASH_HITCH"
 
+  # Protected items (will never be cleared)
   item-whitelist:
     - "NETHERITE_INGOT"
 
-
-# ============================================================================ #
-#                          Lag Prevention Modules                              #
-# ============================================================================ #
-
+# Lag Prevention
 lag-prevention:
-  
-  # ------------------------------ Mob Limiter ------------------------------- #
+
+  # Mob Limiter
   mob-limiter:
     enabled: true
     max-mobs-per-chunk: 50
 
-    # Per-type limits: Limit specific mob types per chunk
     per-type-limits:
       enabled: true
       limits:
@@ -93,18 +63,15 @@ lag-prevention:
         CHICKEN: 15
         IRON_GOLEM: 3
 
-  
-  # ---------------------------- Spawner Limiter ----------------------------- #
+  # Spawner Limiter
   spawner-limiter:
     enabled: true
     spawn-delay-multiplier: 1.5
-  
-  # ------------------------ Misc Entity Limiter ---------------------------- #
-  # Limits miscellaneous (non-mob) entities per chunk
+
+  # Misc Entity Limiter
   misc-entity-limiter:
     enabled: true
-    
-    # Per-chunk entity limits (-1 or missing = unlimited)
+
     limits-per-chunk:
       ARMOR_STAND: -1
       BOAT: 5
@@ -114,64 +81,40 @@ lag-prevention:
       GLOW_ITEM_FRAME: -1
       LEASH_HITCH: -1
       PAINTING: 5
-    
-    # Protection settings
+
     protect:
       named: true
       tags:
         - "CLE_PROTECTED"
-    
-    # Sweep configuration
+
     sweep:
       interval-ticks: 100
       max-chunks-per-tick: 20
-    
-    # Admin notifications
+
     notify:
       admins-permission: "CLE.admin"
       throttle-seconds: 60
-    
-    # Target worlds (empty = all worlds)
+
     worlds: []
 
-# ============================================================================ #
-#                              Chunk Finder Tool                               #
-# ============================================================================ #
-
+# Chunk Finder
 chunk-finder:
-  # Scan radius around player in chunks
-  radius: 10
-  
-  # Entities per chunk to be considered "laggy"
-  entity-threshold: 50
+  radius: 10                  # scan radius in chunks
+  entity-threshold: 50        # entities per chunk to be considered laggy
 
-# ============================================================================ #
-#                           Notification Settings                              #
-# ============================================================================ #
-
+# Notifications
 notifications:
-  # Warning broadcast times before clearing (in seconds)
-  broadcast-times: [60, 30, 10, 5]
-  
-  # Notification display types: CHAT, ACTION_BAR, or TITLE
-  # You can specify multiple types, and they will be used in the order they are listed.
+  broadcast-times: [60, 30, 10, 5]  # warning times in seconds
   types:
-    - "ACTION_BAR"
-  
-  # Display console notifications when entities are cleared
+    - "ACTION_BAR"            # CHAT, ACTION_BAR, or TITLE
   console-notifications: false
-  
-  # Sound effects
+
   sound:
     enabled: true
     name: "BLOCK_NOTE_BLOCK_PLING"
     volume: 1.0
     pitch: 1.2
 
-# ============================================================================ #
-#                         Performance Monitoring                               #
-# ============================================================================ #
-
+# Performance
 performance:
-  # Update interval in ticks (20 ticks = 1 second)
-  update-interval: 20
+  update-interval: 20         # ticks (20 = 1 second)

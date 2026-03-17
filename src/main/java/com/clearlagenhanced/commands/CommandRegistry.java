@@ -26,12 +26,6 @@ public enum CommandRegistry {
         this.executor = executor;
     }
 
-    /**
-     * Execute this command with permission checking
-     * @param sender The command sender
-     * @param args The command arguments
-     * @return true if command executed successfully
-     */
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!sender.hasPermission(executor.getPermission())) {
             MessageUtils.sendMessage(sender, "notifications.no-permission");
@@ -41,11 +35,6 @@ public enum CommandRegistry {
         return executor.execute(sender, args);
     }
 
-    /**
-     * Find a command by name
-     * @param name Command name to search for
-     * @return CommandRegistry enum or null if not found
-     */
     public static CommandRegistry fromString(@NotNull String name) {
         for (CommandRegistry cmd : values()) {
             if (cmd.name.equalsIgnoreCase(name)) {
@@ -56,10 +45,6 @@ public enum CommandRegistry {
         return null;
     }
 
-    /**
-     * Get all command names for tab completion
-     * @return Array of command names
-     */
     public static String[] getCommandNames() {
         CommandRegistry[] commands = values();
         String[] names = new String[commands.length];

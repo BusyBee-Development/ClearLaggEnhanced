@@ -12,13 +12,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 public class ConfigManager {
 
-    private static final int CURRENT_CONFIG_VERSION = 6;
+    private static final String HASH_TRACKING_FILE = ".config-hashes.yml";
+    private static final List<String> MANAGED_CONFIGS = Arrays.asList("config.yml", "messages.yml");
 
     private final ClearLaggEnhanced plugin;
     @Getter private FileConfiguration config;
@@ -29,63 +30,131 @@ public class ConfigManager {
     }
 
     public void reload() {
+        autoUpdateAllConfigs();
+
         plugin.reloadConfig();
         config = plugin.getConfig();
-        checkConfigVersion();
-    }
-
-    private void checkConfigVersion() {
-        int configVersion = config.getInt("config-version", 0);
-
-        if (configVersion < CURRENT_CONFIG_VERSION) {
-            plugin.getLogger().info("Config version " + configVersion + " is outdated. Updating to version " + CURRENT_CONFIG_VERSION + "...");
-            migrateConfig(configVersion);
-        } else if (configVersion > CURRENT_CONFIG_VERSION) {
-            plugin.getLogger().warning("Config version " + configVersion + " is newer than supported version " + CURRENT_CONFIG_VERSION + "!");
-            plugin.getLogger().warning("Please update the plugin or reset your config.");
-        }
-    }
-
-    private void migrateConfig(int fromVersion) {
-        try {
-            File configFile = new File(plugin.getDataFolder(), "config.yml");
-            File backupFile = new File(plugin.getDataFolder(), "config.yml.backup-v" + fromVersion);
-
-            if (configFile.exists()) {
-                YamlConfiguration oldConfig = YamlConfiguration.loadConfiguration(configFile);
-                oldConfig.save(backupFile);
-                plugin.getLogger().info("Backed up old config to: " + backupFile.getName());
-            }
-
-            FileConfiguration userConfig = YamlConfiguration.loadConfiguration(configFile);
-
-            InputStream defaultStream = plugin.getResource("config.yml");
-            if (defaultStream == null) {
-                plugin.getLogger().severe("Could not find default config.yml in plugin JAR!");
-                return;
-            }
-
-            FileConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
-
-            mergeConfigs(userConfig, defaultConfig);
-
-            userConfig.set("config-version", CURRENT_CONFIG_VERSION);
-
-            userConfig.save(configFile);
-            this.config = userConfig;
-            plugin.getLogger().info("Config successfully updated to version " + CURRENT_CONFIG_VERSION);
-
-        } catch (IOException e) {
-            plugin.getLogger().severe("Failed to migrate config: " + e.getMessage());
-        }
     }
 
     /**
-     * Recursively merges default values into the user config, prioritizing user's existing values.
-     * New sections and keys from the default config will be added.
-     * @param userConfig The user's current configuration.
-     * @param defaultConfig The plugin's default configuration.
+     * Automatically updates all managed YML configuration files on startup.
+     * Detects changes via schema hashing and merges new keys while preserving user values.
      */
+    private void autoUpdateAllConfigs() {
+        File hashTrackingFile = new File(plugin.getDataFolder(), HASH_TRACKING_FILE);
+        FileConfiguration hashTracking = YamlConfiguration.loadConfiguration(hashTrackingFile);
+
+        for (String configFileName : MANAGED_CONFIGS) {
+            try {
+                InputStream defaultStream = plugin.getResource(configFileName);
+                if (defaultStream == null) {
+                    plugin.getLogger().warning("Could not find " + configFileName + " in plugin JAR!");
+                    continue;
+                }
+
+                FileConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
+                        new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
+                String currentHash = generateConfigSchemaHash(defaultConfig);
+
+                File userConfigFile = new File(plugin.getDataFolder(), configFileName);
+
+                String storedHash = hashTracking.getString(configFileName, null);
+
+                if (storedHash == null) {
+                    if (!userConfigFile.exists()) {
+                        plugin.getLogger().info("Creating " + configFileName + "...");
+                        plugin.saveResource(configFileName, false);
+                    } else {
+                        plugin.getLogger().info("Registering " + configFileName + " for auto-updates...");
+                    }
+                    hashTracking.set(configFileName, currentHash);
+                } else if (!storedHash.equals(currentHash)) {
+                    plugin.getLogger().info("Detected changes in " + configFileName + " - auto-updating...");
+                    updateConfig(configFileName, defaultConfig, userConfigFile);
+                    hashTracking.set(configFileName, currentHash);
+                }
+
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to process " + configFileName + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            hashTracking.save(hashTrackingFile);
+        } catch (IOException e) {
+            plugin.getLogger().severe("Failed to save hash tracking file: " + e.getMessage());
+        }
+    }
+
+    private void updateConfig(@NotNull String configFileName, @NotNull FileConfiguration defaultConfig, @NotNull File userConfigFile) {
+        try {
+            File backupFile = new File(plugin.getDataFolder(),
+                    configFileName + ".backup-" + System.currentTimeMillis());
+
+            if (userConfigFile.exists()) {
+                YamlConfiguration oldConfig = YamlConfiguration.loadConfiguration(userConfigFile);
+                oldConfig.save(backupFile);
+                plugin.getLogger().info("Backed up " + configFileName + " to: " + backupFile.getName());
+            }
+
+            FileConfiguration userConfig = YamlConfiguration.loadConfiguration(userConfigFile);
+
+            mergeConfigs(userConfig, defaultConfig);
+
+            userConfig.save(userConfigFile);
+            plugin.getLogger().info("Successfully updated " + configFileName + "!");
+
+        } catch (IOException e) {
+            plugin.getLogger().severe("Failed to update " + configFileName + ": " + e.getMessage());
+        }
+    }
+
+    private String generateConfigSchemaHash(@NotNull FileConfiguration config) {
+        try {
+            List<String> allKeys = collectAllKeys(config, "");
+            Collections.sort(allKeys);
+
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            for (String key : allKeys) {
+                md.update(key.getBytes(StandardCharsets.UTF_8));
+            }
+
+            byte[] digest = md.digest();
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : digest) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            plugin.getLogger().severe("Failed to generate config schema hash: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    private List<String> collectAllKeys(@NotNull ConfigurationSection section, @NotNull String parentPath) {
+        List<String> keys = new ArrayList<>();
+
+        for (String key : section.getKeys(false)) {
+            String fullPath = parentPath.isEmpty() ? key : parentPath + "." + key;
+
+            if (section.isConfigurationSection(key)) {
+                ConfigurationSection subSection = section.getConfigurationSection(key);
+                if (subSection != null) {
+                    keys.addAll(collectAllKeys(subSection, fullPath));
+                }
+            } else {
+                keys.add(fullPath);
+            }
+        }
+
+        return keys;
+    }
+
     private void mergeConfigs(@NotNull FileConfiguration userConfig, @NotNull FileConfiguration defaultConfig) {
         for (String key : defaultConfig.getKeys(false)) {
             if (!userConfig.contains(key)) {
@@ -125,11 +194,9 @@ public class ConfigManager {
     public boolean getBoolean(@NotNull String path) {
         return config.getBoolean(path);
     }
-
     public int getInt(@NotNull String path, int defaultValue) {
         return config.getInt(path, defaultValue);
     }
-
     public double getDouble(@NotNull String path, double defaultValue) {
         return config.getDouble(path, defaultValue);
     }

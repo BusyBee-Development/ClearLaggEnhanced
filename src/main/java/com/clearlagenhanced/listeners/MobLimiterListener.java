@@ -26,12 +26,10 @@ public class MobLimiterListener implements Listener {
     public MobLimiterListener(@NotNull ClearLaggEnhanced plugin) {
         this.limiter = plugin.getLagPreventionManager();
 
-        // Load per-type limits from config
         ConfigManager config = plugin.getConfigManager();
         this.enablePerTypeLimits = config.getBoolean("lag-prevention.mob-limiter.per-type-limits.enabled", true);
 
         if (enablePerTypeLimits) {
-            // Load all configured mob type limits
             Map<String, Object> limits = config.getConfigSection("lag-prevention.mob-limiter.per-type-limits.limits");
             if (limits != null) {
                 for (Map.Entry<String, Object> entry : limits.entrySet()) {
@@ -59,10 +57,8 @@ public class MobLimiterListener implements Listener {
         Chunk chunk = entity.getLocation().getChunk();
         EntityType entityType = entity.getType();
 
-        // Check global limit first
         boolean globalLimitReached = limiter.isMobLimitReached(chunk);
 
-        // Check per-type limit
         boolean typeLimitReached = isTypeLimitReached(chunk, entityType);
 
         if (globalLimitReached || typeLimitReached) {
@@ -80,10 +76,8 @@ public class MobLimiterListener implements Listener {
         Chunk chunk = entity.getLocation().getChunk();
         EntityType entityType = entity.getType();
 
-        // Check global limit first
         boolean globalLimitReached = limiter.isMobLimitReached(chunk);
 
-        // Check per-type limit
         boolean typeLimitReached = isTypeLimitReached(chunk, entityType);
 
         if (globalLimitReached || typeLimitReached) {
@@ -112,10 +106,9 @@ public class MobLimiterListener implements Listener {
 
         Integer limit = perTypeLimits.get(entityType);
         if (limit == null || limit <= 0) {
-            return false; // No limit configured for this type
+            return false;
         }
 
-        // Count entities of this specific type in the chunk atomically
         AtomicInteger count = new AtomicInteger(0);
 
         for (Entity entity : chunk.getEntities()) {

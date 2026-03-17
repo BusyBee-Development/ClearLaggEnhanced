@@ -56,7 +56,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         FoliaLib foliaLib = new FoliaLib(this);
         scheduler = foliaLib.getScheduler();
 
-        // Initialize bStats
         new Metrics(this, 26743);
 
         saveDefaultConfig();
