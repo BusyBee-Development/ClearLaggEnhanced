@@ -1,0 +1,86 @@
+# ============================================================================ #
+#                        ClearLaggEnhanced Messages                            #
+# ============================================================================ #
+# Supports MiniMessage format: https://docs.advntr.dev/minimessage/format.html
+
+# Global Prefix
+prefix: "<gray>[</gray><gold>ClearLagg</gold><gray>]</gray>"
+
+# Entity Clear Warnings
+warnings:
+  entity-clear: "<gold>⚠</gold> <yellow>Entities will be cleared in <white>{seconds}</white> seconds!</yellow>"
+  title: "<gold><bold>Entity Clear Warning</bold></gold>"
+
+# General Notifications
+notifications:
+  clear-complete: "<green>✓</green> <green>Cleared <white>{count}</white> entities in <gray>{time}ms</gray></green>"
+  no-permission: "<red>✗</red> <red>You don't have permission to use this command.</red>"
+  reload-complete: "<green>✓</green> <green>Configuration reloaded successfully!</green>"
+
+# Commands
+commands:
+  help:
+    header: "<gold><bold>═══ ClearLaggEnhanced Help ═══</bold></gold>"
+    clear: "<gold>▪</gold> <aqua>/lagg clear</aqua> <gray>-</gray> <white>Clear entities now</white>"
+    next: "<gold>▪</gold> <aqua>/lagg next</aqua> <gray>-</gray> <white>Time until next clear</white>"
+    tps: "<gold>▪</gold> <aqua>/lagg tps</aqua> <gray>-</gray> <white>Show server TPS</white>"
+    ram: "<gold>▪</gold> <aqua>/lagg ram</aqua> <gray>-</gray> <white>Show memory usage</white>"
+    chunkfinder: "<gold>▪</gold> <aqua>/lagg chunkfinder</aqua> <gray>-</gray> <white>Find laggy chunks</white>"
+    admin: "<gold>▪</gold> <aqua>/lagg admin</aqua> <gray>-</gray> <white>Open admin panel</white>"
+    reload: "<gold>▪</gold> <aqua>/lagg reload</aqua> <gray>-</gray> <white>Reload configuration</white>"
+  unknown-subcommand: "<red>✗</red> <red>Unknown command: <white>{sub}</white></red>"
+  clear:
+    starting: "<aqua>⟳</aqua> <aqua>Clearing entities...</aqua>"
+
+# Errors
+errors:
+  player-only: "<red>✗</red> <red>This command can only be used by players.</red>"
+  message-manager-not-initialized: "<red>✗</red> <red>MessageManager not initialized.</red>"
+
+# Performance Monitoring
+performance:
+  tps: "<aqua>⚡</aqua> <aqua>Current TPS:</aqua> <white>{tps}</white>"
+  memory: "<aqua>⚡</aqua> <aqua>Memory:</aqua> <white>{usage}</white> <gray>({percentage}%)</gray>"
+  ram:
+    header: "<gold><bold>═══ RAM Usage ═══</bold></gold>"
+    used: "<green>▪</green> <green>Used:</green> <white>{used}</white> <gray>MB</gray> <yellow>({percent}%)</yellow>"
+    total: "<aqua>▪</aqua> <aqua>Total:</aqua> <white>{total}</white> <gray>MB</gray>"
+    max: "<gold>▪</gold> <gold>Max:</gold> <white>{max}</white> <gray>MB</gray>"
+  entities: "<aqua>⚡</aqua> <aqua>Total Entities:</aqua> <white>{count}</white>"
+
+# Next Clear Information
+next-clear:
+  disabled: "<yellow>⚠</yellow> <yellow>Automatic entity clearing is disabled</yellow>"
+  imminent: "<green>⏰</green> <green>Next clear:</green> <white>Any moment now!</white>"
+  scheduled: "<green>⏰</green> <green>Next automatic clear in:</green> <white>{time}</white>"
+
+# Chunk Finder
+chunkfinder:
+  scanning: "<aqua>⟳</aqua> <aqua>Scanning for laggy chunks...</aqua>"
+  none-found: "<green>✓</green> <green>No laggy chunks found within <white>{radius}</white> chunks!</green>"
+  header: "<red><bold>═══ Top 10 Laggy Chunks ═══</bold></red>"
+  entry: "<yellow>▪</yellow> <yellow>Chunk [<white>{x}</white>, <white>{z}</white>]</yellow> <gray>-</gray> <gold>{count}</gold> <gray>entities</gray> <dark_gray>({distance} chunks away)</dark_gray>"
+  more: "<gray>... and <yellow>{more}</yellow> more laggy chunks</gray>"
+
+# Misc Entity Limiter
+misc-entity-limiter:
+  blocked: "<red>⛔</red> <gray>[<red>MiscLimiter</red>]</gray> <gray>Blocked</gray> <yellow>{type}</yellow> <gray>in chunk</gray> <white>[{x}, {z}]</white>"
+  trimmed: "<gold>✂</gold> <gray>[<gold>MiscLimiter</gold>]</gray> <gray>Trimmed</gray> <yellow>{removed}</yellow> <yellow>{type}</yellow> <gray>in chunk</gray> <white>[{x}, {z}]</white>"
+
+# GUI Messages
+gui:
+  reload-complete: "<green>✓</green> <green>Configuration reloaded successfully!</green>"
+  enter-interval: "<aqua>▶</aqua> <aqua>Enter new clearing interval in seconds:</aqua>"
+  type-cancel: "<gray>Type </gray><yellow>'cancel'</yellow><gray> to cancel.</gray>"
+  input-cancelled: "<yellow>⚠</yellow> <yellow>Input cancelled.</yellow>"
+  interval-min: "<red>✗</red> <red>Interval must be at least <white>{min}</white> seconds!</red>"
+  interval-set: "<green>✓</green> <green>Entity clearing interval set to <white>{interval}</white> seconds!</green>"
+  invalid-number: "<red>✗</red> <red>Invalid number! Please enter a valid integer.</red>"
+
+# Update Notifications
+update-notifier:
+  - ""
+  - "<yellow>⚠</yellow> <yellow><bold>Update Available!</bold></yellow>"
+  - "<gray>Current:</gray> <red><current_version></red> <gray>→ New:</gray> <green><new_version></green>"
+  - "<aqua><u>» Click to open Modrinth page «</u></aqua>"
+  - ""

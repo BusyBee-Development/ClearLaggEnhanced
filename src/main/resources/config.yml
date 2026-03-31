@@ -1,0 +1,131 @@
+# ============================================================================ #
+#                       ClearLaggEnhanced Configuration                        #
+# ============================================================================ #
+
+# Database Settings
+database:
+  type: "sqlite"
+  file: "clearlagg.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "clearlagg"
+    username: "root"
+    password: "password"
+
+# Entity Clearing
+# seconds (300 = 5 minutes)
+entity-clearing:
+  enabled: true
+  interval: 300
+
+  # Protection
+  protect-named-entities: true
+  protect-tamed-entities: true
+  protect-armored-entities: false
+  protect-stacked-entities: false
+  whitelist-all-mobs: false
+
+  # Extra Protections
+  extra-protections:
+    mobs-in-boats: true
+    mobs-from-breeding: true
+    modern-showcase: true
+    player-heads: true
+    pets-module: true
+
+  # Target worlds (empty = all worlds)
+  worlds: []
+
+  # Protected entities (will never be cleared)
+  whitelist:
+    - "VILLAGER"
+    - "ZOMBIE_VILLAGER"
+    - "IRON_GOLEM"
+    - "ARMOR_STAND"
+    - "ITEM_FRAME"
+    - "GLOW_ITEM_FRAME"
+    - "LEASH_HITCH"
+
+  # Protected items (will never be cleared)
+  item-whitelist:
+    - "NETHERITE_INGOT"
+
+# Lag Prevention
+lag-prevention:
+
+  # Mob Limiter
+  mob-limiter:
+    enabled: true
+    max-mobs-per-chunk: 50
+
+    per-type-limits:
+      enabled: true
+      limits:
+        ZOMBIE: 10
+        SKELETON: 10
+        CREEPER: 8
+        SPIDER: 8
+        ENDERMAN: 5
+        VILLAGER: 15
+        COW: 12
+        SHEEP: 12
+        PIG: 12
+        CHICKEN: 15
+        IRON_GOLEM: 3
+
+  # Spawner Limiter
+  spawner-limiter:
+    enabled: true
+    spawn-delay-multiplier: 1.5
+
+  # Misc Entity Limiter
+  misc-entity-limiter:
+    enabled: true
+
+    limits-per-chunk:
+      ARMOR_STAND: -1
+      BOAT: 5
+      CHEST_BOAT: 5
+      MINECART: 5
+      ITEM_FRAME: -1
+      GLOW_ITEM_FRAME: -1
+      LEASH_HITCH: -1
+      PAINTING: 5
+
+    protect:
+      named: true
+      tags:
+        - "CLE_PROTECTED"
+
+    sweep:
+      interval-ticks: 100
+      max-chunks-per-tick: 20
+
+    notify:
+      admins-permission: "CLE.admin"
+      throttle-seconds: 60
+
+    worlds: []
+
+# Chunk Finder
+chunk-finder:
+  radius: 10
+  entity-threshold: 50
+
+# Notifications
+notifications:
+  broadcast-times: [60, 30, 10, 5]
+  types:
+    - "ACTION_BAR"
+  console-notifications: false
+
+  sound:
+    enabled: true
+    name: "BLOCK_NOTE_BLOCK_PLING"
+    volume: 1.0
+    pitch: 1.2
+
+# Performance
+performance:
+  update-interval: 20
