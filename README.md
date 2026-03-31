@@ -1,16 +1,10 @@
 # ClearLaggEnhanced
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/BusyBee-Development/ClearLaggEnhanced/releases)
-[![Minecraft](https://img.shields.io/badge/minecraft-1.20+-green.svg)](https://www.spigotmc.org/)
-[![License](https://img.shields.io/badge/license-GPL--3.0-red.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2026.4.0-blue.svg)](https://github.com/BusyBee-Development/ClearLaggEnhanced/releases)
 
 A modern, high-performance lag prevention plugin for Minecraft servers running Paper, Spigot, and Folia. Designed to help server owners maintain optimal server performance through intelligent entity management, advanced lag prevention systems, and real-time performance monitoring.
 
 **✨ Special Thanks:** To **bob7l**, the original developer of ClearLagg, whose pioneering work inspired this enhanced version.
-
-## 📚 Documentation
-
-Full documentation is available in the [docs/](docs/) folder and on GitBook.
 
 ## ✨ Key Features
 
@@ -32,14 +26,6 @@ Full documentation is available in the [docs/](docs/) folder and on GitBook.
 - **Server:** Paper, Spigot, or Folia
 - **Java:** 17 or higher
 
-### Installation
-
-1. Download from [Modrinth](https://modrinth.com/plugin/clearlaggenhanced) or [GitHub Releases](https://github.com/BusyBee-Development/ClearLaggEnhanced/releases)
-2. Place in your `plugins` folder
-3. Restart your server
-4. Configure in `plugins/ClearLaggEnhanced/config.yml`
-5. Reload with `/lagg reload`
-
 ## 🎮 Basic Commands
 
 | Command             | Description                          | Permission        |
@@ -52,18 +38,6 @@ Full documentation is available in the [docs/](docs/) folder and on GitBook.
 | `/lagg reload`      | Reload plugin configuration          | `CLE.reload`      |
 
 **Aliases:** `/clearlagg`, `/clearlag`, `/cl`, `/cle`
-
-## 📖 Full Documentation
-
-Detailed documentation is available in the [docs/](docs/) folder:
-
-- [Installation Guide](docs/installation.md)
-- [Configuration](docs/configuration/)
-- [Commands & Permissions](docs/commands-permissions.md)
-- [Modules](docs/modules/)
-- [PlaceholderAPI Integration](docs/placeholderapi.md)
-- [Performance Optimization](docs/optimization.md)
-- [Troubleshooting](docs/troubleshooting.md)
 
 ## 🔧 Modules
 
@@ -99,21 +73,17 @@ If PlaceholderAPI is installed, use these placeholders in other plugins:
 ## 🤝 Support
 
 - **GitHub Issues:** [Report bugs or request features](https://github.com/BusyBee-Development/ClearLaggEnhanced/issues)
-- **Documentation:** [Full documentation](docs/)
-- **Discord:** Join our community for real-time support
+- **Documentation:** Coming Soon
+- **Discord:** Join the community -Discord](https://discord.com/invite/abdm29q7af) for support, and to suggest new ideas. 
 
 ## 🙏 Credits
 
-- **bob7l** - Original ClearLagg developer
-- **djtmk** - ClearLaggEnhanced developer and maintainer
-- **BusyBee Development** - Development team
-- **R00tB33rMan** - Folia support and contributor
+- **[bob7l](https://github.com/bob7l)** - Original ClearLagg developer
+- **[djtmk](https://github.com/djtmk1)** - ClearLaggEnhanced developer and maintainer
+- **[R00tB33rMan](https://github.com/R00tB33rMan)** – Folia support and contributor
+- **[MrTroxy](https://github.com/MrTroxy)** – Help with modular support in version 2026.4.0
 - All contributors and community members
 
 ## 📄 License
 
-ClearLaggEnhanced is licensed under the [GNU General Public License v3.0](LICENSE)
-
----
-
-**Made with ❤️ for the Minecraft server community**
+ClearLaggEnhanced is licensed under the [BusyBee AAR License](https://github.com/BusyBee-Development/ClearLaggEnhanced/blob/main/LICENSE).
