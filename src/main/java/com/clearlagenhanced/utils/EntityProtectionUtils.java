@@ -12,8 +12,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 public class EntityProtectionUtils {
 
@@ -28,26 +27,34 @@ public class EntityProtectionUtils {
     }
 
     public boolean isProtected(@NotNull Entity entity) {
-        if (entity instanceof Player) return true;
-
         Module module = plugin.getModuleManager().getModule("entity-clearing");
         if (module == null || !module.isEnabled()) return false;
-        org.bukkit.configuration.file.FileConfiguration config = module.getConfig();
-
-        if (config.getBoolean("extra-protections.modern-showcase", true)) {
-            Module msModule = plugin.getModuleManager().getModule("modern-showcase");
+        
+        ProtectionSettings settings = ProtectionSettings.fromConfig(module.getConfig());
+        
+        ModernShowcaseHook msHook = null;
+        if (settings.modernShowcase()) {
+            Module msModule = plugin.getModuleManager().getModule("modernshowcase");
             if (msModule != null && msModule.isEnabled()) {
-                ModernShowcaseIntegration integration = (ModernShowcaseIntegration) msModule;
-                ModernShowcaseHook hook = integration.getHook();
-                if (hook != null && hook.isShowcaseEntity(entity)) return true;
+                msHook = ((ModernShowcaseIntegration) msModule).getHook();
             }
         }
+        
+        return isProtected(entity, settings, msHook);
+    }
 
-        if (config.getBoolean("extra-protections.mobs-in-boats", true)) {
+    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook) {
+        if (entity instanceof Player) return true;
+
+        if (settings.modernShowcase() && msHook != null) {
+            if (msHook.isShowcaseEntity(entity)) return true;
+        }
+
+        if (settings.mobsInBoats()) {
             if (entity.getVehicle() instanceof Boat) return true;
         }
 
-        if (config.getBoolean("protect-named-entities", true)) {
+        if (settings.protectNamed()) {
             if (entity.getCustomName() != null && !entity.getCustomName().isEmpty()) return true;
             
             if (entity instanceof Item item) {
@@ -56,37 +63,35 @@ public class EntityProtectionUtils {
             }
         }
 
-        if (config.getBoolean("protect-tamed-entities", true) && entity instanceof Tameable tameable) {
+        if (settings.protectTamed() && entity instanceof Tameable tameable) {
             if (tameable.isTamed()) return true;
         }
 
-        if (config.getBoolean("extra-protections.mobs-from-breeding", true)) {
+        if (settings.mobsFromBreeding()) {
             if (entity.getPersistentDataContainer().has(BRED_KEY, PersistentDataType.BYTE)) return true;
         }
 
-        if (config.getBoolean("extra-protections.pets-module", true)) {
+        if (settings.petsModule()) {
             if (entity.hasMetadata("Pet") || entity.hasMetadata("isPet") || entity.hasMetadata("MyPet")) return true;
         }
 
-        if (config.getBoolean("extra-protections.player-heads", true) && entity instanceof Item item) {
+        if (settings.playerHeads() && entity instanceof Item item) {
             if (item.getItemStack().getType() == Material.PLAYER_HEAD) return true;
         }
 
-        if (config.getBoolean("protect-armored-entities", false) && entity instanceof LivingEntity living) {
+        if (settings.protectArmored() && entity instanceof LivingEntity living) {
             if (hasArmor(living)) return true;
         }
 
-        List<String> whitelist = config.getStringList("whitelist");
-        if (whitelist.contains(entity.getType().name())) return true;
+        if (settings.whitelist().contains(entity.getType().name())) return true;
 
         if (entity instanceof Item item) {
-            List<String> itemWhitelist = config.getStringList("item-whitelist");
-            if (itemWhitelist.contains(item.getItemStack().getType().name())) return true;
+            if (settings.itemWhitelist().contains(item.getItemStack().getType().name())) return true;
         }
 
-        if (config.getBoolean("whitelist-all-mobs", false) && entity instanceof LivingEntity) return true;
+        if (settings.whitelistAllMobs() && entity instanceof LivingEntity) return true;
 
-        if (config.getBoolean("protect-stacked-entities", false)) {
+        if (settings.protectStacked()) {
             if (stackerManager.isStacked(entity)) return true;
         }
 

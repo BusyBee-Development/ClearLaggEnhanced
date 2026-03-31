@@ -1,7 +1,6 @@
 package com.clearlagenhanced.commands;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
-import com.clearlagenhanced.commands.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 

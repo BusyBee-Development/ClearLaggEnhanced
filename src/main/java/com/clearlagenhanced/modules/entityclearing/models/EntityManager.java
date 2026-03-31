@@ -3,6 +3,9 @@ package com.clearlagenhanced.modules.entityclearing.models;
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
 import com.clearlagenhanced.managers.StackerManager;
+import com.clearlagenhanced.modules.integrations.modernshowcase.ModernShowcaseHook;
+import com.clearlagenhanced.modules.integrations.modernshowcase.ModernShowcaseIntegration;
+import com.clearlagenhanced.utils.ProtectionSettings;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -38,9 +41,17 @@ public class EntityManager {
             plugin.getLogger().info("Automatic entity clearing started...");
         }
 
-        final List<String> whitelist = module.getConfig().getStringList("whitelist").stream().map(String::toUpperCase).toList();
-        final boolean whitelistAllMobs = module.getConfig().getBoolean("whitelist-all-mobs", false);
-        final boolean protectStacked = module.getConfig().getBoolean("protect-stacked-entities", true);
+        final ProtectionSettings settings = ProtectionSettings.fromConfig(module.getConfig());
+        
+        ModernShowcaseHook msHookTemp = null;
+        if (settings.modernShowcase()) {
+            Module msModule = plugin.getModuleManager().getModule("modernshowcase");
+            if (msModule != null && msModule.isEnabled()) {
+                msHookTemp = ((ModernShowcaseIntegration) msModule).getHook();
+            }
+        }
+        final ModernShowcaseHook msHook = msHookTemp;
+
         final List<String> worlds = module.getConfig().getStringList("worlds");
         final List<Chunk> allChunks = Collections.synchronizedList(new ArrayList<>());
         final CountDownLatch chunkLatch = new CountDownLatch(1);
@@ -60,7 +71,7 @@ public class EntityManager {
         });
         
         try {
-            if (!chunkLatch.await(5, java.util.concurrent.TimeUnit.SECONDS)) {
+            if (!chunkLatch.await(10, java.util.concurrent.TimeUnit.SECONDS)) {
                 plugin.getLogger().warning("Timed out while waiting for loaded chunks list from the main thread.");
             }
         } catch (InterruptedException ignored) {
@@ -95,14 +106,12 @@ public class EntityManager {
                                 continue;
                             }
 
-                            boolean isStacked = stackerManager.isStacked(entity);
-
-                            if (plugin.getEntityProtectionUtils().isProtected(entity)) {
+                            if (plugin.getEntityProtectionUtils().isProtected(entity, settings, msHook)) {
                                 skipped.incrementAndGet();
                                 continue;
                             }
 
-                            if (isStacked) {
+                            if (stackerManager.isStacked(entity)) {
                                 stackerManager.removeStack(entity);
                             } else {
                                 entity.remove();

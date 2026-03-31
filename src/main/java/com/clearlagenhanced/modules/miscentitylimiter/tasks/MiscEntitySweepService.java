@@ -111,6 +111,5 @@ public class MiscEntitySweepService {
     }
 
     public void notifyAdmins(@NotNull Chunk chunk, @NotNull EntityType type, int removed, boolean prevented) {
-        // Implementation for admin notification if needed
     }
 }

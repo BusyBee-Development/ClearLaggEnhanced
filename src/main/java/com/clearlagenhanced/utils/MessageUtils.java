@@ -83,13 +83,11 @@ public class MessageUtils {
             return;
         }
 
-        // Send to console
         if (toConsole) {
             Component consoleMsg = messageManager.getMessage(path, placeholders);
             Bukkit.getConsoleSender().sendMessage(consoleMsg);
         }
 
-        // Send to all players
         if (toPlayers) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 Component msg = messageManager.getMessage(path, placeholders, player);

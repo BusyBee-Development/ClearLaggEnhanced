@@ -18,15 +18,12 @@ public class ModuleGUIRegistry {
     public void unregisterModuleGUI(String moduleId) {
         registeredGUIs.remove(moduleId);
     }
-    
     public ModuleGUIInfo getGUIInfo(String moduleId) {
         return registeredGUIs.get(moduleId);
     }
-    
     public void clear() {
         registeredGUIs.clear();
     }
-    
     public record ModuleGUIInfo(String displayName, String iconMaterial, Supplier<InventoryGUI> guiSupplier) {
     }
 }

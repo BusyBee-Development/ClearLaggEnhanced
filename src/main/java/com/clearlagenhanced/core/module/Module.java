@@ -20,11 +20,8 @@ public abstract class Module {
     }
 
     public abstract void onEnable();
-    
     public abstract void onDisable();
-    
     public abstract void onReload();
-
     public void setGUIRegistry(ModuleGUIRegistry guiRegistry) {
         this.guiRegistry = guiRegistry;
     }
@@ -44,33 +41,24 @@ public abstract class Module {
     public String getName() {
         return name;
     }
-
     public String getFolderName() {
         return folderName;
     }
-
     public FileConfiguration getConfig() {
         return config;
     }
-
-
     public FileConfiguration getGuiConfig() {
         return guiConfig;
     }
-
     public void setConfig(FileConfiguration config) {
         this.config = config;
     }
-
-
     public void setGuiConfig(FileConfiguration guiConfig) {
         this.guiConfig = guiConfig;
     }
-
     public boolean isEnabled() {
         return enabled;
     }
-
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
@@ -82,11 +70,9 @@ public abstract class Module {
     protected int getInt(String path, int def) {
         return config != null ? config.getInt(path, def) : def;
     }
-
     protected double getDouble(String path, double def) {
         return config != null ? config.getDouble(path, def) : def;
     }
-
     protected String getString(String path, String def) {
         return config != null ? config.getString(path, def) : def;
     }

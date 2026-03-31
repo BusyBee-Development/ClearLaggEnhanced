@@ -36,7 +36,6 @@ public class LaggCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        // Remove the subcommand name from args
         String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
         return subCommand.execute(sender, subArgs);
     }

@@ -2,13 +2,9 @@
 package com.clearlagenhanced.hooks;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
-
 import com.clearlagenhanced.core.module.EntityClearingModule;
-
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-
 import org.bukkit.OfflinePlayer;
-
 import org.jetbrains.annotations.NotNull;
 
 

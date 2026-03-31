@@ -1,7 +1,6 @@
 package com.clearlagenhanced.commands;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
-import com.clearlagenhanced.commands.SubCommand;
 import com.clearlagenhanced.inventory.impl.AdminGUI;
 import com.clearlagenhanced.utils.MessageUtils;
 import org.bukkit.command.CommandSender;

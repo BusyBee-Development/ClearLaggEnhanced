@@ -31,7 +31,6 @@ public class SpawnerLimiterListener implements Listener {
     private boolean enabled() {
         return enabled;
     }
-
     private double multiplier() {
         return multiplier;
     }

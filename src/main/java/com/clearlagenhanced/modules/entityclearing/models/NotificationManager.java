@@ -4,7 +4,6 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
 import com.clearlagenhanced.utils.MessageUtils;
 import com.tcoded.folialib.impl.PlatformScheduler;
-import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.Map;

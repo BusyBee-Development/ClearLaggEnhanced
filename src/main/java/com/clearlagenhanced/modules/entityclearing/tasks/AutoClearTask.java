@@ -2,11 +2,8 @@
 package com.clearlagenhanced.modules.entityclearing.tasks;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
-
 import com.clearlagenhanced.modules.entityclearing.models.EntityManager;
-
 import com.clearlagenhanced.modules.entityclearing.models.NotificationManager;
-
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 
 import lombok.Getter;
@@ -34,7 +31,7 @@ public class AutoClearTask {
 
     public void start() {
         stop();
-        task = ClearLaggEnhanced.scheduler().runTimer(() -> {
+        task = ClearLaggEnhanced.scheduler().runTimerAsync(() -> {
             try {
                 remainingTime--;
 

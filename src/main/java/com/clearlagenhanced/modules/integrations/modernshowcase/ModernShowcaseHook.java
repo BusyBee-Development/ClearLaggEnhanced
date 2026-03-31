@@ -19,8 +19,7 @@ public class ModernShowcaseHook {
 
     public boolean isShowcaseEntity(Entity entity) {
         if (!enabled) return false;
-        
-        // ModernShowcase marks its entities with "ModernShowcase" metadata
+
         return entity.hasMetadata(METADATA_KEY);
     }
 }

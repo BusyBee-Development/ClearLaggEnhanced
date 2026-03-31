@@ -14,7 +14,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class AdminGUI extends InventoryGUI {
     private final ClearLaggEnhanced plugin;
@@ -33,9 +32,7 @@ public class AdminGUI extends InventoryGUI {
     
     private int calculateInventorySize() {
         int items = guiRegistry.getRegisteredGUIs().size();
-        // Each row holds 7 modules (skipping the first and last columns)
         int rowsNeeded = (int) Math.ceil(items / 7.0);
-        // We need 1 top padding row, the module rows, and 1 bottom padding row
         int totalRows = Math.max(3, rowsNeeded + 2); 
         return Math.min(54, totalRows * 9);
     }
@@ -46,10 +43,10 @@ public class AdminGUI extends InventoryGUI {
         sortedKeys.sort(String::compareTo);
         
         int slot = 10;
-        int maxSlot = getInventory().getSize() - 10; // Stay within bounds and leave room for reload button
+        int maxSlot = getInventory().getSize() - 10;
         
         for (String moduleId : sortedKeys) {
-            if (slot > maxSlot) break; // Safety check
+            if (slot > maxSlot) break;
             
             ModuleGUIRegistry.ModuleGUIInfo info = guiRegistry.getGUIInfo(moduleId);
             
@@ -63,7 +60,7 @@ public class AdminGUI extends InventoryGUI {
             );
             
             slot++;
-            if (slot % 9 == 8) { // Skip edge columns
+            if (slot % 9 == 8) {
                 slot += 2;
             }
         }

@@ -1,7 +1,5 @@
 package com.clearlagenhanced.commands;
 
-import com.clearlagenhanced.commands.CommandRegistry;
-import com.clearlagenhanced.commands.SubCommand;
 import com.clearlagenhanced.utils.MessageUtils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;

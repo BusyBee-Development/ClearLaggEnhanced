@@ -13,12 +13,14 @@ import java.util.Map;
 public class ModuleManager {
     private final ClearLaggEnhanced plugin;
     private final Map<String, Module> modules;
+    private final Map<String, Module> modulesByFolderName;
     private final File moduleFolder;
     private final ModuleGUIRegistry guiRegistry;
 
     public ModuleManager(ClearLaggEnhanced plugin, ModuleGUIRegistry guiRegistry) {
         this.plugin = plugin;
         this.modules = new HashMap<>();
+        this.modulesByFolderName = new HashMap<>();
         this.moduleFolder = new File(plugin.getDataFolder(), "module");
         this.guiRegistry = guiRegistry;
     }
@@ -26,6 +28,8 @@ public class ModuleManager {
     public void registerModule(Module module) {
         module.setGUIRegistry(guiRegistry);
         modules.put(module.getName(), module);
+        modules.put(module.getName().toLowerCase(), module);
+        modulesByFolderName.put(module.getFolderName().toLowerCase(), module);
         plugin.getLogger().info("Registered module: " + module.getName());
     }
 
@@ -112,12 +116,10 @@ public class ModuleManager {
         Module module = modules.get(identifier);
         if (module != null) return module;
 
-        for (Module m : modules.values()) {
-            if (m.getFolderName().equalsIgnoreCase(identifier) || m.getName().equalsIgnoreCase(identifier)) {
-                return m;
-            }
-        }
-        return null;
+        module = modules.get(identifier.toLowerCase());
+        if (module != null) return module;
+
+        return modulesByFolderName.get(identifier.toLowerCase());
     }
 
     public Map<String, Module> getModules() {
