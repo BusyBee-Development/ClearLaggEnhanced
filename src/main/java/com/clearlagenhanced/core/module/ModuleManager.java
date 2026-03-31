@@ -34,7 +34,7 @@ public class ModuleManager {
     }
 
     public void loadAll() {
-        for (Module module : modules.values()) {
+        for (Module module : new java.util.HashSet<>(modules.values())) {
             loadModule(module);
         }
     }
@@ -85,7 +85,7 @@ public class ModuleManager {
     }
 
     public void enableAll() {
-        for (Module module : modules.values()) {
+        for (Module module : new java.util.HashSet<>(modules.values())) {
             if (module.isEnabled()) {
                 module.onEnable();
             }
@@ -93,7 +93,7 @@ public class ModuleManager {
     }
 
     public void disableAll() {
-        for (Module module : modules.values()) {
+        for (Module module : new java.util.HashSet<>(modules.values())) {
             if (module.isEnabled()) {
                 try {
                     module.onDisable();
@@ -105,7 +105,7 @@ public class ModuleManager {
     }
 
     public void reloadAll() {
-        for (Module module : modules.values()) {
+        for (Module module : new java.util.HashSet<>(modules.values())) {
             loadModule(module);
         }
     }

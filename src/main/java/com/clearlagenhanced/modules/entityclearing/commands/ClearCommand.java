@@ -30,6 +30,12 @@ public class ClearCommand implements SubCommand {
         scheduler.runAsync(task -> {
             long startTime = System.currentTimeMillis();
             int cleared = module.clearEntities();
+            
+            if (cleared == -1) {
+                MessageUtils.sendMessage(sender, "commands.clear.already-in-progress");
+                return;
+            }
+            
             long duration = System.currentTimeMillis() - startTime;
 
             Map<String, String> ph = new ConcurrentHashMap<>();

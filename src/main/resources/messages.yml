@@ -39,6 +39,7 @@ commands:
   unknown-subcommand: "<red>✗</red> <red>Unknown command: <white>{sub}</white></red>"
   clear:
     starting: "<gold>▶</gold> <yellow>Starting manual entity clear...</yellow>"
+    already-in-progress: "<red>✗</red> <red>An entity clearing cycle is already in progress!</red>"
 
 # --- Entity Clearing ---
 warnings:

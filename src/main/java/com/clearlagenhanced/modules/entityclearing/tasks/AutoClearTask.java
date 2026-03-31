@@ -6,6 +6,7 @@ import com.clearlagenhanced.modules.entityclearing.models.EntityManager;
 import com.clearlagenhanced.modules.entityclearing.models.NotificationManager;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 
 
@@ -18,29 +19,34 @@ public class AutoClearTask {
     @Getter
     private WrappedTask task;
 
-    @Getter
-    private volatile int remainingTime;
+    private final AtomicInteger remainingTime;
 
     public AutoClearTask(ClearLaggEnhanced plugin, EntityManager entityManager, NotificationManager notificationManager, int clearInterval, int warnLead) {
         this.plugin = plugin;
         this.entityManager = entityManager;
         this.notificationManager = notificationManager;
         this.clearInterval = clearInterval;
-        this.remainingTime = clearInterval;
+        this.remainingTime = new AtomicInteger(clearInterval);
+    }
+
+    public int getRemainingTime() {
+        return remainingTime.get();
     }
 
     public void start() {
         stop();
         task = ClearLaggEnhanced.scheduler().runTimerAsync(() -> {
             try {
-                remainingTime--;
+                int timeLeft = remainingTime.decrementAndGet();
 
-                if (remainingTime <= 0) {
+                if (timeLeft <= 0) {
                     int cleared = entityManager.clearEntities();
-                    notificationManager.sendClearComplete(cleared);
-                    remainingTime = clearInterval;
+                    if (cleared != -1) {
+                        notificationManager.sendClearComplete(cleared);
+                    }
+                    remainingTime.set(clearInterval);
                 } else {
-                    notificationManager.sendClearWarnings(remainingTime);
+                    notificationManager.sendClearWarnings(timeLeft);
                 }
             } catch (Throwable t) {
                 plugin.getLogger().severe("Error in entity clearing timer task: " + t.getMessage());
