@@ -2,7 +2,6 @@ package com.clearlagenhanced.commands;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.inventory.impl.AdminGUI;
-import com.clearlagenhanced.utils.MessageUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -12,11 +11,6 @@ public class AdminGUICommand implements SubCommand {
     public boolean execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage("This command can only be executed by a player.");
-            return true;
-        }
-
-        if (!player.hasPermission("CLE.admin")) {
-            MessageUtils.sendMessage(player, "commands.no-permission");
             return true;
         }
 
