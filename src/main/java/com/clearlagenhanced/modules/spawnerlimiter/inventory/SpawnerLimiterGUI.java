@@ -4,6 +4,7 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
 import com.clearlagenhanced.inventory.InventoryButton;
 import com.clearlagenhanced.inventory.InventoryGUI;
+import com.clearlagenhanced.utils.MessageUtils;
 import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -38,6 +39,8 @@ public class SpawnerLimiterGUI extends InventoryGUI {
             .creator(p -> createToggleItem(enabled))
             .consumer(event -> {
                 module.setEnabled(!enabled);
+                module.getConfig().set("enabled", !enabled);
+                module.saveConfig();
                 if (module.isEnabled()) {
                     module.onEnable();
                 } else {
@@ -49,7 +52,35 @@ public class SpawnerLimiterGUI extends InventoryGUI {
         
         addButton(13, new InventoryButton()
             .creator(p -> createMultiplierItem(multiplier))
-            .consumer(event -> {})
+            .consumer(event -> {
+                Player clicker = (Player) event.getWhoClicked();
+                java.util.Map<String, String> placeholders = new java.util.HashMap<>();
+                placeholders.put("type", "Spawn Delay Multiplier");
+                MessageUtils.sendMessage(clicker, "gui.enter-value", placeholders);
+                clicker.closeInventory();
+
+                plugin.getChatInputManager().requestInput(clicker, input -> {
+                    if (input != null) {
+                        try {
+                            double newVal = Double.parseDouble(input);
+                            if (newVal < 0) {
+                                MessageUtils.sendMessage(clicker, "gui.invalid-double");
+                            } else {
+                                module.getConfig().set("spawn-delay-multiplier", newVal);
+                                module.saveConfig();
+                                module.onReload();
+                                java.util.Map<String, String> successPlaceholders = new java.util.HashMap<>();
+                                successPlaceholders.put("type", "Spawn Delay Multiplier");
+                                successPlaceholders.put("value", input);
+                                MessageUtils.sendMessage(clicker, "gui.value-set", successPlaceholders);
+                            }
+                        } catch (NumberFormatException e) {
+                            MessageUtils.sendMessage(clicker, "gui.invalid-double");
+                        }
+                    }
+                    plugin.getGuiManager().openGUI(new SpawnerLimiterGUI(plugin, module), clicker);
+                });
+            })
         );
         
         addButton(22, new InventoryButton()

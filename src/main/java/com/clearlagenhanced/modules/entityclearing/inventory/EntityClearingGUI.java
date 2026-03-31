@@ -4,6 +4,7 @@ import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
 import com.clearlagenhanced.inventory.InventoryButton;
 import com.clearlagenhanced.inventory.InventoryGUI;
+import com.clearlagenhanced.utils.MessageUtils;
 import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -41,6 +42,8 @@ public class EntityClearingGUI extends InventoryGUI {
             .creator(p -> createToggleItem(enabled))
             .consumer(event -> {
                 module.setEnabled(!enabled);
+                module.getConfig().set("enabled", !enabled);
+                module.saveConfig();
                 if (module.isEnabled()) {
                     module.onEnable();
                 } else {
@@ -54,8 +57,28 @@ public class EntityClearingGUI extends InventoryGUI {
             .creator(p -> createIntervalItem(interval))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
-                clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', "&eType new interval in chat (or 'cancel'):"));
+                MessageUtils.sendMessage(clicker, "gui.enter-interval");
                 clicker.closeInventory();
+
+                plugin.getChatInputManager().requestInput(clicker, input -> {
+                    if (input != null) {
+                        try {
+                            int newVal = Integer.parseInt(input);
+                            if (newVal < 10) {
+                                MessageUtils.sendMessage(clicker, "gui.interval-min", "min", "10");
+                            } else {
+                                module.getConfig().set("interval", newVal);
+                                module.saveConfig();
+                                module.onReload(); // This refreshes the auto-clear task
+                                MessageUtils.sendMessage(clicker, "gui.interval-set", "interval", input);
+                            }
+                        } catch (NumberFormatException e) {
+                            MessageUtils.sendMessage(clicker, "gui.invalid-number");
+                        }
+                    }
+                    // Re-open GUI regardless of success/fail/cancel
+                    plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), clicker);
+                });
             })
         );
         
@@ -63,6 +86,7 @@ public class EntityClearingGUI extends InventoryGUI {
             .creator(p -> createProtectionItem("Named Entities", protectNamed))
             .consumer(event -> {
                 module.getConfig().set("protect-named-entities", !protectNamed);
+                module.saveConfig();
                 plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
             })
         );
@@ -71,6 +95,7 @@ public class EntityClearingGUI extends InventoryGUI {
             .creator(p -> createProtectionItem("Tamed Entities", protectTamed))
             .consumer(event -> {
                 module.getConfig().set("protect-tamed-entities", !protectTamed);
+                module.saveConfig();
                 plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
             })
         );
@@ -79,6 +104,7 @@ public class EntityClearingGUI extends InventoryGUI {
             .creator(p -> createProtectionItem("Stacked Entities", protectStacked))
             .consumer(event -> {
                 module.getConfig().set("protect-stacked-entities", !protectStacked);
+                module.saveConfig();
                 plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
             })
         );

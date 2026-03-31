@@ -37,6 +37,8 @@ public class MiscEntityLimiterGUI extends InventoryGUI {
             .creator(p -> createToggleItem(enabled))
             .consumer(event -> {
                 module.setEnabled(!enabled);
+                module.getConfig().set("enabled", !enabled);
+                module.saveConfig();
                 if (module.isEnabled()) {
                     module.onEnable();
                 } else {

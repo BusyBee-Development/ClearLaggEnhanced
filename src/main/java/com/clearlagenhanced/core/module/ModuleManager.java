@@ -26,6 +26,7 @@ public class ModuleManager {
     }
 
     public void registerModule(Module module) {
+        module.setPlugin(plugin);
         module.setGUIRegistry(guiRegistry);
         modules.put(module.getName(), module);
         modules.put(module.getName().toLowerCase(), module);

@@ -1,5 +1,6 @@
 package com.clearlagenhanced.core.module;
 
+import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.gui.ModuleGUIRegistry;
 import com.clearlagenhanced.inventory.InventoryGUI;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -7,6 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.function.Supplier;
 
 public abstract class Module {
+    protected ClearLaggEnhanced plugin;
     private final String name;
     private final String folderName;
     private FileConfiguration config;
@@ -24,6 +26,21 @@ public abstract class Module {
     public abstract void onReload();
     public void setGUIRegistry(ModuleGUIRegistry guiRegistry) {
         this.guiRegistry = guiRegistry;
+    }
+
+    public void setPlugin(ClearLaggEnhanced plugin) {
+        this.plugin = plugin;
+    }
+
+    public void saveConfig() {
+        if (config == null || plugin == null) return;
+        try {
+            java.io.File modFolder = new java.io.File(new java.io.File(plugin.getDataFolder(), "module"), folderName);
+            java.io.File configFile = new java.io.File(modFolder, "config.yml");
+            config.save(configFile);
+        } catch (java.io.IOException e) {
+            plugin.getLogger().severe("Failed to save config for module " + name + ": " + e.getMessage());
+        }
     }
 
     protected void registerGUI(String moduleId, String displayName, String iconMaterial, Supplier<InventoryGUI> guiSupplier) {

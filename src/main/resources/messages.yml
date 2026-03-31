@@ -73,12 +73,15 @@ performance:
 # GUI Messages
 gui:
   enter-interval: "<aqua>▶</aqua> <aqua>Enter new clearing interval in seconds:</aqua>"
+  enter-value: "<aqua>▶</aqua> <aqua>Enter new value for <yellow>{type}</yellow>:</aqua>"
   type-cancel: "<gray>Type </gray><yellow>'cancel'</yellow><gray> to cancel.</gray>"
   input-cancelled: "<yellow>⚠</yellow> <yellow>Input cancelled.</yellow>"
   interval-min: "<red>✗</red> <red>Interval must be at least <white>{min}</white> seconds!</red>"
   interval-max: "<red>✗</red> <red>Interval cannot exceed <white>{max}</white> seconds!</red>"
   interval-set: "<green>✓</green> <green>Entity clearing interval set to <white>{interval}</white> seconds!</green>"
+  value-set: "<green>✓</green> <green><white>{type}</white> set to <white>{value}</white>!</green>"
   invalid-number: "<red>✗</red> <red>Invalid number! Please enter a valid integer.</red>"
+  invalid-double: "<red>✗</red> <red>Invalid number! Please enter a valid decimal number.</red>"
 
 # Errors
 errors:

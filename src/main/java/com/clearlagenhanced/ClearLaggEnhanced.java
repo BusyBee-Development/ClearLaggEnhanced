@@ -7,6 +7,7 @@ import com.clearlagenhanced.database.DatabaseManager;
 import com.clearlagenhanced.hooks.ClearLaggEnhancedExpansion;
 import com.clearlagenhanced.inventory.gui.GUIListener;
 import com.clearlagenhanced.inventory.gui.GUIManager;
+import com.clearlagenhanced.managers.ChatInputManager;
 import com.clearlagenhanced.managers.ConfigManager;
 import com.clearlagenhanced.managers.MessageManager;
 import com.clearlagenhanced.managers.StackerManager;
@@ -46,6 +47,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private GUIManager guiManager;
     @Getter private ModuleGUIRegistry guiRegistry;
     @Getter private ModuleManager moduleManager;
+    @Getter private ChatInputManager chatInputManager;
 
     public static PlatformScheduler scheduler() {
         return scheduler;
@@ -93,6 +95,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
         stackerManager = new StackerManager(this);
         entityProtectionUtils = new EntityProtectionUtils(this);
         guiManager = new GUIManager();
+        chatInputManager = new ChatInputManager(this);
         if (guiRegistry == null) {
             guiRegistry = new ModuleGUIRegistry();
         } else {
@@ -172,6 +175,9 @@ public class ClearLaggEnhanced extends JavaPlugin {
         if (guiManager != null) {
             GUIListener guiListener = new GUIListener(guiManager);
             getServer().getPluginManager().registerEvents(guiListener, this);
+        }
+        if (chatInputManager != null) {
+            getServer().getPluginManager().registerEvents(chatInputManager, this);
         }
     }
 
