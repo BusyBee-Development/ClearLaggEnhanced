@@ -7,6 +7,7 @@ import com.clearlagenhanced.modules.moblimiter.listeners.MobLimiterListener;
 import com.clearlagenhanced.modules.moblimiter.models.LagPreventionManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.event.HandlerList;
 
 public class MobLimiterModule extends Module {
@@ -32,7 +33,10 @@ public class MobLimiterModule extends Module {
     public void onDisable() {
         if (mobLimiterListener != null) {
             HandlerList.unregisterAll(mobLimiterListener);
+            mobLimiterListener = null;
         }
+
+        lagPreventionManager = null;
         
         unregisterGUI("mob-limiter");
     }
@@ -41,5 +45,9 @@ public class MobLimiterModule extends Module {
     public void onReload() {
         onDisable();
         onEnable();
+    }
+
+    public boolean isMobLimitReached(Chunk chunk) {
+        return isEnabled() && lagPreventionManager != null && lagPreventionManager.isMobLimitReached(chunk);
     }
 }

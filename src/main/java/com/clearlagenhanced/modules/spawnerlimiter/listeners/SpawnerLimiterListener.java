@@ -2,6 +2,7 @@ package com.clearlagenhanced.modules.spawnerlimiter.listeners;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
+import com.clearlagenhanced.modules.moblimiter.MobLimiterModule;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.CreatureSpawner;
@@ -39,6 +40,11 @@ public class SpawnerLimiterListener implements Listener {
         return worldFilter.isEmpty() || worldFilter.contains(world.getName());
     }
 
+    private boolean isMobCapReached(@NotNull Chunk chunk) {
+        MobLimiterModule mobLimiterModule = plugin.getMobLimiterModule();
+        return mobLimiterModule != null && mobLimiterModule.isMobLimitReached(chunk);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSpawnerSpawn(@NotNull SpawnerSpawnEvent event) {
         if (!enabled()) {
@@ -51,7 +57,7 @@ public class SpawnerLimiterListener implements Listener {
         }
 
         Chunk chunk = event.getLocation().getChunk();
-        if (plugin.getLagPreventionManager().isMobLimitReached(chunk)) {
+        if (isMobCapReached(chunk)) {
             event.setCancelled(true);
             return;
         }
