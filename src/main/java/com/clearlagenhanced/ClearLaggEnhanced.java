@@ -78,10 +78,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
             moduleManager.disableAll();
         }
 
-        closeQuietlyDatabase();
-        if (guiManager != null) {
-            guiManager.shutdown();
-        }
+        shutdownCore();
 
         getLogger().info("ClearLaggEnhanced has been disabled!");
     }
@@ -143,12 +140,11 @@ public class ClearLaggEnhanced extends JavaPlugin {
     public void reloadAll(CommandSender sender) {
         HandlerList.unregisterAll(this);
 
-        if (guiManager != null) {
-            guiManager.shutdown();
+        if (moduleManager != null) {
+            moduleManager.disableAll();
         }
 
-        moduleManager.disableAll();
-
+        shutdownCore();
         initializeCore();
 
         moduleManager.reloadAll();
@@ -190,7 +186,23 @@ public class ClearLaggEnhanced extends JavaPlugin {
     private void closeQuietlyDatabase() {
         if (databaseManager != null) {
             databaseManager.close();
+            databaseManager = null;
         }
+    }
+
+    private void shutdownCore() {
+        closeQuietlyDatabase();
+
+        if (guiManager != null) {
+            guiManager.shutdown();
+            guiManager = null;
+        }
+
+        chatInputManager = null;
+        entityProtectionUtils = null;
+        stackerManager = null;
+        messageManager = null;
+        configManager = null;
     }
 
     public MobLimiterModule getMobLimiterModule() {
