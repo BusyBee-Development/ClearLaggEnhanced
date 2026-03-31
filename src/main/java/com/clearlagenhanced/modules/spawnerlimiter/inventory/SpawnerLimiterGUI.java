@@ -38,14 +38,7 @@ public class SpawnerLimiterGUI extends InventoryGUI {
         addButton(11, new InventoryButton()
             .creator(p -> createToggleItem(enabled))
             .consumer(event -> {
-                module.setEnabled(!enabled);
-                module.getConfig().set("enabled", !enabled);
-                module.saveConfig();
-                if (module.isEnabled()) {
-                    module.onEnable();
-                } else {
-                    module.onDisable();
-                }
+                plugin.getModuleManager().setModuleEnabled(module, !enabled);
                 plugin.getGuiManager().openGUI(new SpawnerLimiterGUI(plugin, module), (Player) event.getWhoClicked());
             })
         );

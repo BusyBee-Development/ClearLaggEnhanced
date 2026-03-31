@@ -52,7 +52,8 @@ public class ModuleManager {
         module.setConfig(config);
         module.setGuiConfig(guiConfig);
 
-        boolean enabled = config.getBoolean("enabled", true);
+        boolean enabled = resolveEnabledState(module);
+        syncEnabledState(module, enabled);
         module.setEnabled(enabled);
 
         if (enabled) {
@@ -109,6 +110,61 @@ public class ModuleManager {
         for (Module module : new java.util.HashSet<>(modules.values())) {
             loadModule(module);
         }
+    }
+
+    public void setModuleEnabled(Module module, boolean enabled) {
+        if (module == null) {
+            return;
+        }
+
+        syncEnabledState(module, enabled);
+
+        if (module.isEnabled() == enabled) {
+            return;
+        }
+
+        module.setEnabled(enabled);
+
+        try {
+            if (enabled) {
+                module.onEnable();
+            } else {
+                module.onDisable();
+            }
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to " + (enabled ? "enable" : "disable") + " module " + module.getName() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private boolean resolveEnabledState(Module module) {
+        if (usesMainToggle(module)) {
+            return plugin.getConfigManager().getBoolean(getModuleTogglePath(module));
+        }
+
+        FileConfiguration moduleConfig = module.getConfig();
+        return moduleConfig != null && moduleConfig.getBoolean("enabled", true);
+    }
+
+    private void syncEnabledState(Module module, boolean enabled) {
+        if (usesMainToggle(module) && plugin.getConfigManager().getBoolean(getModuleTogglePath(module)) != enabled) {
+            plugin.getConfigManager().set(getModuleTogglePath(module), enabled);
+            plugin.getConfigManager().save();
+        }
+
+        FileConfiguration moduleConfig = module.getConfig();
+        if (moduleConfig != null && (!moduleConfig.contains("enabled") || moduleConfig.getBoolean("enabled") != enabled)) {
+            moduleConfig.set("enabled", enabled);
+            module.saveConfig();
+        }
+    }
+
+    private String getModuleTogglePath(Module module) {
+        return "modules." + module.getFolderName();
+    }
+
+    private boolean usesMainToggle(Module module) {
+        return plugin.getConfigManager().contains(getModuleTogglePath(module));
     }
 
     public Module getModule(String identifier) {
