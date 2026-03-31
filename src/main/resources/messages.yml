@@ -10,6 +10,7 @@ prefix: "<gray>[</gray><gold>ClearLagg</gold><gray>]</gray>"
 notifications:
   no-permission: "<red>✗</red> <red>You don't have permission to use this command.</red>"
   reload-complete: "<green>✓</green> <green>Configuration reloaded successfully!</green>"
+  reload-failed: "<red>✗</red> <red>Reload failed:</red> <white>{reason}</white>"
 
   # --- Entity Clearing ---
   clear-complete: "<green>✓</green> <green>Cleared <white>{count}</white> entities in <gray>{time}ms</gray></green>"

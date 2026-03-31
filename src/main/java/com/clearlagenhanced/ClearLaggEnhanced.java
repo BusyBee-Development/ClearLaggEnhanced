@@ -4,6 +4,8 @@ import com.clearlagenhanced.commands.LaggCommand;
 import com.clearlagenhanced.core.gui.ModuleGUIRegistry;
 import com.clearlagenhanced.core.module.*;
 import com.clearlagenhanced.database.DatabaseManager;
+import com.clearlagenhanced.database.DatabaseSettings;
+import com.clearlagenhanced.database.DatabaseType;
 import com.clearlagenhanced.hooks.ClearLaggEnhancedExpansion;
 import com.clearlagenhanced.inventory.gui.GUIListener;
 import com.clearlagenhanced.inventory.gui.GUIManager;
@@ -31,6 +33,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Map;
 
 public class ClearLaggEnhanced extends JavaPlugin {
 
@@ -84,20 +88,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
     }
 
     private void initializeCore() {
-        configManager = new ConfigManager(this);
-        configManager.reload();
-        messageManager = new MessageManager(this);
-        MessageUtils.initialize(messageManager);
-        databaseManager = new DatabaseManager(this);
-        stackerManager = new StackerManager(this);
-        entityProtectionUtils = new EntityProtectionUtils(this);
-        guiManager = new GUIManager();
-        chatInputManager = new ChatInputManager(this);
-        if (guiRegistry == null) {
-            guiRegistry = new ModuleGUIRegistry();
-        } else {
-            guiRegistry.clear();
-        }
+        applyCoreServices(buildCoreServices());
     }
 
     private void initializeModules() {
@@ -138,6 +129,26 @@ public class ClearLaggEnhanced extends JavaPlugin {
     }
 
     public void reloadAll(CommandSender sender) {
+        CoreServices newCoreServices;
+        try {
+            newCoreServices = buildCoreServices();
+        } catch (RuntimeException exception) {
+            getLogger().severe("Failed to reload core services: " + exception.getMessage());
+            if (sender != null) {
+                MessageUtils.sendMessage(sender, "notifications.reload-failed", Map.of(
+                        "reason", reloadFailureReason(exception)
+                ));
+            }
+            return;
+        }
+
+        DatabaseType previousDatabaseType = databaseManager != null && databaseManager.isEnabled()
+                ? databaseManager.getType()
+                : null;
+        DatabaseType newDatabaseType = newCoreServices.databaseManager().isEnabled()
+                ? newCoreServices.databaseManager().getType()
+                : null;
+
         HandlerList.unregisterAll(this);
 
         if (moduleManager != null) {
@@ -145,7 +156,11 @@ public class ClearLaggEnhanced extends JavaPlugin {
         }
 
         shutdownCore();
-        initializeCore();
+        applyCoreServices(newCoreServices);
+
+        if (previousDatabaseType != null && newDatabaseType != null && previousDatabaseType != newDatabaseType) {
+            getLogger().warning("Database backend changed from " + previousDatabaseType.getConfigValue() + " to " + newDatabaseType.getConfigValue() + ". Existing data is not migrated automatically.");
+        }
 
         moduleManager.reloadAll();
 
@@ -205,11 +220,71 @@ public class ClearLaggEnhanced extends JavaPlugin {
         configManager = null;
     }
 
+    private CoreServices buildCoreServices() {
+        ConfigManager newConfigManager = new ConfigManager(this);
+        MessageManager newMessageManager = new MessageManager(this);
+        DatabaseSettings databaseSettings = DatabaseSettings.from(newConfigManager.getConfig(), getDataFolder());
+        DatabaseManager newDatabaseManager = new DatabaseManager(getName(), getLogger(), databaseSettings);
+        StackerManager newStackerManager = new StackerManager(this);
+        EntityProtectionUtils newEntityProtectionUtils = new EntityProtectionUtils(this, newStackerManager);
+        GUIManager newGuiManager = new GUIManager();
+        ChatInputManager newChatInputManager = new ChatInputManager(this);
+
+        return new CoreServices(
+                newConfigManager,
+                newMessageManager,
+                newDatabaseManager,
+                newStackerManager,
+                newEntityProtectionUtils,
+                newGuiManager,
+                newChatInputManager
+        );
+    }
+
+    private void applyCoreServices(CoreServices coreServices) {
+        configManager = coreServices.configManager();
+        messageManager = coreServices.messageManager();
+        MessageUtils.initialize(messageManager);
+        databaseManager = coreServices.databaseManager();
+        stackerManager = coreServices.stackerManager();
+        entityProtectionUtils = coreServices.entityProtectionUtils();
+        guiManager = coreServices.guiManager();
+        chatInputManager = coreServices.chatInputManager();
+
+        if (guiRegistry == null) {
+            guiRegistry = new ModuleGUIRegistry();
+        } else {
+            guiRegistry.clear();
+        }
+    }
+
+    private String reloadFailureReason(RuntimeException exception) {
+        Throwable cause = exception.getCause();
+        if (cause != null && cause.getMessage() != null && !cause.getMessage().isBlank()) {
+            return cause.getMessage();
+        }
+        if (exception.getMessage() != null && !exception.getMessage().isBlank()) {
+            return exception.getMessage();
+        }
+        return "Unknown error";
+    }
+
     public MobLimiterModule getMobLimiterModule() {
         return (MobLimiterModule) moduleManager.getModule("Mob Limiter");
     }
 
     public ChunkFinderModule getChunkFinderModule() {
         return (ChunkFinderModule) moduleManager.getModule("Chunk Finder");
+    }
+
+    private record CoreServices(
+            ConfigManager configManager,
+            MessageManager messageManager,
+            DatabaseManager databaseManager,
+            StackerManager stackerManager,
+            EntityProtectionUtils entityProtectionUtils,
+            GUIManager guiManager,
+            ChatInputManager chatInputManager
+    ) {
     }
 }

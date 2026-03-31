@@ -21,9 +21,9 @@ public class EntityProtectionUtils {
     private final ClearLaggEnhanced plugin;
     private final StackerManager stackerManager;
 
-    public EntityProtectionUtils(ClearLaggEnhanced plugin) {
+    public EntityProtectionUtils(ClearLaggEnhanced plugin, StackerManager stackerManager) {
         this.plugin = plugin;
-        this.stackerManager = plugin.getStackerManager();
+        this.stackerManager = stackerManager;
     }
 
     public boolean isProtected(@NotNull Entity entity) {
