@@ -6,7 +6,7 @@ folia-supported: true
 authors: [djtmk]
 description: A modern, customizable lag prevention plugin for Minecraft servers
 website: https://github.com/BusyBee-Development/ClearLaggEnhanced
-softdepend: [PlaceholderAPI, RoseStacker, WildStacker]
+softdepend: [PlaceholderAPI, RoseStacker, WildStacker, ModernShowcase]
 libraries:
   - com.zaxxer:HikariCP:7.0.2
   - org.xerial:sqlite-jdbc:3.51.1.0
