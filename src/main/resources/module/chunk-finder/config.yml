@@ -1,0 +1,4 @@
+enabled: true
+
+radius: 10
+entity-threshold: 50

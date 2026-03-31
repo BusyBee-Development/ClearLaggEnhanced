@@ -1,0 +1,36 @@
+# ============================================================================ #
+#                       ClearLaggEnhanced Configuration                        #
+# ============================================================================ #
+# This is the main configuration file that controls which modules are enabled.
+# Each module has its own configuration in resources/module/<module-name>/
+#
+# NOTE: Configuration has been moved to a modular system!
+# Old config.yml settings are now in:
+#   - Entity Clearing: module/entity-clearing/config.yml
+#   - Mob Limiter: module/mob-limiter/config.yml
+#   - Spawner Limiter: module/spawner-limiter/config.yml
+#   - Misc Entity Limiter: module/misc-entity-limiter/config.yml
+#   - Chunk Finder: module/chunk-finder/config.yml
+#   - Performance: module/performance/config.yml
+
+# Database Settings
+database:
+  type: "sqlite"
+  file: "clearlagg.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "clearlagg"
+    username: "root"
+    password: "password"
+
+# Module System
+# Enable or disable individual feature modules
+# Each module's specific configuration is in resources/module/<module-name>/config.yml
+modules:
+  entity-clearing: true
+  mob-limiter: true
+  spawner-limiter: true
+  misc-entity-limiter: true
+  chunk-finder: true
+  performance: true

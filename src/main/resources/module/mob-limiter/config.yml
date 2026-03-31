@@ -1,0 +1,26 @@
+enabled: true
+
+max-mobs-per-chunk: 50
+
+per-type-limits:
+  enabled: true
+  limits:
+    ZOMBIE: 20
+    SKELETON: 20
+    CREEPER: 15
+    SPIDER: 15
+
+per-type-limits:
+  enabled: true
+  limits:
+    ZOMBIE: 10
+    SKELETON: 10
+    CREEPER: 8
+    SPIDER: 8
+    ENDERMAN: 5
+    VILLAGER: 15
+    COW: 12
+    SHEEP: 12
+    PIG: 12
+    CHICKEN: 15
+    IRON_GOLEM: 3
