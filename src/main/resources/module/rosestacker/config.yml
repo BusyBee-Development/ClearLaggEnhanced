@@ -1,1 +1,2 @@
-﻿enabled: true
+# Legacy key: ignored at runtime. Use config.yml modules.rosestacker instead.
+enabled: true

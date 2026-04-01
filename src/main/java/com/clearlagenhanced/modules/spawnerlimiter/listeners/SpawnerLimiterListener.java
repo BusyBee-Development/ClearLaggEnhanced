@@ -19,19 +19,14 @@ public class SpawnerLimiterListener implements Listener {
 
     private final ClearLaggEnhanced plugin;
     private final Set<String> worldFilter = new HashSet<>();
-    private final boolean enabled;
     private final double multiplier;
 
     public SpawnerLimiterListener(@NotNull ClearLaggEnhanced plugin, @NotNull Module module) {
         this.plugin = plugin;
         worldFilter.addAll(module.getConfig().getStringList("worlds"));
-        this.enabled = module.getConfig().getBoolean("enabled", true);
         this.multiplier = Math.max(1.0, module.getConfig().getDouble("spawn-delay-multiplier", 1.5));
     }
 
-    private boolean enabled() {
-        return enabled;
-    }
     private double multiplier() {
         return multiplier;
     }
@@ -47,10 +42,6 @@ public class SpawnerLimiterListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSpawnerSpawn(@NotNull SpawnerSpawnEvent event) {
-        if (!enabled()) {
-            return;
-        }
-
         CreatureSpawner spawner = event.getSpawner();
         if (spawner == null || !isWorldAllowed(spawner.getWorld())) {
             return;

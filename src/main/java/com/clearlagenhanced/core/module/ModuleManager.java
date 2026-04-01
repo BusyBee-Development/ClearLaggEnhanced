@@ -8,7 +8,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class ModuleManager {
     private final ClearLaggEnhanced plugin;
@@ -16,6 +18,7 @@ public class ModuleManager {
     private final Map<String, Module> modulesByFolderName;
     private final File moduleFolder;
     private final ModuleGUIRegistry guiRegistry;
+    private final Set<String> warnedLegacyEnabledKeys;
 
     public ModuleManager(ClearLaggEnhanced plugin, ModuleGUIRegistry guiRegistry) {
         this.plugin = plugin;
@@ -23,6 +26,7 @@ public class ModuleManager {
         this.modulesByFolderName = new HashMap<>();
         this.moduleFolder = new File(plugin.getDataFolder(), "module");
         this.guiRegistry = guiRegistry;
+        this.warnedLegacyEnabledKeys = new HashSet<>();
     }
 
     public void registerModule(Module module) {
@@ -51,9 +55,9 @@ public class ModuleManager {
 
         module.setConfig(config);
         module.setGuiConfig(guiConfig);
+        warnIfLegacyEnabledKeyPresent(module, config);
 
         boolean enabled = resolveEnabledState(module);
-        syncEnabledState(module, enabled);
         module.setEnabled(enabled);
 
         if (enabled) {
@@ -138,24 +142,21 @@ public class ModuleManager {
     }
 
     private boolean resolveEnabledState(Module module) {
-        if (usesMainToggle(module)) {
-            return plugin.getConfigManager().getBoolean(getModuleTogglePath(module));
+        String togglePath = getModuleTogglePath(module);
+        if (plugin.getConfigManager().contains(togglePath)) {
+            return plugin.getConfigManager().getBoolean(togglePath);
         }
 
-        FileConfiguration moduleConfig = module.getConfig();
-        return moduleConfig != null && moduleConfig.getBoolean("enabled", true);
+        plugin.getLogger().warning("Missing module toggle '" + togglePath + "' in config.yml. Keeping module "
+                + module.getName() + " disabled until the setting is restored.");
+        return false;
     }
 
     private void syncEnabledState(Module module, boolean enabled) {
-        if (usesMainToggle(module) && plugin.getConfigManager().getBoolean(getModuleTogglePath(module)) != enabled) {
-            plugin.getConfigManager().set(getModuleTogglePath(module), enabled);
+        String togglePath = getModuleTogglePath(module);
+        if (!plugin.getConfigManager().contains(togglePath) || plugin.getConfigManager().getBoolean(togglePath) != enabled) {
+            plugin.getConfigManager().set(togglePath, enabled);
             plugin.getConfigManager().save();
-        }
-
-        FileConfiguration moduleConfig = module.getConfig();
-        if (moduleConfig != null && (!moduleConfig.contains("enabled") || moduleConfig.getBoolean("enabled") != enabled)) {
-            moduleConfig.set("enabled", enabled);
-            module.saveConfig();
         }
     }
 
@@ -163,8 +164,18 @@ public class ModuleManager {
         return "modules." + module.getFolderName();
     }
 
-    private boolean usesMainToggle(Module module) {
-        return plugin.getConfigManager().contains(getModuleTogglePath(module));
+    private void warnIfLegacyEnabledKeyPresent(Module module, FileConfiguration config) {
+        if (config == null || !config.contains("enabled")) {
+            return;
+        }
+
+        String folderName = module.getFolderName().toLowerCase();
+        if (!warnedLegacyEnabledKeys.add(folderName)) {
+            return;
+        }
+
+        plugin.getLogger().info("Ignoring legacy key module/" + module.getFolderName()
+                + "/config.yml:enabled. Use config.yml " + getModuleTogglePath(module) + " instead.");
     }
 
     public Module getModule(String identifier) {

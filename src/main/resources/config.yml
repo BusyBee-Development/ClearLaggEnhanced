@@ -2,16 +2,8 @@
 #                       ClearLaggEnhanced Configuration                        #
 # ============================================================================ #
 # This is the main configuration file that controls which modules are enabled.
-# Each module has its own configuration in resources/module/<module-name>/
-#
-# NOTE: Configuration has been moved to a modular system!
-# Old config.yml settings are now in:
-#   - Entity Clearing: module/entity-clearing/config.yml
-#   - Mob Limiter: module/mob-limiter/config.yml
-#   - Spawner Limiter: module/spawner-limiter/config.yml
-#   - Misc Entity Limiter: module/misc-entity-limiter/config.yml
-#   - Chunk Finder: module/chunk-finder/config.yml
-#   - Performance: module/performance/config.yml
+# Module-specific settings live in resources/module/<module-name>/config.yml.
+# Legacy per-module enabled keys are ignored at runtime.
 
 # Database Settings
 # Supports SQLite and MySQL.
@@ -40,8 +32,8 @@ database:
     validation-timeout-ms: 5000
 
 # Module System
-# Enable or disable individual feature modules
-# Each module's specific configuration is in resources/module/<module-name>/config.yml
+# config.yml is the only runtime source of truth for module enable/disable state.
+# Legacy module/<module-name>/config.yml enabled keys remain on disk for compatibility only.
 modules:
   entity-clearing: true
   mob-limiter: true
@@ -49,3 +41,6 @@ modules:
   misc-entity-limiter: true
   chunk-finder: true
   performance: true
+  wildstacker: true
+  rosestacker: true
+  modernshowcase: true

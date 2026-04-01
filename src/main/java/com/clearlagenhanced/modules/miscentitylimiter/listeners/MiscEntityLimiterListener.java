@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MiscEntityLimiterListener implements Listener {
 
     private final PlatformScheduler scheduler;
-    private final boolean enabled;
     private final Map<EntityType, Integer> caps;
     private final Set<String> worldFilter;
     private final boolean protectNamed;
@@ -35,7 +34,6 @@ public class MiscEntityLimiterListener implements Listener {
         this.scheduler = ClearLaggEnhanced.scheduler();
         this.notifier = notifier;
 
-        enabled = module.getConfig().getBoolean("enabled", true);
         protectNamed = module.getConfig().getBoolean("protect.named", true);
         protectedTags = new HashSet<>(module.getConfig().getStringList("protect.tags"));
         worldFilter = new HashSet<>(module.getConfig().getStringList("worlds"));
@@ -103,10 +101,6 @@ public class MiscEntityLimiterListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntitySpawn(@NotNull EntitySpawnEvent event) {
-        if (!enabled) {
-            return;
-        }
-
         Entity entity = event.getEntity();
         if (!caps.containsKey(entity.getType())) {
             return;
@@ -130,10 +124,6 @@ public class MiscEntityLimiterListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onHangingPlace(@NotNull HangingPlaceEvent event) {
-        if (!enabled) {
-            return;
-        }
-
         Hanging hanging = event.getEntity();
         if (!caps.containsKey(hanging.getType())) {
             return;
@@ -153,10 +143,6 @@ public class MiscEntityLimiterListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onVehicleCreate(@NotNull VehicleCreateEvent event) {
-        if (!enabled) {
-            return;
-        }
-
         Entity entity = event.getVehicle();
         if (!caps.containsKey(entity.getType())) {
             return;

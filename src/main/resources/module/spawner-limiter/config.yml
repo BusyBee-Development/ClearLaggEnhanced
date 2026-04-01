@@ -1,3 +1,4 @@
+# Legacy key: ignored at runtime. Use config.yml modules.spawner-limiter instead.
 enabled: true
 
 spawn-delay-multiplier: 1.5

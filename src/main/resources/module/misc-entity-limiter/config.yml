@@ -1,3 +1,4 @@
+# Legacy key: ignored at runtime. Use config.yml modules.misc-entity-limiter instead.
 enabled: true
 
 limits-per-chunk:

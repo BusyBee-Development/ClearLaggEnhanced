@@ -16,7 +16,7 @@ public class WildStackerIntegration extends Module {
     @Override
     public void onEnable() {
         if (!Bukkit.getPluginManager().isPluginEnabled("WildStacker")) {
-            setEnabled(false);
+            plugin.getLogger().info("WildStacker integration is enabled in config, but WildStacker is not installed.");
             return;
         }
 
@@ -25,7 +25,8 @@ public class WildStackerIntegration extends Module {
             plugin.getStackerManager().registerHook(hook);
             plugin.getLogger().info("WildStacker integration enabled");
         } else {
-            setEnabled(false);
+            hook = null;
+            plugin.getLogger().warning("WildStacker integration could not be initialized.");
         }
     }
 
@@ -33,6 +34,7 @@ public class WildStackerIntegration extends Module {
     public void onDisable() {
         if (hook != null) {
             plugin.getStackerManager().unregisterHook(hook);
+            hook = null;
         }
     }
 

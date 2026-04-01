@@ -16,7 +16,7 @@ public class RoseStackerIntegration extends Module {
     @Override
     public void onEnable() {
         if (!Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
-            setEnabled(false);
+            plugin.getLogger().info("RoseStacker integration is enabled in config, but RoseStacker is not installed.");
             return;
         }
 
@@ -25,7 +25,8 @@ public class RoseStackerIntegration extends Module {
             plugin.getStackerManager().registerHook(hook);
             plugin.getLogger().info("RoseStacker integration enabled");
         } else {
-            setEnabled(false);
+            hook = null;
+            plugin.getLogger().warning("RoseStacker integration could not be initialized.");
         }
     }
 
@@ -33,6 +34,7 @@ public class RoseStackerIntegration extends Module {
     public void onDisable() {
         if (hook != null) {
             plugin.getStackerManager().unregisterHook(hook);
+            hook = null;
         }
     }
 

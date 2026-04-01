@@ -1,3 +1,4 @@
+# Legacy key: ignored at runtime. Use config.yml modules.chunk-finder instead.
 enabled: true
 
 radius: 10
