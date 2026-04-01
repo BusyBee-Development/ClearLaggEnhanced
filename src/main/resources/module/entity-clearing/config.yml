@@ -1,5 +1,8 @@
-# Legacy key: ignored at runtime. Use config.yml modules.entity-clearing instead.
-enabled: true
+# ============================================================================ #
+#                          Entity Clearing Module                              #
+# ============================================================================ #
+# This module handles automated entity clearing based on configured intervals.
+# The module is enabled/disabled in the main config.yml.
 
 interval: 300
 

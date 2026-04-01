@@ -1,5 +1,8 @@
-# Legacy key: ignored at runtime. Use config.yml modules.spawner-limiter instead.
-enabled: true
+# ============================================================================ #
+#                          Spawner Limiter Module                              #
+# ============================================================================ #
+# This module limits mob spawning from spawners to prevent lag.
+# The module is enabled/disabled in the main config.yml.
 
 spawn-delay-multiplier: 1.5
 

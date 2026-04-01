@@ -1,2 +1,7 @@
-# Legacy key: ignored at runtime. Use config.yml modules.rosestacker instead.
-enabled: true
+# ============================================================================ #
+#                         RoseStacker Integration                              #
+# ============================================================================ #
+# This module provides integration with RoseStacker.
+# The module is enabled/disabled in the main config.yml.
+#
+# There are no additional settings for this module.

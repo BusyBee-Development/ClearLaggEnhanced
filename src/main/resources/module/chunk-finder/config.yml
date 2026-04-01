@@ -1,5 +1,8 @@
-# Legacy key: ignored at runtime. Use config.yml modules.chunk-finder instead.
-enabled: true
+# ============================================================================ #
+#                            Chunk Finder Module                               #
+# ============================================================================ #
+# This module identifies chunks with high entity counts.
+# The module is enabled/disabled in the main config.yml.
 
 radius: 10
 entity-threshold: 50

@@ -1,5 +1,8 @@
-# Legacy key: ignored at runtime. Use config.yml modules.misc-entity-limiter instead.
-enabled: true
+# ============================================================================ #
+#                        Misc Entity Limiter Module                            #
+# ============================================================================ #
+# This module limits non-mob entities like boats, minecarts, and armor stands.
+# The module is enabled/disabled in the main config.yml.
 
 limits-per-chunk:
   ARMOR_STAND: -1

@@ -1,15 +1,10 @@
-# Legacy key: ignored at runtime. Use config.yml modules.mob-limiter instead.
-enabled: true
+# ============================================================================ #
+#                            Mob Limiter Module                                #
+# ============================================================================ #
+# This module limits the number of mobs that can exist in a single chunk.
+# The module is enabled/disabled in the main config.yml.
 
 max-mobs-per-chunk: 50
-
-per-type-limits:
-  enabled: true
-  limits:
-    ZOMBIE: 20
-    SKELETON: 20
-    CREEPER: 15
-    SPIDER: 15
 
 per-type-limits:
   enabled: true

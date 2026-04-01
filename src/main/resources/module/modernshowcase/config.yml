@@ -1,2 +1,7 @@
-# Legacy key: ignored at runtime. Use config.yml modules.modernshowcase instead.
-enabled: true
+# ============================================================================ #
+#                        ModernShowcase Integration                            #
+# ============================================================================ #
+# This module provides integration with ModernShowcase.
+# The module is enabled/disabled in the main config.yml.
+#
+# There are no additional settings for this module.
