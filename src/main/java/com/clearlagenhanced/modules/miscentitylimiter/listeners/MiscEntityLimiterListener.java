@@ -1,0 +1,162 @@
+package com.clearlagenhanced.modules.miscentitylimiter.listeners;
+
+import com.clearlagenhanced.ClearLaggEnhanced;
+import com.clearlagenhanced.core.module.Module;
+import com.clearlagenhanced.modules.miscentitylimiter.tasks.MiscEntitySweepService;
+import com.tcoded.folialib.impl.PlatformScheduler;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.vehicle.VehicleCreateEvent;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class MiscEntityLimiterListener implements Listener {
+
+    private final PlatformScheduler scheduler;
+    private final Map<EntityType, Integer> caps;
+    private final Set<String> worldFilter;
+    private final boolean protectNamed;
+    private final Set<String> protectedTags;
+    private final MiscEntitySweepService notifier;
+
+    public MiscEntityLimiterListener(ClearLaggEnhanced plugin, MiscEntitySweepService notifier, Module module) {
+        this.scheduler = ClearLaggEnhanced.scheduler();
+        this.notifier = notifier;
+
+        protectNamed = module.getConfig().getBoolean("protect.named", true);
+        protectedTags = new HashSet<>(module.getConfig().getStringList("protect.tags"));
+        worldFilter = new HashSet<>(module.getConfig().getStringList("worlds"));
+
+        caps = new EnumMap<>(EntityType.class);
+        loadCaps(module.getConfig().getConfigurationSection("limits-per-chunk"));
+    }
+
+    private void loadCaps(@Nullable ConfigurationSection sec) {
+        if (sec == null) {
+            return;
+        }
+
+        for (String key : sec.getKeys(false)) {
+            try {
+                EntityType type = EntityType.valueOf(key.toUpperCase(Locale.ROOT));
+                int cap = sec.getInt(key, -1);
+                if (cap >= 0) caps.put(type, cap);
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+    }
+
+    private boolean isWorldAllowed(@NotNull World world) {
+        return worldFilter.isEmpty() || worldFilter.contains(world.getName());
+    }
+
+    private boolean exempt(@NotNull Entity entity) {
+        if (protectNamed) {
+            if (entity.getCustomName() != null && !entity.getCustomName().isEmpty()) return true;
+
+            if (entity instanceof Item item) {
+                ItemStack stack = item.getItemStack();
+                if (stack.hasItemMeta() && stack.getItemMeta().hasDisplayName()) {
+                    return true;
+                }
+            }
+        }
+        if (!protectedTags.isEmpty()) {
+            for (String tags : protectedTags) {
+                if (entity.getScoreboardTags().contains(tags)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean overCapIfAdded(@NotNull Chunk chunk, @NotNull EntityType type) {
+        Integer cap = caps.get(type);
+        if (cap == null || cap < 0) {
+            return false;
+        }
+
+        AtomicInteger count = new AtomicInteger(0);
+        for (Entity entity : chunk.getEntities()) {
+            if (entity.getType() == type) {
+                count.incrementAndGet();
+            }
+        }
+
+        return count.get() >= cap;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onEntitySpawn(@NotNull EntitySpawnEvent event) {
+        Entity entity = event.getEntity();
+        if (!caps.containsKey(entity.getType())) {
+            return;
+        }
+
+        if (!isWorldAllowed(entity.getWorld())) {
+            return;
+        }
+
+        if (exempt(entity)) {
+            return;
+        }
+
+        if (overCapIfAdded(entity.getLocation().getChunk(), entity.getType())) {
+            event.setCancelled(true);
+            if (notifier != null) {
+                notifier.notifyAdmins(event.getLocation().getChunk(), entity.getType(), 0, true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onHangingPlace(@NotNull HangingPlaceEvent event) {
+        Hanging hanging = event.getEntity();
+        if (!caps.containsKey(hanging.getType())) {
+            return;
+        }
+
+        if (!isWorldAllowed(hanging.getWorld())) {
+            return;
+        }
+
+        if (overCapIfAdded(hanging.getLocation().getChunk(), hanging.getType())) {
+            event.setCancelled(true);
+            if (notifier != null) {
+                notifier.notifyAdmins(hanging.getLocation().getChunk(), hanging.getType(), 0, true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onVehicleCreate(@NotNull VehicleCreateEvent event) {
+        Entity entity = event.getVehicle();
+        if (!caps.containsKey(entity.getType())) {
+            return;
+        }
+
+        if (!isWorldAllowed(entity.getWorld())) {
+            return;
+        }
+
+        if (overCapIfAdded(entity.getLocation().getChunk(), entity.getType())) {
+            scheduler.runAtEntity(entity, task -> entity.remove());
+            if (notifier != null) {
+                notifier.notifyAdmins(entity.getLocation().getChunk(), entity.getType(), 1, false);
+            }
+        }
+    }
+}

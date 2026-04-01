@@ -1,0 +1,8 @@
+# ============================================================================ #
+#                            Chunk Finder Module                               #
+# ============================================================================ #
+# This module identifies chunks with high entity counts.
+# The module is enabled/disabled in the main config.yml.
+
+radius: 10
+entity-threshold: 50

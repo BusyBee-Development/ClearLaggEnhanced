@@ -48,4 +48,9 @@ Thumbs.db
 # Environment files
 .env
 .env.*
+<<<<<<< HEAD
 .idea
+=======
+.idea
+docs/
+>>>>>>> dev

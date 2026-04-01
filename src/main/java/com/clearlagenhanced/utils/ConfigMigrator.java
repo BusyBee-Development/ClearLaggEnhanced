@@ -1,6 +1,10 @@
 package com.clearlagenhanced.utils;
 
 import org.bukkit.configuration.ConfigurationSection;
+<<<<<<< HEAD
+=======
+import org.bukkit.configuration.InvalidConfigurationException;
+>>>>>>> dev
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -29,6 +33,7 @@ public class ConfigMigrator {
     }
 
     public FileConfiguration migrate(@NotNull String fileName) {
+<<<<<<< HEAD
         addedKeys.clear();
         removedKeys.clear();
 
@@ -45,6 +50,47 @@ public class ConfigMigrator {
         InputStream defaultStream = plugin.getResource(fileName);
         if (defaultStream == null) {
             plugin.getLogger().warning("Could not find default " + fileName + " in plugin JAR!");
+=======
+        return migrate(fileName, new File(plugin.getDataFolder(), fileName));
+    }
+
+    public FileConfiguration migrate(@NotNull String resourcePath, @NotNull File configFile) {
+        addedKeys.clear();
+        removedKeys.clear();
+
+        if (!configFile.exists()) {
+            try (InputStream in = plugin.getResource(resourcePath)) {
+                if (in != null) {
+                    if (configFile.getParentFile() != null) {
+                        configFile.getParentFile().mkdirs();
+                    }
+                    java.nio.file.Files.copy(in, configFile.toPath());
+                    plugin.getLogger().info("Created new " + configFile.getName() + " from " + resourcePath);
+                } else {
+                    configFile.createNewFile();
+                }
+            } catch (IOException e) {
+                plugin.getLogger().warning("Could not create default " + configFile.getName() + " from " + resourcePath);
+            }
+            return YamlConfiguration.loadConfiguration(configFile);
+        }
+
+        YamlConfiguration userConfig = new YamlConfiguration();
+        try {
+            userConfig.load(configFile);
+        } catch (InvalidConfigurationException | IOException e) {
+            plugin.getLogger().severe("Detected corruption in " + configFile.getName() + "! Backing up and regenerating...");
+            createBackupRaw(configFile, true);
+            
+            // Delete and regenerate from default
+            configFile.delete();
+            return migrate(resourcePath, configFile);
+        }
+
+        InputStream defaultStream = plugin.getResource(resourcePath);
+        if (defaultStream == null) {
+            // No default resource in JAR, just return what we have
+>>>>>>> dev
             return userConfig;
         }
 
@@ -53,19 +99,33 @@ public class ConfigMigrator {
         );
 
         if (!needsMigration(userConfig, defaultConfig)) {
+<<<<<<< HEAD
             plugin.getLogger().info(fileName + " is already up to date");
             return userConfig;
         }
 
         createBackup(configFile);
+=======
+            return userConfig;
+        }
+
+        createBackupRaw(configFile, false);
+>>>>>>> dev
         FileConfiguration mergedConfig = mergeAndReorder(userConfig, defaultConfig);
 
         try {
             mergedConfig.save(configFile);
+<<<<<<< HEAD
             logMigrationSummary(fileName);
             return mergedConfig;
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to save migrated " + fileName + ": " + e.getMessage());
+=======
+            logMigrationSummary(configFile.getName());
+            return mergedConfig;
+        } catch (IOException e) {
+            plugin.getLogger().severe("Failed to save migrated " + configFile.getName() + ": " + e.getMessage());
+>>>>>>> dev
             return null;
         }
     }
@@ -164,13 +224,18 @@ public class ConfigMigrator {
         return keys;
     }
 
+<<<<<<< HEAD
     private void createBackup(@NotNull File configFile) {
+=======
+    private void createBackupRaw(@NotNull File configFile, boolean isCorrupted) {
+>>>>>>> dev
         File backupsDir = new File(configFile.getParentFile(), "backups");
         if (!backupsDir.exists()) {
             backupsDir.mkdirs();
         }
 
         String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+<<<<<<< HEAD
         String backupFileName = configFile.getName() + ".backup-" + timestamp;
         File backupFile = new File(backupsDir, backupFileName);
 
@@ -178,11 +243,26 @@ public class ConfigMigrator {
             YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
             config.save(backupFile);
             plugin.getLogger().info("Created backup: backups/" + backupFileName);
+=======
+        String backupFileName = configFile.getName() + (isCorrupted ? ".corrupted-" : ".backup-") + timestamp;
+        File backupFile = new File(backupsDir, backupFileName);
+
+        try {
+            java.nio.file.Files.copy(configFile.toPath(), backupFile.toPath());
+            plugin.getLogger().info("Created " + (isCorrupted ? "corrupted file backup" : "backup") + ": backups/" + backupFileName);
+>>>>>>> dev
         } catch (IOException e) {
             plugin.getLogger().warning("Failed to create backup: " + e.getMessage());
         }
     }
 
+<<<<<<< HEAD
+=======
+    private void createBackup(@NotNull File configFile) {
+        createBackupRaw(configFile, false);
+    }
+
+>>>>>>> dev
     private void logMigrationSummary(@NotNull String fileName) {
         if (addedKeys.isEmpty() && removedKeys.isEmpty()) {
             plugin.getLogger().info(fileName + " migration complete - no changes needed");

@@ -1,0 +1,16 @@
+title: "&d&lSpawner Limiter"
+size: 27
+
+items:
+  toggle:
+    slot: 11
+    enabled-material: GREEN_WOOL
+    disabled-material: RED_WOOL
+  
+  multiplier:
+    slot: 13
+    material: SPAWNER
+  
+  back:
+    slot: 22
+    material: ARROW

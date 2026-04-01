@@ -1,9 +1,13 @@
 package com.clearlagenhanced.managers;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
+<<<<<<< HEAD
 import com.clearlagenhanced.hooks.RoseStackerHook;
 import com.clearlagenhanced.hooks.StackerHook;
 import com.clearlagenhanced.hooks.WildStackerHook;
+=======
+import com.clearlagenhanced.hooks.StackerHook;
+>>>>>>> dev
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -18,6 +22,7 @@ public class StackerManager {
 
     public StackerManager(ClearLaggEnhanced plugin) {
         this.plugin = plugin;
+<<<<<<< HEAD
         registerHooks();
     }
 
@@ -37,6 +42,22 @@ public class StackerManager {
         }
     }
 
+=======
+    }
+
+    public void registerHook(StackerHook hook) {
+        if (hook.isEnabled() && !hooks.contains(hook)) {
+            hooks.add(hook);
+            plugin.getLogger().info(hook.getName() + " hook registered");
+        }
+    }
+
+    public void unregisterHook(StackerHook hook) {
+        hooks.remove(hook);
+        plugin.getLogger().info(hook.getName() + " hook unregistered");
+    }
+
+>>>>>>> dev
     public boolean isStacked(Entity entity) {
         if (entity instanceof Player) return false;
         return findHookFor(entity).isPresent();
@@ -66,4 +87,11 @@ public class StackerManager {
 
         return Optional.empty();
     }
+<<<<<<< HEAD
+=======
+
+    public List<StackerHook> getRegisteredHooks() {
+        return new ArrayList<>(hooks);
+    }
+>>>>>>> dev
 }

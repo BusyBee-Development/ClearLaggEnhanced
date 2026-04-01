@@ -6,7 +6,11 @@
 
     <groupId>com.clearlagenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
+<<<<<<< HEAD
     <version>2026.3.1</version>
+=======
+    <version>2026.4.1</version>
+>>>>>>> dev
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
@@ -48,6 +52,13 @@
             <id>CodeMC</id>
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
+<<<<<<< HEAD
+=======
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+>>>>>>> dev
     </repositories>
 
     <dependencies>
@@ -70,6 +81,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+<<<<<<< HEAD
+=======
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.6.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+>>>>>>> dev
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>7.0.2</version>
@@ -117,6 +137,38 @@
             <version>3.1.0</version>
             <scope>compile</scope>
         </dependency>
+<<<<<<< HEAD
+=======
+        <dependency>
+            <groupId>com.github.cryptomorin</groupId>
+            <artifactId>XSeries</artifactId>
+            <version>13.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.12.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.20.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
+            <version>1.20.4</version>
+            <scope>test</scope>
+        </dependency>
+>>>>>>> dev
     </dependencies>
 
     <build>
@@ -156,6 +208,17 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+<<<<<<< HEAD
+=======
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+>>>>>>> dev
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -199,6 +262,13 @@
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>com.clearlagenhanced.libs.bstats</shadedPattern>
                                 </relocation>
+<<<<<<< HEAD
+=======
+                                <relocation>
+                                    <pattern>com.cryptomorin.xseries</pattern>
+                                    <shadedPattern>com.clearlagenhanced.libs.xseries</shadedPattern>
+                                </relocation>
+>>>>>>> dev
                             </relocations>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">

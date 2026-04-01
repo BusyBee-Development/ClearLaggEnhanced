@@ -1,0 +1,45 @@
+# ============================================================================ #
+#                          Entity Clearing Module                              #
+# ============================================================================ #
+# This module handles automated entity clearing based on configured intervals.
+# The module is enabled/disabled in the main config.yml.
+
+interval: 300
+
+protect-named-entities: true
+protect-tamed-entities: true
+protect-armored-entities: false
+protect-stacked-entities: false
+whitelist-all-mobs: false
+
+extra-protections:
+  mobs-in-boats: true
+  mobs-from-breeding: true
+  modern-showcase: true
+  player-heads: true
+  pets-module: true
+
+worlds: []
+
+whitelist:
+  - "VILLAGER"
+  - "ZOMBIE_VILLAGER"
+  - "IRON_GOLEM"
+  - "ARMOR_STAND"
+  - "ITEM_FRAME"
+  - "GLOW_ITEM_FRAME"
+  - "LEASH_HITCH"
+
+item-whitelist:
+  - "NETHERITE_INGOT"
+
+notifications:
+  broadcast-times: [60, 30, 10, 5]
+  types:
+    - "ACTION_BAR"
+  console-notifications: false
+  sound:
+    enabled: true
+    name: "BLOCK_NOTE_BLOCK_PLING"
+    volume: 1.0
+    pitch: 1.2

@@ -2,6 +2,10 @@ package com.clearlagenhanced.utils;
 
 import com.clearlagenhanced.managers.MessageManager;
 import net.kyori.adventure.text.Component;
+<<<<<<< HEAD
+=======
+import org.bukkit.Bukkit;
+>>>>>>> dev
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -67,4 +71,40 @@ public class MessageUtils {
         placeholders.put(placeholder, value);
         sendMessage(sender, path, placeholders);
     }
+<<<<<<< HEAD
+=======
+
+    public static void broadcastMessage(@NotNull String path) {
+        broadcastMessage(path, new HashMap<>(), true, true);
+    }
+
+    public static void broadcastMessage(@NotNull String path, @NotNull Map<String, String> placeholders) {
+        broadcastMessage(path, placeholders, true, true);
+    }
+
+    public static void broadcastMessage(@NotNull String path, @NotNull Map<String, String> placeholders, boolean toConsole, boolean toPlayers) {
+        if (messageManager == null) {
+            Bukkit.getConsoleSender().sendMessage(Component.text("MessageManager not initialized!"));
+            return;
+        }
+
+        if (toConsole) {
+            Component consoleMsg = messageManager.getMessage(path, placeholders);
+            Bukkit.getConsoleSender().sendMessage(consoleMsg);
+        }
+
+        if (toPlayers) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Component msg = messageManager.getMessage(path, placeholders, player);
+                player.sendMessage(msg);
+            }
+        }
+    }
+
+    public static void broadcastMessage(@NotNull String path, @NotNull String placeholder, @NotNull String value) {
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put(placeholder, value);
+        broadcastMessage(path, placeholders, true, true);
+    }
+>>>>>>> dev
 }

@@ -1,0 +1,12 @@
+title: "&b&lMisc Entity Limiter"
+size: 27
+
+items:
+  toggle:
+    slot: 13
+    enabled-material: GREEN_WOOL
+    disabled-material: RED_WOOL
+  
+  back:
+    slot: 22
+    material: ARROW

@@ -1,0 +1,28 @@
+title: "&c&lEntity Clearing"
+size: 36
+
+items:
+  toggle:
+    slot: 10
+    enabled-material: GREEN_WOOL
+    disabled-material: RED_WOOL
+  
+  interval:
+    slot: 12
+    material: CLOCK
+  
+  protect-named:
+    slot: 14
+    material: NAME_TAG
+  
+  protect-tamed:
+    slot: 16
+    material: BONE
+  
+  protect-stacked:
+    slot: 20
+    material: CHEST
+  
+  back:
+    slot: 31
+    material: ARROW

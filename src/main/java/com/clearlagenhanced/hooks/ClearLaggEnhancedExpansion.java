@@ -1,10 +1,22 @@
+<<<<<<< HEAD
 package com.clearlagenhanced.hooks;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
+=======
+
+package com.clearlagenhanced.hooks;
+
+import com.clearlagenhanced.ClearLaggEnhanced;
+import com.clearlagenhanced.core.module.EntityClearingModule;
+>>>>>>> dev
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
 public class ClearLaggEnhancedExpansion extends PlaceholderExpansion {
 
     private final ClearLaggEnhanced plugin;
@@ -48,9 +60,21 @@ public class ClearLaggEnhancedExpansion extends PlaceholderExpansion {
             case "memory_max" -> String.valueOf(plugin.getPerformanceManager().getMaxMemory() / 1024 / 1024);
             case "memory_percentage" -> String.format("%.1f", plugin.getPerformanceManager().getMemoryUsagePercentage());
             case "entities_total" -> String.valueOf(plugin.getPerformanceManager().getTotalEntities());
+<<<<<<< HEAD
             case "next_clear" -> String.valueOf(plugin.getEntityManager() != null
                 ? plugin.getEntityManager().getTimeUntilNextClear()
                 : 0);
+=======
+
+            case "next_clear" -> {
+
+                EntityClearingModule module = (EntityClearingModule) plugin.getModuleManager().getModule("entity-clearing");
+
+                yield String.valueOf(module != null ? module.getTimeUntilNextClear() : 0);
+
+            }
+
+>>>>>>> dev
             default -> null;
         };
     }

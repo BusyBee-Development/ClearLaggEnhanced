@@ -1,0 +1,7 @@
+# ============================================================================ #
+#                           Performance Module                                 #
+# ============================================================================ #
+# This module monitors server performance and provides optimization data.
+# The module is enabled/disabled in the main config.yml.
+
+update-interval: 20

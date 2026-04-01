@@ -1,0 +1,16 @@
+title: "&6&lMob Limiter"
+size: 27
+
+items:
+  toggle:
+    slot: 11
+    enabled-material: GREEN_WOOL
+    disabled-material: RED_WOOL
+  
+  info:
+    slot: 13
+    material: ZOMBIE_HEAD
+  
+  back:
+    slot: 22
+    material: ARROW
