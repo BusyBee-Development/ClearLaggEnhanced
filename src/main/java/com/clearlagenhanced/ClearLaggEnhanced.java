@@ -1,23 +1,6 @@
 package com.clearlagenhanced;
 
 import com.clearlagenhanced.commands.LaggCommand;
-<<<<<<< HEAD
-import com.clearlagenhanced.database.DatabaseManager;
-import com.clearlagenhanced.hooks.ClearLaggEnhancedExpansion;
-import com.clearlagenhanced.listeners.BreedingListener;
-import com.clearlagenhanced.listeners.MiscEntityLimiterListener;
-import com.clearlagenhanced.listeners.MobLimiterListener;
-import com.clearlagenhanced.listeners.SpawnerLimiterListener;
-import com.clearlagenhanced.managers.ConfigManager;
-import com.clearlagenhanced.managers.EntityManager;
-import com.clearlagenhanced.managers.GUIManager;
-import com.clearlagenhanced.managers.LagPreventionManager;
-import com.clearlagenhanced.managers.MessageManager;
-import com.clearlagenhanced.managers.MiscEntitySweepService;
-import com.clearlagenhanced.managers.NotificationManager;
-import com.clearlagenhanced.managers.PerformanceManager;
-import com.clearlagenhanced.managers.StackerManager;
-=======
 import com.clearlagenhanced.core.gui.ModuleGUIRegistry;
 import com.clearlagenhanced.core.module.*;
 import com.clearlagenhanced.database.DatabaseManager;
@@ -39,7 +22,6 @@ import com.clearlagenhanced.modules.miscentitylimiter.MiscEntityLimiterModule;
 import com.clearlagenhanced.modules.moblimiter.MobLimiterModule;
 import com.clearlagenhanced.modules.moblimiter.models.LagPreventionManager;
 import com.clearlagenhanced.modules.spawnerlimiter.SpawnerLimiterModule;
->>>>>>> dev
 import com.clearlagenhanced.utils.EntityProtectionUtils;
 import com.clearlagenhanced.utils.MessageUtils;
 import com.clearlagenhanced.utils.VersionCheck;
@@ -52,11 +34,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
-<<<<<<< HEAD
-=======
 import java.util.Map;
 
->>>>>>> dev
 public class ClearLaggEnhanced extends JavaPlugin {
 
     @Getter
@@ -68,19 +47,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private ConfigManager configManager;
     @Getter private MessageManager messageManager;
     @Getter private StackerManager stackerManager;
-<<<<<<< HEAD
-    @Getter private EntityManager entityManager;
-    @Getter private LagPreventionManager lagPreventionManager;
-    @Getter private PerformanceManager performanceManager;
-    @Getter private NotificationManager notificationManager;
-    @Getter private EntityProtectionUtils entityProtectionUtils;
-    private GUIManager guiManager;
-
-    private MiscEntitySweepService miscSweep;
-
-    public static PlatformScheduler scheduler() {
-      return scheduler;
-=======
     @Getter private EntityProtectionUtils entityProtectionUtils;
     @Getter private GUIManager guiManager;
     @Getter private ModuleGUIRegistry guiRegistry;
@@ -89,7 +55,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
     public static PlatformScheduler scheduler() {
         return scheduler;
->>>>>>> dev
     }
 
     @Override
@@ -102,17 +67,10 @@ public class ClearLaggEnhanced extends JavaPlugin {
         new Metrics(this, 26743);
 
         saveDefaultConfig();
-<<<<<<< HEAD
-        initializeManagers();
-        registerCommands();
-        registerListeners();
-        startMiscLimiterIfEnabled();
-=======
         initializeCore();
         initializeModules();
         registerCommands();
         registerListeners();
->>>>>>> dev
         registerPlaceholders();
 
         getLogger().info("ClearLaggEnhanced has been enabled!");
@@ -120,41 +78,15 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
     @Override
     public void onDisable() {
-<<<<<<< HEAD
-        closeQuietlyDatabase();
-        shutdown(entityManager);
-        shutdown(guiManager);
-        shutdown(notificationManager);
-        stopMiscLimiterIfRunning();
-=======
         if (moduleManager != null) {
             moduleManager.disableAll();
         }
 
         shutdownCore();
->>>>>>> dev
 
         getLogger().info("ClearLaggEnhanced has been disabled!");
     }
 
-<<<<<<< HEAD
-    public GUIManager getGUIManager() {
-        return guiManager;
-    }
-
-    public void reloadAll(CommandSender sender) {
-        HandlerList.unregisterAll(this);
-
-        shutdown(entityManager);
-        shutdown(guiManager);
-        shutdown(notificationManager);
-        stopMiscLimiterIfRunning();
-
-        initializeManagers();
-
-        registerListeners();
-        startMiscLimiterIfEnabled();
-=======
     private void initializeCore() {
         applyCoreServices(buildCoreServices());
     }
@@ -233,35 +165,12 @@ public class ClearLaggEnhanced extends JavaPlugin {
         moduleManager.reloadAll();
 
         registerListeners();
->>>>>>> dev
 
         if (sender != null) {
             MessageUtils.sendMessage(sender, "notifications.reload-complete");
         }
     }
 
-<<<<<<< HEAD
-    private void initializeManagers() {
-        configManager = new ConfigManager(this);
-        configManager.reload();
-        messageManager = new MessageManager(this);
-        MessageUtils.initialize(messageManager);
-        databaseManager = new DatabaseManager(this);
-
-        stackerManager = new StackerManager(this);
-        notificationManager = new NotificationManager(this);
-        performanceManager = new PerformanceManager(this);
-        entityProtectionUtils = new EntityProtectionUtils(this);
-        lagPreventionManager = new LagPreventionManager(this);
-
-        entityManager = new EntityManager(this);
-        entityManager.startAutoClearTask();
-
-        guiManager = new GUIManager(this);
-    }
-
-=======
->>>>>>> dev
     private void registerCommands() {
         final PluginCommand lagg = getCommand("lagg");
         if (lagg != null) {
@@ -273,14 +182,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
     }
 
     private void registerListeners() {
-<<<<<<< HEAD
-        getServer().getPluginManager().registerEvents(new MobLimiterListener(this), this);
-        getServer().getPluginManager().registerEvents(new SpawnerLimiterListener(this), this);
-        getServer().getPluginManager().registerEvents(new BreedingListener(this), this);
-        getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
-        if (guiManager != null) {
-            getServer().getPluginManager().registerEvents(guiManager, this);
-=======
         getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
         if (guiManager != null) {
             GUIListener guiListener = new GUIListener(guiManager);
@@ -288,7 +189,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         }
         if (chatInputManager != null) {
             getServer().getPluginManager().registerEvents(chatInputManager, this);
->>>>>>> dev
         }
     }
 
@@ -298,42 +198,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         }
     }
 
-<<<<<<< HEAD
-    private void startMiscLimiterIfEnabled() {
-        final boolean miscEnabled = getConfigManager().getBoolean("lag-prevention.misc-entity-limiter.enabled", true);
-        if (!miscEnabled) {
-            return;
-        }
-
-        miscSweep = new MiscEntitySweepService(this, getConfigManager());
-        miscSweep.start();
-
-        getServer().getPluginManager().registerEvents(new MiscEntityLimiterListener(this, miscSweep), this);
-    }
-
-    private void stopMiscLimiterIfRunning() {
-        if (miscSweep != null) {
-            miscSweep.shutdown();
-            miscSweep = null;
-        }
-    }
-
-    private void closeQuietlyDatabase() {
-        if (databaseManager != null) {
-            databaseManager.close();
-        }
-    }
-
-    private static void shutdown(Object o) {
-        if (o instanceof GUIManager gm) {
-            gm.shutdown();
-        } else if (o instanceof EntityManager em) {
-            em.shutdown();
-        } else if (o instanceof NotificationManager nm) {
-            nm.shutdown();
-        }
-    }
-=======
     private void closeQuietlyDatabase() {
         if (databaseManager != null) {
             databaseManager.close();
@@ -423,5 +287,4 @@ public class ClearLaggEnhanced extends JavaPlugin {
             ChatInputManager chatInputManager
     ) {
     }
->>>>>>> dev
 }

@@ -27,11 +27,7 @@ public class MessageManager {
     private static final Pattern LEGACY_X_HEX = Pattern.compile("(?i)&x(?:&([0-9A-F])){6}");
 
     private final boolean placeholderAPIEnabled;
-<<<<<<< HEAD
-
-=======
     
->>>>>>> dev
     public MessageManager(@NotNull ClearLaggEnhanced plugin) {
         this.plugin = plugin;
         this.placeholderAPIEnabled = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
@@ -60,10 +56,6 @@ public class MessageManager {
     public FileConfiguration getConfig() {
         return messages;
     }
-<<<<<<< HEAD
-    public String getRawMessage(@NotNull String path) {
-        return messages.getString(path, "Message not found: " + path);
-=======
 
     public String getRawMessage(@NotNull String path) {
         if (messages != null && messages.contains(path)) {
@@ -71,7 +63,6 @@ public class MessageManager {
         }
 
         return "Message not found: " + path;
->>>>>>> dev
     }
 
     public Component getMessage(@NotNull String path, @NotNull Map<String, String> placeholders) {

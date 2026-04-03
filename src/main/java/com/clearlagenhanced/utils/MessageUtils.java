@@ -2,10 +2,7 @@ package com.clearlagenhanced.utils;
 
 import com.clearlagenhanced.managers.MessageManager;
 import net.kyori.adventure.text.Component;
-<<<<<<< HEAD
-=======
 import org.bukkit.Bukkit;
->>>>>>> dev
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -71,8 +68,6 @@ public class MessageUtils {
         placeholders.put(placeholder, value);
         sendMessage(sender, path, placeholders);
     }
-<<<<<<< HEAD
-=======
 
     public static void broadcastMessage(@NotNull String path) {
         broadcastMessage(path, new HashMap<>(), true, true);
@@ -106,5 +101,4 @@ public class MessageUtils {
         placeholders.put(placeholder, value);
         broadcastMessage(path, placeholders, true, true);
     }
->>>>>>> dev
 }

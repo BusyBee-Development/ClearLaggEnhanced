@@ -7,28 +7,19 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
-<<<<<<< HEAD
-=======
 import java.io.File;
 import java.io.IOException;
->>>>>>> dev
 import java.util.*;
 
 public class ConfigManager {
 
     private final ClearLaggEnhanced plugin;
-<<<<<<< HEAD
-=======
     private final File configFile;
->>>>>>> dev
     @Getter private FileConfiguration config;
 
     public ConfigManager(@NotNull ClearLaggEnhanced plugin) {
         this.plugin = plugin;
-<<<<<<< HEAD
-=======
         this.configFile = new File(plugin.getDataFolder(), "config.yml");
->>>>>>> dev
         this.reload();
     }
 
@@ -94,10 +85,6 @@ public class ConfigManager {
     public void set(@NotNull String path, @NotNull Object value) {
         config.set(path, value);
     }
-<<<<<<< HEAD
-    public void save() {
-        plugin.saveConfig();
-=======
 
     public boolean contains(@NotNull String path) {
         return config != null && config.contains(path);
@@ -113,6 +100,5 @@ public class ConfigManager {
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to save config.yml: " + e.getMessage());
         }
->>>>>>> dev
     }
 }
