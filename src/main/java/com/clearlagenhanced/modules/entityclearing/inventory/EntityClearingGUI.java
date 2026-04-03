@@ -81,6 +81,7 @@ public class EntityClearingGUI extends InventoryGUI {
             .consumer(event -> {
                 module.getConfig().set("protect-named-entities", !protectNamed);
                 module.saveConfig();
+                plugin.getEntityProtectionUtils().refreshSettingsCache();
                 plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
             })
         );
@@ -90,6 +91,7 @@ public class EntityClearingGUI extends InventoryGUI {
             .consumer(event -> {
                 module.getConfig().set("protect-tamed-entities", !protectTamed);
                 module.saveConfig();
+                plugin.getEntityProtectionUtils().refreshSettingsCache();
                 plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
             })
         );
@@ -99,6 +101,7 @@ public class EntityClearingGUI extends InventoryGUI {
             .consumer(event -> {
                 module.getConfig().set("protect-stacked-entities", !protectStacked);
                 module.saveConfig();
+                plugin.getEntityProtectionUtils().refreshSettingsCache();
                 plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
             })
         );

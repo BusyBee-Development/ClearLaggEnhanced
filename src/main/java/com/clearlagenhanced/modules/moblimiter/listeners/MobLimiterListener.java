@@ -3,6 +3,7 @@ package com.clearlagenhanced.modules.moblimiter.listeners;
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
 import com.clearlagenhanced.modules.moblimiter.models.LagPreventionManager;
+import com.clearlagenhanced.utils.EntityProtectionUtils;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -13,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,16 +51,17 @@ public class MobLimiterListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onCreatureSpawn(@NotNull CreatureSpawnEvent event) {
         LivingEntity entity = event.getEntity();
-        if (!isCountable(entity)) {
+        EntityProtectionUtils.ProtectionContext protectionContext = plugin.getEntityProtectionUtils().createProtectionContext();
+        if (!isCountable(entity, protectionContext)) {
             return;
         }
 
         Chunk chunk = entity.getLocation().getChunk();
         EntityType entityType = entity.getType();
 
-        boolean globalLimitReached = limiter.isMobLimitReached(chunk);
+        boolean globalLimitReached = limiter.isMobLimitReached(chunk, protectionContext);
 
-        boolean typeLimitReached = isTypeLimitReached(chunk, entityType);
+        boolean typeLimitReached = isTypeLimitReached(chunk, entityType, protectionContext);
 
         if (globalLimitReached || typeLimitReached) {
             event.setCancelled(true);
@@ -68,16 +71,17 @@ public class MobLimiterListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSpawnerSpawn(@NotNull SpawnerSpawnEvent event) {
         Entity entity = event.getEntity();
-        if (!isCountable(entity)) {
+        EntityProtectionUtils.ProtectionContext protectionContext = plugin.getEntityProtectionUtils().createProtectionContext();
+        if (!isCountable(entity, protectionContext)) {
             return;
         }
 
         Chunk chunk = entity.getLocation().getChunk();
         EntityType entityType = entity.getType();
 
-        boolean globalLimitReached = limiter.isMobLimitReached(chunk);
+        boolean globalLimitReached = limiter.isMobLimitReached(chunk, protectionContext);
 
-        boolean typeLimitReached = isTypeLimitReached(chunk, entityType);
+        boolean typeLimitReached = isTypeLimitReached(chunk, entityType, protectionContext);
 
         if (globalLimitReached || typeLimitReached) {
             event.setCancelled(true);
@@ -90,11 +94,11 @@ public class MobLimiterListener implements Listener {
         limiter.optimizeChunk(chunk);
     }
 
-    private boolean isCountable(@NotNull Entity entity) {
-        return entity instanceof LivingEntity && !plugin.getEntityProtectionUtils().isProtected(entity);
+    private boolean isCountable(@NotNull Entity entity, @Nullable EntityProtectionUtils.ProtectionContext protectionContext) {
+        return entity instanceof LivingEntity && (protectionContext == null || !plugin.getEntityProtectionUtils().isProtected(entity, protectionContext));
     }
 
-    private boolean isTypeLimitReached(@NotNull Chunk chunk, @NotNull EntityType entityType) {
+    private boolean isTypeLimitReached(@NotNull Chunk chunk, @NotNull EntityType entityType, @Nullable EntityProtectionUtils.ProtectionContext protectionContext) {
         if (!enablePerTypeLimits) {
             return false;
         }
@@ -107,7 +111,9 @@ public class MobLimiterListener implements Listener {
         AtomicInteger count = new AtomicInteger(0);
 
         for (Entity entity : chunk.getEntities()) {
-            if (entity.getType() == entityType && entity instanceof LivingEntity && !plugin.getEntityProtectionUtils().isProtected(entity)) {
+            if (entity.getType() == entityType
+                    && entity instanceof LivingEntity
+                    && (protectionContext == null || !plugin.getEntityProtectionUtils().isProtected(entity, protectionContext))) {
                 count.incrementAndGet();
             }
         }

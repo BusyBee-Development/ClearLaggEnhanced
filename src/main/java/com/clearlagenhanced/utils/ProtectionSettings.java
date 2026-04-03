@@ -1,8 +1,12 @@
 package com.clearlagenhanced.utils;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public record ProtectionSettings(
     boolean protectNamed,
@@ -19,7 +23,23 @@ public record ProtectionSettings(
     Set<String> whitelist,
     Set<String> itemWhitelist
 ) {
-    public static ProtectionSettings fromConfig(ConfigurationSection config) {
+    public static final ProtectionSettings DEFAULTS = new ProtectionSettings(
+            true,
+            true,
+            false,
+            false,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            Set.of(),
+            Set.of(),
+            Set.of()
+    );
+
+    public static @NotNull ProtectionSettings fromConfig(@NotNull ConfigurationSection config) {
         return new ProtectionSettings(
             config.getBoolean("protect-named-entities", true),
             config.getBoolean("protect-tamed-entities", true),
@@ -31,12 +51,35 @@ public record ProtectionSettings(
             config.getBoolean("extra-protections.modern-showcase", true),
             config.getBoolean("extra-protections.player-heads", true),
             config.getBoolean("extra-protections.pets-module", true),
-            config.getStringList("extra-protections.protected-entity-tags").stream()
-                    .map(String::trim)
-                    .filter(tag -> !tag.isEmpty())
-                    .collect(Collectors.toSet()),
-            config.getStringList("whitelist").stream().map(String::toUpperCase).collect(Collectors.toSet()),
-            config.getStringList("item-whitelist").stream().map(String::toUpperCase).collect(Collectors.toSet())
+            normalizeExactValues(config.getStringList("extra-protections.protected-entity-tags"), false),
+            normalizeExactValues(config.getStringList("whitelist"), true),
+            normalizeExactValues(config.getStringList("item-whitelist"), true)
         );
+    }
+
+    private static @NotNull Set<String> normalizeExactValues(@NotNull List<String> values, boolean uppercase) {
+        if (values.isEmpty()) {
+            return Set.of();
+        }
+
+        Set<String> normalizedValues = new HashSet<>();
+        for (String value : values) {
+            if (value == null) {
+                continue;
+            }
+
+            String normalized = value.trim();
+            if (normalized.isEmpty()) {
+                continue;
+            }
+
+            if (uppercase) {
+                normalized = normalized.toUpperCase(Locale.ROOT);
+            }
+
+            normalizedValues.add(normalized);
+        }
+
+        return normalizedValues.isEmpty() ? Set.of() : Set.copyOf(normalizedValues);
     }
 }

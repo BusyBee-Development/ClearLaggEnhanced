@@ -22,18 +22,26 @@ public class EntityProtectionUtils {
     
     private final ClearLaggEnhanced plugin;
     private final StackerManager stackerManager;
+    private volatile ProtectionSettings cachedSettings = ProtectionSettings.DEFAULTS;
 
     public EntityProtectionUtils(ClearLaggEnhanced plugin, StackerManager stackerManager) {
         this.plugin = plugin;
         this.stackerManager = stackerManager;
+        refreshSettingsCache();
     }
 
     public boolean isProtected(@NotNull Entity entity) {
+        ProtectionContext context = createProtectionContext();
+        return context != null && isProtected(entity, context);
+    }
+
+    public @Nullable ProtectionContext createProtectionContext() {
         Module module = plugin.getModuleManager().getModule("entity-clearing");
-        if (module == null || !module.isEnabled()) return false;
-        
-        ProtectionSettings settings = ProtectionSettings.fromConfig(module.getConfig());
-        
+        if (module == null || !module.isEnabled()) {
+            return null;
+        }
+
+        ProtectionSettings settings = cachedSettings;
         ModernShowcaseHook msHook = null;
         if (settings.modernShowcase()) {
             Module msModule = plugin.getModuleManager().getModule("modernshowcase");
@@ -41,8 +49,22 @@ public class EntityProtectionUtils {
                 msHook = ((ModernShowcaseIntegration) msModule).getHook();
             }
         }
-        
-        return isProtected(entity, settings, msHook);
+
+        return new ProtectionContext(settings, msHook);
+    }
+
+    public void refreshSettingsCache() {
+        Module module = plugin.getModuleManager().getModule("entity-clearing");
+        if (module == null || module.getConfig() == null) {
+            cachedSettings = ProtectionSettings.DEFAULTS;
+            return;
+        }
+
+        cachedSettings = ProtectionSettings.fromConfig(module.getConfig());
+    }
+
+    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionContext context) {
+        return isProtected(entity, context.settings(), context.modernShowcaseHook());
     }
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook) {
@@ -125,5 +147,8 @@ public class EntityProtectionUtils {
             if (armor != null && armor.getType() != Material.AIR) return true;
         }
         return false;
+    }
+
+    public record ProtectionContext(@NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook modernShowcaseHook) {
     }
 }

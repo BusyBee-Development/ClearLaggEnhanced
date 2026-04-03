@@ -30,6 +30,7 @@ public class EntityClearingModule extends Module {
     public void onEnable() {
         notificationManager = new NotificationManager(plugin, this);
         entityManager = new EntityManager(plugin, this);
+        plugin.getEntityProtectionUtils().refreshSettingsCache();
 
         int clearInterval = getInt("interval", 300);
         if (clearInterval <= 0) {

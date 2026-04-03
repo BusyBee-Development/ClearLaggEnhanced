@@ -2,6 +2,7 @@ package com.clearlagenhanced.modules.moblimiter.models;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
+import com.clearlagenhanced.utils.EntityProtectionUtils;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -21,10 +22,15 @@ public class LagPreventionManager {
     }
 
     public boolean isMobLimitReached(Chunk chunk) {
+        return isMobLimitReached(chunk, plugin.getEntityProtectionUtils().createProtectionContext());
+    }
+
+    public boolean isMobLimitReached(Chunk chunk, EntityProtectionUtils.ProtectionContext protectionContext) {
         AtomicInteger count = new AtomicInteger(0);
 
         for (Entity entity : chunk.getEntities()) {
-            if (entity instanceof LivingEntity && !plugin.getEntityProtectionUtils().isProtected(entity)) {
+            if (entity instanceof LivingEntity
+                    && (protectionContext == null || !plugin.getEntityProtectionUtils().isProtected(entity, protectionContext))) {
                 count.incrementAndGet();
             }
         }
