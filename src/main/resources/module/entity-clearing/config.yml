@@ -18,6 +18,8 @@ extra-protections:
   modern-showcase: true
   player-heads: true
   pets-module: true
+  # Protect entities that carry any of these scoreboard tags.
+  protected-entity-tags: []
 
 worlds: []
 

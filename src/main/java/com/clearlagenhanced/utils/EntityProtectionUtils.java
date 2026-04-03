@@ -14,6 +14,8 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+
 public class EntityProtectionUtils {
 
     public static final NamespacedKey BRED_KEY = new NamespacedKey(ClearLaggEnhanced.getInstance(), "cle_bred");
@@ -45,6 +47,10 @@ public class EntityProtectionUtils {
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook) {
         if (entity instanceof Player) return true;
+
+        if (hasProtectedTag(entity, settings.protectedEntityTags())) {
+            return true;
+        }
 
         if (settings.modernShowcase() && msHook != null) {
             if (msHook.isShowcaseEntity(entity)) return true;
@@ -93,6 +99,20 @@ public class EntityProtectionUtils {
 
         if (settings.protectStacked()) {
             if (stackerManager.isStacked(entity)) return true;
+        }
+
+        return false;
+    }
+
+    private boolean hasProtectedTag(@NotNull Entity entity, @NotNull Set<String> protectedEntityTags) {
+        if (protectedEntityTags.isEmpty()) {
+            return false;
+        }
+
+        for (String scoreboardTag : entity.getScoreboardTags()) {
+            if (protectedEntityTags.contains(scoreboardTag)) {
+                return true;
+            }
         }
 
         return false;

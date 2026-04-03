@@ -15,6 +15,7 @@ public record ProtectionSettings(
     boolean modernShowcase,
     boolean playerHeads,
     boolean petsModule,
+    Set<String> protectedEntityTags,
     Set<String> whitelist,
     Set<String> itemWhitelist
 ) {
@@ -30,6 +31,10 @@ public record ProtectionSettings(
             config.getBoolean("extra-protections.modern-showcase", true),
             config.getBoolean("extra-protections.player-heads", true),
             config.getBoolean("extra-protections.pets-module", true),
+            config.getStringList("extra-protections.protected-entity-tags").stream()
+                    .map(String::trim)
+                    .filter(tag -> !tag.isEmpty())
+                    .collect(Collectors.toSet()),
             config.getStringList("whitelist").stream().map(String::toUpperCase).collect(Collectors.toSet()),
             config.getStringList("item-whitelist").stream().map(String::toUpperCase).collect(Collectors.toSet())
         );
