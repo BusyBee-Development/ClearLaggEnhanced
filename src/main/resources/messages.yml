@@ -30,6 +30,7 @@ notifications:
 commands:
   help:
     header: "<gold><bold>═══ ClearLaggEnhanced Help ═══</bold></gold>"
+    help: "<gold>▪</gold> <aqua>/lagg help</aqua> <gray>-</gray> <white>Show this help menu</white>"
     clear: "<gold>▪</gold> <aqua>/lagg clear</aqua> <gray>-</gray> <white>Clear entities now</white>"
     clearstatus: "<gold>▪</gold> <aqua>/lagg clearstatus</aqua> <gray>-</gray> <white>Show active clear interval status</white>"
     next: "<gold>▪</gold> <aqua>/lagg next</aqua> <gray>-</gray> <white>Time until next clear</white>"
