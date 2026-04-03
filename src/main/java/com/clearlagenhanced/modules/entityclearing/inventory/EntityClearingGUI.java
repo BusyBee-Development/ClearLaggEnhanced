@@ -34,6 +34,7 @@ public class EntityClearingGUI extends InventoryGUI {
     public void decorate(Player player) {
         boolean enabled = module.isEnabled();
         int interval = module.getConfig().getInt("interval", 300);
+        boolean adaptiveIntervalEnabled = module.getConfig().getBoolean("adaptive-interval.enabled", false);
         boolean protectNamed = module.getConfig().getBoolean("protect-named-entities", true);
         boolean protectTamed = module.getConfig().getBoolean("protect-tamed-entities", true);
         boolean protectStacked = module.getConfig().getBoolean("protect-stacked-entities", true);
@@ -47,7 +48,7 @@ public class EntityClearingGUI extends InventoryGUI {
         );
         
         addButton(12, new InventoryButton()
-            .creator(p -> createIntervalItem(interval))
+            .creator(p -> createIntervalItem(interval, adaptiveIntervalEnabled))
             .consumer(event -> {
                 Player clicker = (Player) event.getWhoClicked();
                 MessageUtils.sendMessage(clicker, "gui.enter-interval");
@@ -129,14 +130,18 @@ public class EntityClearingGUI extends InventoryGUI {
         return item;
     }
     
-    private ItemStack createIntervalItem(int interval) {
+    private ItemStack createIntervalItem(int interval, boolean adaptiveIntervalEnabled) {
         ItemStack item = XMaterial.CLOCK.parseItem();
         if (item != null) {
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&eInterval: &f" + interval + "s"));
+                String label = adaptiveIntervalEnabled ? "Fallback Interval" : "Interval";
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&e" + label + ": &f" + interval + "s"));
                 List<String> lore = new ArrayList<>();
                 lore.add(ChatColor.translateAlternateColorCodes('&', "&7Current: " + interval + " seconds"));
+                if (adaptiveIntervalEnabled) {
+                    lore.add(ChatColor.translateAlternateColorCodes('&', "&7Used when no adaptive tier matches."));
+                }
                 lore.add("");
                 lore.add(ChatColor.translateAlternateColorCodes('&', "&aClick to change"));
                 meta.setLore(lore);

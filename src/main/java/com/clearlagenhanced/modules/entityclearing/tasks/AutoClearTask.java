@@ -2,31 +2,49 @@
 package com.clearlagenhanced.modules.entityclearing.tasks;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
+import com.clearlagenhanced.modules.entityclearing.models.AdaptiveIntervalSettings;
 import com.clearlagenhanced.modules.entityclearing.models.EntityManager;
 import com.clearlagenhanced.modules.entityclearing.models.NotificationManager;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
-
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AutoClearTask {
     private final ClearLaggEnhanced plugin;
     private final EntityManager entityManager;
     private final NotificationManager notificationManager;
-    private final int clearInterval;
+    private final int defaultInterval;
+    private final AdaptiveIntervalSettings adaptiveIntervalSettings;
+    private final Set<String> trackedWorlds;
 
     @Getter
     private WrappedTask task;
 
     private final AtomicInteger remainingTime;
 
-    public AutoClearTask(ClearLaggEnhanced plugin, EntityManager entityManager, NotificationManager notificationManager, int clearInterval, int warnLead) {
+    public AutoClearTask(
+            ClearLaggEnhanced plugin,
+            EntityManager entityManager,
+            NotificationManager notificationManager,
+            int defaultInterval,
+            AdaptiveIntervalSettings adaptiveIntervalSettings,
+            List<String> trackedWorlds
+    ) {
         this.plugin = plugin;
         this.entityManager = entityManager;
         this.notificationManager = notificationManager;
-        this.clearInterval = clearInterval;
-        this.remainingTime = new AtomicInteger(clearInterval);
+        this.defaultInterval = defaultInterval;
+        this.adaptiveIntervalSettings = adaptiveIntervalSettings;
+        this.trackedWorlds = new HashSet<>(trackedWorlds);
+        this.remainingTime = new AtomicInteger(defaultInterval);
     }
 
     public int getRemainingTime() {
@@ -35,6 +53,8 @@ public class AutoClearTask {
 
     public void start() {
         stop();
+        remainingTime.set(resolveNextInterval());
+
         task = ClearLaggEnhanced.scheduler().runTimerAsync(() -> {
             try {
                 int timeLeft = remainingTime.decrementAndGet();
@@ -44,7 +64,7 @@ public class AutoClearTask {
                     if (cleared != -1) {
                         notificationManager.sendClearComplete(cleared);
                     }
-                    remainingTime.set(clearInterval);
+                    remainingTime.set(resolveNextInterval());
                 } else {
                     notificationManager.sendClearWarnings(timeLeft);
                 }
@@ -60,5 +80,63 @@ public class AutoClearTask {
             ClearLaggEnhanced.scheduler().cancelTask(task);
             task = null;
         }
+    }
+
+    private int resolveNextInterval() {
+        if (!adaptiveIntervalSettings.enabled()) {
+            return defaultInterval;
+        }
+
+        int metricValue = sampleMetricValue();
+        return adaptiveIntervalSettings.resolveInterval(metricValue, defaultInterval);
+    }
+
+    private int sampleMetricValue() {
+        if (Bukkit.isPrimaryThread()) {
+            return sampleMetricValueSync();
+        }
+
+        AtomicInteger sampledValue = new AtomicInteger(-1);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ClearLaggEnhanced.scheduler().runNextTick(task -> {
+            try {
+                sampledValue.set(sampleMetricValueSync());
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        try {
+            if (!latch.await(5, TimeUnit.SECONDS)) {
+                plugin.getLogger().warning("Timed out while sampling entity clearing adaptive interval metric. Falling back to the base interval for this cycle.");
+                return -1;
+            }
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+            return -1;
+        }
+
+        return sampledValue.get();
+    }
+
+    private int sampleMetricValueSync() {
+        return switch (adaptiveIntervalSettings.metric()) {
+            case ENTITY_COUNT -> countLoadedEntities();
+            case PLAYER_COUNT -> Bukkit.getOnlinePlayers().size();
+        };
+    }
+
+    private int countLoadedEntities() {
+        int totalEntities = 0;
+        for (World world : Bukkit.getWorlds()) {
+            if (!trackedWorlds.isEmpty() && !trackedWorlds.contains(world.getName())) {
+                continue;
+            }
+
+            totalEntities += world.getEntities().size();
+        }
+
+        return totalEntities;
     }
 }

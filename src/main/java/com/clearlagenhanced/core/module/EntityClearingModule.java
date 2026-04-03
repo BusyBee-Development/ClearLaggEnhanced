@@ -3,6 +3,7 @@ package com.clearlagenhanced.core.module;
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.modules.entityclearing.inventory.EntityClearingGUI;
 import com.clearlagenhanced.modules.entityclearing.listeners.BreedingListener;
+import com.clearlagenhanced.modules.entityclearing.models.AdaptiveIntervalSettings;
 import com.clearlagenhanced.modules.entityclearing.models.EntityManager;
 import com.clearlagenhanced.modules.entityclearing.models.NotificationManager;
 import com.clearlagenhanced.modules.entityclearing.tasks.AutoClearTask;
@@ -29,28 +30,24 @@ public class EntityClearingModule extends Module {
     public void onEnable() {
         notificationManager = new NotificationManager(plugin, this);
         entityManager = new EntityManager(plugin, this);
-        
+
         int clearInterval = getInt("interval", 300);
         if (clearInterval <= 0) {
             clearInterval = 300;
             plugin.getLogger().warning("interval was <= 0; defaulting to 300.");
         }
-        
-        int warnLead = 0;
-        List<Integer> times = getIntegerList("notifications.broadcast-times");
-        if (times != null && !times.isEmpty()) {
-            for (int t : times) {
-                if (t > warnLead) {
-                    warnLead = t;
-                }
-            }
-        }
-        
-        if (warnLead >= clearInterval) {
-            warnLead = Math.max(0, clearInterval - 5);
-        }
-        
-        autoClearTask = new AutoClearTask(plugin, entityManager, notificationManager, clearInterval, warnLead);
+
+        AdaptiveIntervalSettings adaptiveIntervalSettings =
+                AdaptiveIntervalSettings.fromConfig(getConfig().getConfigurationSection("adaptive-interval"), plugin.getLogger());
+
+        autoClearTask = new AutoClearTask(
+                plugin,
+                entityManager,
+                notificationManager,
+                clearInterval,
+                adaptiveIntervalSettings,
+                getStringList("worlds")
+        );
         autoClearTask.start();
 
         if (getBoolean("extra-protections.mobs-from-breeding", true)) {

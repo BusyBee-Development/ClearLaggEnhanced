@@ -4,7 +4,24 @@
 # This module handles automated entity clearing based on configured intervals.
 # The module is enabled/disabled in the main config.yml.
 
+# Default/fallback time in seconds between clears.
 interval: 300
+
+# Optional adaptive interval scheduling.
+# The interval is re-evaluated at the start of each new clearing cycle.
+# The highest matching threshold wins. If no tier matches, the base interval above is used.
+# Use ENTITY_COUNT to base the interval on the currently loaded entities in the configured worlds.
+# Use PLAYER_COUNT to base the interval on the current online player count.
+adaptive-interval:
+  enabled: false
+  metric: "ENTITY_COUNT" # ENTITY_COUNT | PLAYER_COUNT
+  tiers:
+    - threshold: 0
+      interval: 900
+    - threshold: 5000
+      interval: 750
+    - threshold: 7000
+      interval: 600
 
 protect-named-entities: true
 protect-tamed-entities: true
