@@ -2,6 +2,7 @@ package com.clearlagenhanced.utils;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
+import com.clearlagenhanced.core.module.ModuleManager;
 import com.clearlagenhanced.managers.StackerManager;
 import com.clearlagenhanced.modules.integrations.modernshowcase.ModernShowcaseHook;
 import com.clearlagenhanced.modules.integrations.modernshowcase.ModernShowcaseIntegration;
@@ -27,7 +28,6 @@ public class EntityProtectionUtils {
     public EntityProtectionUtils(ClearLaggEnhanced plugin, StackerManager stackerManager) {
         this.plugin = plugin;
         this.stackerManager = stackerManager;
-        refreshSettingsCache();
     }
 
     public boolean isProtected(@NotNull Entity entity) {
@@ -36,7 +36,12 @@ public class EntityProtectionUtils {
     }
 
     public @Nullable ProtectionContext createProtectionContext() {
-        Module module = plugin.getModuleManager().getModule("entity-clearing");
+        ModuleManager moduleManager = plugin.getModuleManager();
+        if (moduleManager == null) {
+            return null;
+        }
+
+        Module module = moduleManager.getModule("entity-clearing");
         if (module == null || !module.isEnabled()) {
             return null;
         }
@@ -44,7 +49,7 @@ public class EntityProtectionUtils {
         ProtectionSettings settings = cachedSettings;
         ModernShowcaseHook msHook = null;
         if (settings.modernShowcase()) {
-            Module msModule = plugin.getModuleManager().getModule("modernshowcase");
+            Module msModule = moduleManager.getModule("modernshowcase");
             if (msModule != null && msModule.isEnabled()) {
                 msHook = ((ModernShowcaseIntegration) msModule).getHook();
             }
@@ -54,7 +59,13 @@ public class EntityProtectionUtils {
     }
 
     public void refreshSettingsCache() {
-        Module module = plugin.getModuleManager().getModule("entity-clearing");
+        ModuleManager moduleManager = plugin.getModuleManager();
+        if (moduleManager == null) {
+            cachedSettings = ProtectionSettings.DEFAULTS;
+            return;
+        }
+
+        Module module = moduleManager.getModule("entity-clearing");
         if (module == null || module.getConfig() == null) {
             cachedSettings = ProtectionSettings.DEFAULTS;
             return;
