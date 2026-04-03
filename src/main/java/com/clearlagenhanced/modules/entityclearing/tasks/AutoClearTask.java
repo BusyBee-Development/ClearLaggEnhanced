@@ -9,6 +9,8 @@ import com.tcoded.folialib.wrapper.task.WrappedTask;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +31,7 @@ public class AutoClearTask {
     private WrappedTask task;
 
     private final AtomicInteger remainingTime;
+    private volatile StatusSnapshot statusSnapshot;
 
     public AutoClearTask(
             ClearLaggEnhanced plugin,
@@ -45,15 +48,26 @@ public class AutoClearTask {
         this.adaptiveIntervalSettings = adaptiveIntervalSettings;
         this.trackedWorlds = new HashSet<>(trackedWorlds);
         this.remainingTime = new AtomicInteger(defaultInterval);
+        this.statusSnapshot = new StatusSnapshot(
+                adaptiveIntervalSettings.enabled(),
+                adaptiveIntervalSettings.metric(),
+                -1,
+                defaultInterval,
+                defaultInterval
+        );
     }
 
     public int getRemainingTime() {
         return remainingTime.get();
     }
 
+    public @Nullable StatusSnapshot getStatusSnapshot() {
+        return statusSnapshot;
+    }
+
     public void start() {
         stop();
-        remainingTime.set(resolveNextInterval());
+        remainingTime.set(resolveNextInterval().activeIntervalSeconds());
 
         task = ClearLaggEnhanced.scheduler().runTimerAsync(() -> {
             try {
@@ -64,7 +78,7 @@ public class AutoClearTask {
                     if (cleared != -1) {
                         notificationManager.sendClearComplete(cleared);
                     }
-                    remainingTime.set(resolveNextInterval());
+                    remainingTime.set(resolveNextInterval().activeIntervalSeconds());
                 } else {
                     notificationManager.sendClearWarnings(timeLeft);
                 }
@@ -82,13 +96,18 @@ public class AutoClearTask {
         }
     }
 
-    private int resolveNextInterval() {
+    private @NotNull StatusSnapshot resolveNextInterval() {
         if (!adaptiveIntervalSettings.enabled()) {
-            return defaultInterval;
+            StatusSnapshot fixedStatus = new StatusSnapshot(false, adaptiveIntervalSettings.metric(), -1, defaultInterval, defaultInterval);
+            statusSnapshot = fixedStatus;
+            return fixedStatus;
         }
 
         int metricValue = sampleMetricValue();
-        return adaptiveIntervalSettings.resolveInterval(metricValue, defaultInterval);
+        int interval = adaptiveIntervalSettings.resolveInterval(metricValue, defaultInterval);
+        StatusSnapshot adaptiveStatus = new StatusSnapshot(true, adaptiveIntervalSettings.metric(), metricValue, interval, defaultInterval);
+        statusSnapshot = adaptiveStatus;
+        return adaptiveStatus;
     }
 
     private int sampleMetricValue() {
@@ -138,5 +157,14 @@ public class AutoClearTask {
         }
 
         return totalEntities;
+    }
+
+    public record StatusSnapshot(
+            boolean adaptiveEnabled,
+            @NotNull AdaptiveIntervalSettings.Metric metric,
+            int sampledMetricValue,
+            int activeIntervalSeconds,
+            int fallbackIntervalSeconds
+    ) {
     }
 }

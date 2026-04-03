@@ -1,6 +1,7 @@
 package com.clearlagenhanced.commands;
 
 import com.clearlagenhanced.modules.entityclearing.commands.ClearCommand;
+import com.clearlagenhanced.modules.entityclearing.commands.ClearStatusCommand;
 import com.clearlagenhanced.modules.entityclearing.commands.NextCommand;
 import com.clearlagenhanced.modules.chunkfinder.commands.ChunkFinderCommand;
 import com.clearlagenhanced.modules.performance.commands.RamCommand;
@@ -10,6 +11,7 @@ import org.bukkit.command.CommandSender;
 public enum CommandRegistry {
     HELP("help", new HelpCommand()),
     CLEAR("clear", new ClearCommand()),
+    CLEARSTATUS("clearstatus", new ClearStatusCommand()),
     NEXT("next", new NextCommand()),
     TPS("tps", new TpsCommand()),
     RAM("ram", new RamCommand()),

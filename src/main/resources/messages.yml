@@ -31,6 +31,7 @@ commands:
   help:
     header: "<gold><bold>═══ ClearLaggEnhanced Help ═══</bold></gold>"
     clear: "<gold>▪</gold> <aqua>/lagg clear</aqua> <gray>-</gray> <white>Clear entities now</white>"
+    clearstatus: "<gold>▪</gold> <aqua>/lagg clearstatus</aqua> <gray>-</gray> <white>Show active clear interval status</white>"
     next: "<gold>▪</gold> <aqua>/lagg next</aqua> <gray>-</gray> <white>Time until next clear</white>"
     tps: "<gold>▪</gold> <aqua>/lagg tps</aqua> <gray>-</gray> <white>Show server TPS</white>"
     ram: "<gold>▪</gold> <aqua>/lagg ram</aqua> <gray>-</gray> <white>Show memory usage</white>"
@@ -41,6 +42,14 @@ commands:
   clear:
     starting: "<gold>▶</gold> <yellow>Starting manual entity clear...</yellow>"
     already-in-progress: "<red>✗</red> <red>An entity clearing cycle is already in progress!</red>"
+  clearstatus:
+    header: "<gold><bold>═══ Entity Clear Status ═══</bold></gold>"
+    mode: "<yellow>▪</yellow> <yellow>Mode:</yellow> <white>{mode}</white> <gray>(metric: {metric})</gray>"
+    detected: "<yellow>▪</yellow> <yellow>Detected:</yellow> <white>{value}</white> <gray>{label}</gray>"
+    detected-unavailable: "<yellow>▪</yellow> <yellow>Detected:</yellow> <gray>n/a for fixed interval mode</gray>"
+    current-interval: "<yellow>▪</yellow> <yellow>Current cycle interval:</yellow> <white>{interval}</white> <gray>seconds</gray>"
+    fallback-interval: "<yellow>▪</yellow> <yellow>Fallback interval:</yellow> <white>{interval}</white> <gray>seconds</gray>"
+    remaining: "<yellow>▪</yellow> <yellow>Next clear in:</yellow> <white>{time}</white>"
 
 # --- Entity Clearing ---
 warnings:

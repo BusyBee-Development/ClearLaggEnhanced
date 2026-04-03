@@ -119,4 +119,8 @@ public class EntityClearingModule extends Module {
         }
         return 0;
     }
+
+    public AutoClearTask.StatusSnapshot getStatusSnapshot() {
+        return autoClearTask != null ? autoClearTask.getStatusSnapshot() : null;
+    }
 }

@@ -25,6 +25,7 @@ permissions:
     children:
       CLE.help: true
       CLE.clear: true
+      CLE.clearstatus: true
       CLE.next: true
       CLE.tps: true
       CLE.ram: true
@@ -39,6 +40,9 @@ permissions:
     default: true
   CLE.clear:
     description: Access to clear command
+    default: op
+  CLE.clearstatus:
+    description: Access to entity clear status command
     default: op
   CLE.next:
     description: Access to next command
