@@ -23,6 +23,15 @@ adaptive-interval:
     - threshold: 7000
       interval: 600
 
+# Optional MSPT performance gate.
+# When enabled, automatic clearing is deferred while the server is healthy.
+# Clears are only allowed once the average MSPT has stayed at or above the threshold
+# for the configured sustained duration.
+performance-gate:
+  enabled: false
+  mspt-threshold: 45.0
+  sustained-seconds: 300
+
 protect-named-entities: true
 protect-tamed-entities: true
 protect-armored-entities: false

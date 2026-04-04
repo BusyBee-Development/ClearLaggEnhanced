@@ -6,6 +6,7 @@ import com.clearlagenhanced.modules.entityclearing.listeners.BreedingListener;
 import com.clearlagenhanced.modules.entityclearing.models.AdaptiveIntervalSettings;
 import com.clearlagenhanced.modules.entityclearing.models.EntityManager;
 import com.clearlagenhanced.modules.entityclearing.models.NotificationManager;
+import com.clearlagenhanced.modules.entityclearing.models.PerformanceGateSettings;
 import com.clearlagenhanced.modules.entityclearing.tasks.AutoClearTask;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -40,6 +41,8 @@ public class EntityClearingModule extends Module {
 
         AdaptiveIntervalSettings adaptiveIntervalSettings =
                 AdaptiveIntervalSettings.fromConfig(getConfig().getConfigurationSection("adaptive-interval"), plugin.getLogger());
+        PerformanceGateSettings performanceGateSettings =
+                PerformanceGateSettings.fromConfig(getConfig().getConfigurationSection("performance-gate"), plugin.getLogger());
 
         autoClearTask = new AutoClearTask(
                 plugin,
@@ -47,6 +50,7 @@ public class EntityClearingModule extends Module {
                 notificationManager,
                 clearInterval,
                 adaptiveIntervalSettings,
+                performanceGateSettings,
                 getStringList("worlds")
         );
         autoClearTask.start();

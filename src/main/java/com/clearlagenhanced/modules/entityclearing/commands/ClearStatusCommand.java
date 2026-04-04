@@ -52,6 +52,26 @@ public class ClearStatusCommand implements SubCommand {
                 "interval", String.valueOf(status.fallbackIntervalSeconds())
         ));
 
+        AutoClearTask.PerformanceGateStatus performanceGateStatus = status.performanceGateStatus();
+        if (performanceGateStatus.enabled()) {
+            MessageUtils.sendMessage(sender, "commands.clearstatus.performance-gate-header");
+            if (performanceGateStatus.metricUnavailable()) {
+                MessageUtils.sendMessage(sender, "commands.clearstatus.performance-gate-unavailable");
+            } else {
+                MessageUtils.sendMessage(sender, "commands.clearstatus.performance-gate-current", Map.of(
+                        "mspt", String.format("%.2f", performanceGateStatus.currentAverageMspt()),
+                        "threshold", String.format("%.2f", performanceGateStatus.thresholdMspt())
+                ));
+                MessageUtils.sendMessage(sender, "commands.clearstatus.performance-gate-window", Map.of(
+                        "current", String.valueOf(performanceGateStatus.sustainedForSeconds()),
+                        "required", String.valueOf(performanceGateStatus.requiredSustainedSeconds())
+                ));
+                MessageUtils.sendMessage(sender, performanceGateStatus.blockingClears()
+                        ? "commands.clearstatus.performance-gate-blocking"
+                        : "commands.clearstatus.performance-gate-open");
+            }
+        }
+
         MessageUtils.sendMessage(sender, "commands.clearstatus.remaining", Map.of(
                 "time", module.getFormattedTimeUntilNextClear()
         ));

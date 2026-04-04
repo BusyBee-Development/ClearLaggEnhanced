@@ -50,6 +50,12 @@ commands:
     detected-unavailable: "<yellow>▪</yellow> <yellow>Detected:</yellow> <gray>n/a for fixed interval mode</gray>"
     current-interval: "<yellow>▪</yellow> <yellow>Current cycle interval:</yellow> <white>{interval}</white> <gray>seconds</gray>"
     fallback-interval: "<yellow>▪</yellow> <yellow>Fallback interval:</yellow> <white>{interval}</white> <gray>seconds</gray>"
+    performance-gate-header: "<gold>▪</gold> <gold>Performance Gate</gold>"
+    performance-gate-unavailable: "<yellow>▪</yellow> <yellow>Average MSPT is unavailable on this server. The performance gate is not blocking clears.</yellow>"
+    performance-gate-current: "<yellow>▪</yellow> <yellow>Current average MSPT:</yellow> <white>{mspt}</white> <gray>(threshold: {threshold})</gray>"
+    performance-gate-window: "<yellow>▪</yellow> <yellow>Sustained window:</yellow> <white>{current}</white><gray>/</gray><white>{required}</white> <gray>seconds</gray>"
+    performance-gate-blocking: "<yellow>▪</yellow> <yellow>Automatic clearing is currently deferred by the performance gate.</yellow>"
+    performance-gate-open: "<green>▪</green> <green>Performance gate is satisfied. Automatic clearing can proceed.</green>"
     remaining: "<yellow>▪</yellow> <yellow>Next clear in:</yellow> <white>{time}</white>"
 
 # --- Entity Clearing ---
