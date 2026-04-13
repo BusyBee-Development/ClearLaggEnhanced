@@ -41,6 +41,6 @@ modules:
   misc-entity-limiter: true
   chunk-finder: true
   performance: true
-  wildstacker: true
-  rosestacker: true
+  wildstacker: false
+  rosestacker: false
   modernshowcase: true
