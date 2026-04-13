@@ -99,7 +99,3 @@ If PlaceholderAPI is installed, use these placeholders in other plugins:
 ## 📄 License
 
 ClearLaggEnhanced is licensed under the [BusyBee AAR License](LICENSE).
-
----
-
-**Made with ❤️ for the Minecraft server community**
