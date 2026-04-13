@@ -142,29 +142,26 @@ public class ClearLaggEnhanced extends JavaPlugin {
             return;
         }
 
-        DatabaseType previousDatabaseType = databaseManager != null && databaseManager.isEnabled()
-                ? databaseManager.getType()
-                : null;
-        DatabaseType newDatabaseType = newCoreServices.databaseManager().isEnabled()
-                ? newCoreServices.databaseManager().getType()
-                : null;
-
-        HandlerList.unregisterAll(this);
-
+        // 1. Disable all modules properly
         if (moduleManager != null) {
             moduleManager.disableAll();
         }
 
+        // 2. Unregister all events belonging to this plugin
+        HandlerList.unregisterAll(this);
+
+        // 3. Shutdown core services (Database, GUI, etc.)
         shutdownCore();
+
+        // 4. Apply new core services and reset the GUI registry
         applyCoreServices(newCoreServices);
 
-        if (previousDatabaseType != null && newDatabaseType != null && previousDatabaseType != newDatabaseType) {
-            getLogger().warning("Database backend changed from " + previousDatabaseType.getConfigValue() + " to " + newDatabaseType.getConfigValue() + ". Existing data is not migrated automatically.");
-        }
+        // 5. Re-initialize and reload modules from scratch
+        initializeModules();
 
-        moduleManager.reloadAll();
-
+        // 6. Re-register core listeners and placeholders
         registerListeners();
+        registerPlaceholders();
 
         if (sender != null) {
             MessageUtils.sendMessage(sender, "notifications.reload-complete");
