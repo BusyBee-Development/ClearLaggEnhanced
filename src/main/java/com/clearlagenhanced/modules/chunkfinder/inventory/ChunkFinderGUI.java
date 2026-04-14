@@ -17,8 +17,9 @@ public class ChunkFinderGUI extends InventoryGUI {
     private final ChunkFinderModule module;
 
     public ChunkFinderGUI(ClearLaggEnhanced plugin, ChunkFinderModule module) {
-        super(27, ChatColor.translateAlternateColorCodes(`&`, `"&2Chunk Finder`"));
+        super(27, ChatColor.translateAlternateColorCodes('&', "&2Chunk Finder"));
         this.plugin = plugin;
+        this.module = module;
     }
 
     @Override
@@ -27,11 +28,11 @@ public class ChunkFinderGUI extends InventoryGUI {
         if (scanItem != null) {
             ItemMeta meta = scanItem.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes(`&`, `"&aStart Scanning`"));
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&aStart Scanning"));
                 List<String> lore = new ArrayList<>();
-                lore.add(ChatColor.translateAlternateColorCodes(`&`, `"&7Scan nearby chunks for laggy areas.`"));
-                lore.add(`"`");
-                lore.add(ChatColor.translateAlternateColorCodes(`&`, `"&eClick to scan`"));
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&7Scan nearby chunks for laggy areas."));
+                lore.add("");
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&eClick to scan"));
                 meta.setLore(lore);
                 scanItem.setItemMeta(meta);
             }
@@ -40,17 +41,14 @@ public class ChunkFinderGUI extends InventoryGUI {
         setItem(13, scanItem, event -> {
             Player p = (Player) event.getWhoClicked();
             p.closeInventory();
-            // Need to get the module instance from plugin
-            ChunkFinderModule m = (ChunkFinderModule) plugin.getModuleManager().getModule(`"chunk-finder`");
-            if (m != null) { m.findLaggyChunksAsync(p); }
+            if (module != null) { module.findLaggyChunksAsync(p); }
         });
 
-        // Back button
         ItemStack backItem = XMaterial.BARRIER.parseItem();
         if (backItem != null) {
             ItemMeta meta = backItem.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes(`&`, `"&cBack`"));
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&cBack"));
                 backItem.setItemMeta(meta);
             }
         }

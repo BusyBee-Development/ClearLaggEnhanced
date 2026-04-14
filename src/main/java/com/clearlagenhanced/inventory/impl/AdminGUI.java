@@ -18,7 +18,7 @@ public class AdminGUI extends InventoryGUI {
     private final ModuleGUIRegistry guiRegistry;
 
     public AdminGUI(ClearLaggEnhanced plugin, ModuleGUIRegistry guiRegistry) {
-        super(calculateInventorySize(guiRegistry), ChatColor.translateAlternateColorCodes(`&`, `"&2&lClearLagg Enhanced`"));
+        super(calculateInventorySize(guiRegistry), ChatColor.translateAlternateColorCodes('&', "&2&lClearLagg Enhanced"));
         this.plugin = plugin;
         this.guiRegistry = guiRegistry;
     }
@@ -69,11 +69,11 @@ public class AdminGUI extends InventoryGUI {
         if (reloadItem != null) {
             ItemMeta meta = reloadItem.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes(`&`, `"&bReload Config`"));
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&bReload Config"));
                 List<String> lore = new ArrayList<>();
-                lore.add(ChatColor.translateAlternateColorCodes(`&`, `"&7Reload all plugin configurations`"));
-                lore.add(`"`");
-                lore.add(ChatColor.translateAlternateColorCodes(`&`, `"&aClick to reload`"));
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&7Reload all plugin configurations"));
+                lore.add("");
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&aClick to reload"));
                 meta.setLore(lore);
                 reloadItem.setItemMeta(meta);
             }
@@ -91,12 +91,12 @@ public class AdminGUI extends InventoryGUI {
         if (item != null) {
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes(`&`, (enabled ? `"&a`" : `"&c`") + name));
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', (enabled ? "&a" : "&c") + name));
                 List<String> lore = new ArrayList<>();
-                lore.add(ChatColor.translateAlternateColorCodes(`&`, `"&7Status: `" + (enabled ? `"&aEnabled`" : `"&cDisabled`")));
-                lore.add(`"`");
-                lore.add(ChatColor.translateAlternateColorCodes(`&`, `"&eLeft-Click to configure`"));
-                lore.add(ChatColor.translateAlternateColorCodes(`&`, `"&eRight-Click to toggle`"));
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&7Status: " + (enabled ? "&aEnabled" : "&cDisabled")));
+                lore.add("");
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&eLeft-Click to configure"));
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&eRight-Click to toggle"));
                 meta.setLore(lore);
                 item.setItemMeta(meta);
             }

@@ -13,7 +13,7 @@ public class SimpleInfoGUI extends InventoryGUI {
     private final String message;
 
     public SimpleInfoGUI(String title, String message) {
-        super(27, ChatColor.translateAlternateColorCodes(`&`, title));
+        super(27, ChatColor.translateAlternateColorCodes('&', title));
         this.message = message;
     }
 
@@ -23,8 +23,8 @@ public class SimpleInfoGUI extends InventoryGUI {
         if (infoItem != null) {
             ItemMeta meta = infoItem.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes(`&`, `"&eInformation`"));
-                meta.setLore(List.of(ChatColor.translateAlternateColorCodes(`&`, `"&7`" + message)));
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&eInformation"));
+                meta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', "&7" + message)));
                 infoItem.setItemMeta(meta);
             }
         }
@@ -34,7 +34,7 @@ public class SimpleInfoGUI extends InventoryGUI {
         if (backItem != null) {
             ItemMeta meta = backItem.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes(`&`, `"&cBack`"));
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&cBack"));
                 backItem.setItemMeta(meta);
             }
         }

@@ -1,5 +1,4 @@
 package com.clearlagenhanced;
-
 import com.clearlagenhanced.commands.LaggCommand;
 import com.clearlagenhanced.core.gui.ModuleGUIRegistry;
 import com.clearlagenhanced.core.module.*;

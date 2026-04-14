@@ -138,7 +138,7 @@
         </dependency>
         <dependency>
             <groupId>fr.mrmicky</groupId>
-            <artifactId>FastInv</artifactId>
+            <artifactId>fastinv</artifactId>
             <version>3.0.4</version>
         </dependency>
         <dependency>

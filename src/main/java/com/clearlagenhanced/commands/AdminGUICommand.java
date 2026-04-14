@@ -9,11 +9,12 @@ public class AdminGUICommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player player)) {
+        if (!(sender instanceof Player)) {
             sender.sendMessage("This command can only be executed by a player.");
             return true;
         }
 
+        Player player = (Player) sender;
         ClearLaggEnhanced plugin = ClearLaggEnhanced.getInstance();
         AdminGUI adminGUI = new AdminGUI(plugin, plugin.getGuiRegistry());
         adminGUI.open(player);
