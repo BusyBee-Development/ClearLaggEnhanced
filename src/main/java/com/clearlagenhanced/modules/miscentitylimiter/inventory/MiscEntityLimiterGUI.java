@@ -2,13 +2,10 @@ package com.clearlagenhanced.modules.miscentitylimiter.inventory;
 
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
-import com.clearlagenhanced.inventory.InventoryButton;
 import com.clearlagenhanced.inventory.InventoryGUI;
 import com.cryptomorin.xseries.XMaterial;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -20,37 +17,25 @@ public class MiscEntityLimiterGUI extends InventoryGUI {
     private final Module module;
     
     public MiscEntityLimiterGUI(ClearLaggEnhanced plugin, Module module) {
+        super(27, ChatColor.translateAlternateColorCodes('&', "&b&lMisc Entity Limiter"));
         this.plugin = plugin;
         this.module = module;
-    }
-    
-    @Override
-    protected Inventory createInventory() {
-        return Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&', "&b&lMisc Entity Limiter"));
     }
     
     @Override
     public void decorate(Player player) {
         boolean enabled = module.isEnabled();
         
-        addButton(13, new InventoryButton()
-            .creator(p -> createToggleItem(enabled))
-            .consumer(event -> {
-                plugin.getModuleManager().setModuleEnabled(module, !enabled);
-                plugin.getGuiManager().openGUI(new MiscEntityLimiterGUI(plugin, module), (Player) event.getWhoClicked());
-            })
-        );
+        setItem(13, createToggleItem(enabled), event -> {
+            plugin.getModuleManager().setModuleEnabled(module, !enabled);
+            new MiscEntityLimiterGUI(plugin, module).open((Player) event.getWhoClicked());
+        });
         
-        addButton(22, new InventoryButton()
-            .creator(p -> createBackItem())
-            .consumer(event -> {
-                Player clicker = (Player) event.getWhoClicked();
-                clicker.closeInventory();
-                clicker.performCommand("lagg admin");
-            })
-        );
-        
-        super.decorate(player);
+        setItem(22, createBackItem(), event -> {
+            Player clicker = (Player) event.getWhoClicked();
+            clicker.closeInventory();
+            clicker.performCommand("lagg admin");
+        });
     }
     
     private ItemStack createToggleItem(boolean enabled) {

@@ -1,5 +1,4 @@
 package com.clearlagenhanced.modules.spawnerlimiter;
-
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
 import com.clearlagenhanced.modules.spawnerlimiter.inventory.SpawnerLimiterGUI;
@@ -17,11 +16,14 @@ public class SpawnerLimiterModule extends Module {
     }
 
     @Override
+    public void onRegister() {
+        registerGUI("spawner-limiter", "Spawner Limiter", "SPAWNER", () -> new SpawnerLimiterGUI(plugin, this));
+    }
+
+    @Override
     public void onEnable() {
         spawnerLimiterListener = new SpawnerLimiterListener(plugin, this);
         Bukkit.getPluginManager().registerEvents(spawnerLimiterListener, plugin);
-        
-        registerGUI("spawner-limiter", "Spawner Limiter", "SPAWNER", () -> new SpawnerLimiterGUI(plugin, this));
     }
 
     @Override
@@ -29,8 +31,6 @@ public class SpawnerLimiterModule extends Module {
         if (spawnerLimiterListener != null) {
             HandlerList.unregisterAll(spawnerLimiterListener);
         }
-        
-        unregisterGUI("spawner-limiter");
     }
 
     @Override

@@ -3,26 +3,22 @@ package com.clearlagenhanced.modules.entityclearing.inventory;
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.EntityClearingModule;
 import com.clearlagenhanced.core.module.Module;
-import com.clearlagenhanced.inventory.InventoryButton;
 import com.clearlagenhanced.inventory.InventoryGUI;
 import com.clearlagenhanced.modules.entityclearing.models.AdaptiveIntervalSettings;
 import com.clearlagenhanced.modules.entityclearing.tasks.AutoClearTask;
 import com.clearlagenhanced.utils.MessageUtils;
 import com.cryptomorin.xseries.XMaterial;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class EntityClearingGUI extends InventoryGUI {
@@ -35,13 +31,9 @@ public class EntityClearingGUI extends InventoryGUI {
     }
 
     public EntityClearingGUI(ClearLaggEnhanced plugin, EntityClearingModule module) {
+        super(36, ChatColor.translateAlternateColorCodes('&', "&c&lEntity Clearing"));
         this.plugin = plugin;
         this.module = module;
-    }
-    
-    @Override
-    protected Inventory createInventory() {
-        return Bukkit.createInventory(null, 36, ChatColor.translateAlternateColorCodes('&', "&c&lEntity Clearing"));
     }
     
     @Override
@@ -58,134 +50,110 @@ public class EntityClearingGUI extends InventoryGUI {
         );
         List<AdaptiveIntervalSettings.Tier> adaptiveTiers = readAdaptiveTiers();
         
-        addButton(10, new InventoryButton()
-            .creator(p -> createToggleItem(enabled))
-            .consumer(event -> {
-                plugin.getModuleManager().setModuleEnabled(module, !enabled);
-                plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
-            })
-        );
+        setItem(10, createToggleItem(enabled), event -> {
+            plugin.getModuleManager().setModuleEnabled(module, !enabled);
+            new EntityClearingGUI(plugin, module).open((Player) event.getWhoClicked());
+        });
         
-        addButton(12, new InventoryButton()
-            .creator(p -> createIntervalItem(fallbackInterval, adaptiveIntervalEnabled, statusSnapshot))
-            .consumer(event -> {
-                Player clicker = (Player) event.getWhoClicked();
-                MessageUtils.sendMessage(clicker, "gui.enter-interval");
+        setItem(12, createIntervalItem(fallbackInterval, adaptiveIntervalEnabled, statusSnapshot), event -> {
+            Player clicker = (Player) event.getWhoClicked();
+            MessageUtils.sendMessage(clicker, "gui.enter-interval");
+            clicker.closeInventory();
+
+            plugin.getChatInputManager().requestInput(clicker, input -> {
+                if (input != null) {
+                    try {
+                        int newVal = Integer.parseInt(input);
+                        if (newVal < 10) {
+                            MessageUtils.sendMessage(clicker, "gui.interval-min", "min", "10");
+                        } else {
+                            module.getConfig().set("interval", newVal);
+                            module.saveConfig();
+                            module.onReload(); // This refreshes the auto-clear task
+                            MessageUtils.sendMessage(clicker, "gui.interval-set", "interval", input);
+                        }
+                    } catch (NumberFormatException e) {
+                        MessageUtils.sendMessage(clicker, "gui.invalid-number");
+                    }
+                }
+                new EntityClearingGUI(plugin, module).open(clicker);
+            });
+        });
+
+        setItem(13, createAdaptiveItem(adaptiveIntervalEnabled, adaptiveMetric, adaptiveTiers, statusSnapshot), event -> {
+            Player clicker = (Player) event.getWhoClicked();
+
+            if (event.isShiftClick()) {
+                MessageUtils.sendMessage(clicker, "gui.enter-adaptive-thresholds");
+                MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-format");
                 clicker.closeInventory();
 
                 plugin.getChatInputManager().requestInput(clicker, input -> {
                     if (input != null) {
                         try {
-                            int newVal = Integer.parseInt(input);
-                            if (newVal < 10) {
-                                MessageUtils.sendMessage(clicker, "gui.interval-min", "min", "10");
-                            } else {
-                                module.getConfig().set("interval", newVal);
-                                module.saveConfig();
-                                module.onReload(); // This refreshes the auto-clear task
-                                MessageUtils.sendMessage(clicker, "gui.interval-set", "interval", input);
-                            }
-                        } catch (NumberFormatException e) {
-                            MessageUtils.sendMessage(clicker, "gui.invalid-number");
+                            List<AdaptiveIntervalSettings.Tier> parsedTiers = parseTierInput(input);
+                            saveAdaptiveTiers(parsedTiers);
+                            module.onReload();
+                            MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-set");
+                        } catch (IllegalArgumentException exception) {
+                            MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-invalid", "reason", exception.getMessage());
                         }
                     }
-                    // Re-open GUI regardless of success/fail/cancel
-                    plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), clicker);
+
+                    new EntityClearingGUI(plugin, module).open(clicker);
                 });
-            })
-        );
+                return;
+            }
 
-        addButton(13, new InventoryButton()
-            .creator(p -> createAdaptiveItem(adaptiveIntervalEnabled, adaptiveMetric, adaptiveTiers, statusSnapshot))
-            .consumer(event -> {
-                Player clicker = (Player) event.getWhoClicked();
-
-                if (event.isShiftClick()) {
-                    MessageUtils.sendMessage(clicker, "gui.enter-adaptive-thresholds");
-                    MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-format");
-                    clicker.closeInventory();
-
-                    plugin.getChatInputManager().requestInput(clicker, input -> {
-                        if (input != null) {
-                            try {
-                                List<AdaptiveIntervalSettings.Tier> parsedTiers = parseTierInput(input);
-                                saveAdaptiveTiers(parsedTiers);
-                                module.onReload();
-                                MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-set");
-                            } catch (IllegalArgumentException exception) {
-                                MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-invalid", "reason", exception.getMessage());
-                            }
-                        }
-
-                        plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), clicker);
-                    });
-                    return;
-                }
-
-                if (event.isRightClick()) {
-                    AdaptiveIntervalSettings.Metric nextMetric = adaptiveMetric == AdaptiveIntervalSettings.Metric.ENTITY_COUNT
-                            ? AdaptiveIntervalSettings.Metric.PLAYER_COUNT
-                            : AdaptiveIntervalSettings.Metric.ENTITY_COUNT;
-                    module.getConfig().set("adaptive-interval.metric", nextMetric.name());
-                    module.saveConfig();
-                    module.onReload();
-                    MessageUtils.sendMessage(clicker, "gui.adaptive-metric-set", "metric", nextMetric.name());
-                    plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), clicker);
-                    return;
-                }
-
-                module.getConfig().set("adaptive-interval.enabled", !adaptiveIntervalEnabled);
+            if (event.isRightClick()) {
+                AdaptiveIntervalSettings.Metric nextMetric = adaptiveMetric == AdaptiveIntervalSettings.Metric.ENTITY_COUNT
+                        ? AdaptiveIntervalSettings.Metric.PLAYER_COUNT
+                        : AdaptiveIntervalSettings.Metric.ENTITY_COUNT;
+                module.getConfig().set("adaptive-interval.metric", nextMetric.name());
                 module.saveConfig();
                 module.onReload();
-                MessageUtils.sendMessage(clicker, "gui.adaptive-enabled-set", "state", (!adaptiveIntervalEnabled) ? "enabled" : "disabled");
-                plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), clicker);
-            })
-        );
+                MessageUtils.sendMessage(clicker, "gui.adaptive-metric-set", "metric", nextMetric.name());
+                new EntityClearingGUI(plugin, module).open(clicker);
+                return;
+            }
+
+            module.getConfig().set("adaptive-interval.enabled", !adaptiveIntervalEnabled);
+            module.saveConfig();
+            module.onReload();
+            MessageUtils.sendMessage(clicker, "gui.adaptive-enabled-set", "state", (!adaptiveIntervalEnabled) ? "enabled" : "disabled");
+            new EntityClearingGUI(plugin, module).open(clicker);
+        });
         
-        addButton(14, new InventoryButton()
-            .creator(p -> createProtectionItem("Named Entities", protectNamed))
-            .consumer(event -> {
-                module.getConfig().set("protect-named-entities", !protectNamed);
-                module.saveConfig();
-                plugin.getEntityProtectionUtils().refreshSettingsCache();
-                plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
-            })
-        );
+        setItem(14, createProtectionItem("Named Entities", protectNamed), event -> {
+            module.getConfig().set("protect-named-entities", !protectNamed);
+            module.saveConfig();
+            plugin.getEntityProtectionUtils().refreshSettingsCache();
+            new EntityClearingGUI(plugin, module).open((Player) event.getWhoClicked());
+        });
         
-        addButton(16, new InventoryButton()
-            .creator(p -> createProtectionItem("Tamed Entities", protectTamed))
-            .consumer(event -> {
-                module.getConfig().set("protect-tamed-entities", !protectTamed);
-                module.saveConfig();
-                plugin.getEntityProtectionUtils().refreshSettingsCache();
-                plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
-            })
-        );
+        setItem(16, createProtectionItem("Tamed Entities", protectTamed), event -> {
+            module.getConfig().set("protect-tamed-entities", !protectTamed);
+            module.saveConfig();
+            plugin.getEntityProtectionUtils().refreshSettingsCache();
+            new EntityClearingGUI(plugin, module).open((Player) event.getWhoClicked());
+        });
         
-        addButton(20, new InventoryButton()
-            .creator(p -> createProtectionItem("Stacked Entities", protectStacked))
-            .consumer(event -> {
-                module.getConfig().set("protect-stacked-entities", !protectStacked);
-                module.saveConfig();
-                plugin.getEntityProtectionUtils().refreshSettingsCache();
-                plugin.getGuiManager().openGUI(new EntityClearingGUI(plugin, module), (Player) event.getWhoClicked());
-            })
-        );
+        setItem(20, createProtectionItem("Stacked Entities", protectStacked), event -> {
+            module.getConfig().set("protect-stacked-entities", !protectStacked);
+            module.saveConfig();
+            plugin.getEntityProtectionUtils().refreshSettingsCache();
+            new EntityClearingGUI(plugin, module).open((Player) event.getWhoClicked());
+        });
         
-        addButton(31, new InventoryButton()
-            .creator(p -> createBackItem())
-            .consumer(event -> {
-                Player clicker = (Player) event.getWhoClicked();
-                clicker.closeInventory();
-                clicker.performCommand("lagg admin");
-            })
-        );
-        
-        super.decorate(player);
+        setItem(31, createBackItem(), event -> {
+            Player clicker = (Player) event.getWhoClicked();
+            clicker.closeInventory();
+            clicker.performCommand("lagg admin");
+        });
     }
 
     @Override
-    public void onOpen(InventoryOpenEvent event) {
+    protected void onOpen(InventoryOpenEvent event) {
         super.onOpen(event);
 
         Player player = (Player) event.getPlayer();
@@ -197,12 +165,12 @@ public class EntityClearingGUI extends InventoryGUI {
             }
 
             decorate(player);
-            player.updateInventory();
+            // player.updateInventory(); // FastInv handles updates
         }, 20L, 20L);
     }
 
     @Override
-    public void onClose(InventoryCloseEvent event) {
+    protected void onClose(InventoryCloseEvent event) {
         stopRefreshTask();
     }
     

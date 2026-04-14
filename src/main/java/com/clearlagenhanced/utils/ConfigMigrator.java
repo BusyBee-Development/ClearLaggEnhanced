@@ -60,15 +60,13 @@ public class ConfigMigrator {
         } catch (InvalidConfigurationException | IOException e) {
             plugin.getLogger().severe("Detected corruption in " + configFile.getName() + "! Backing up and regenerating...");
             createBackupRaw(configFile, true);
-            
-            // Delete and regenerate from default
+
             configFile.delete();
             return migrate(resourcePath, configFile);
         }
 
         InputStream defaultStream = plugin.getResource(resourcePath);
         if (defaultStream == null) {
-            // No default resource in JAR, just return what we have
             return userConfig;
         }
 

@@ -36,6 +36,7 @@ public class ModuleManager {
         modules.put(module.getName().toLowerCase(), module);
         modulesByFolderName.put(module.getFolderName().toLowerCase(), module);
         plugin.getLogger().info("Registered module: " + module.getName());
+        module.onRegister();
     }
 
     public void loadAll() {

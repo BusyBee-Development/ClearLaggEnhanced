@@ -1,5 +1,4 @@
 package com.clearlagenhanced.modules.moblimiter;
-
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
 import com.clearlagenhanced.modules.moblimiter.inventory.MobLimiterGUI;
@@ -21,12 +20,15 @@ public class MobLimiterModule extends Module {
     }
 
     @Override
+    public void onRegister() {
+        registerGUI("mob-limiter", "Mob Limiter", "ZOMBIE_HEAD", () -> new MobLimiterGUI(plugin, this));
+    }
+
+    @Override
     public void onEnable() {
         lagPreventionManager = new LagPreventionManager(plugin, this);
         mobLimiterListener = new MobLimiterListener(plugin, this);
         Bukkit.getPluginManager().registerEvents(mobLimiterListener, plugin);
-        
-        registerGUI("mob-limiter", "Mob Limiter", "ZOMBIE_HEAD", () -> new MobLimiterGUI(plugin, this));
     }
 
     @Override
@@ -35,10 +37,7 @@ public class MobLimiterModule extends Module {
             HandlerList.unregisterAll(mobLimiterListener);
             mobLimiterListener = null;
         }
-
         lagPreventionManager = null;
-        
-        unregisterGUI("mob-limiter");
     }
 
     @Override

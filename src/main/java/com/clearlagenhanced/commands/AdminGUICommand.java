@@ -16,7 +16,7 @@ public class AdminGUICommand implements SubCommand {
 
         ClearLaggEnhanced plugin = ClearLaggEnhanced.getInstance();
         AdminGUI adminGUI = new AdminGUI(plugin, plugin.getGuiRegistry());
-        plugin.getGuiManager().openGUI(adminGUI, player);
+        adminGUI.open(player);
         return true;
     }
 

@@ -1,5 +1,4 @@
 package com.clearlagenhanced.modules.miscentitylimiter;
-
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.core.module.Module;
 import com.clearlagenhanced.modules.miscentitylimiter.inventory.MiscEntityLimiterGUI;
@@ -20,14 +19,17 @@ public class MiscEntityLimiterModule extends Module {
     }
 
     @Override
+    public void onRegister() {
+        registerGUI("misc-entity-limiter", "Misc Entity Limiter", "ARMOR_STAND", () -> new MiscEntityLimiterGUI(plugin, this));
+    }
+
+    @Override
     public void onEnable() {
         miscSweepService = new MiscEntitySweepService(plugin, this);
         miscSweepService.start();
-        
+
         miscEntityLimiterListener = new MiscEntityLimiterListener(plugin, miscSweepService, this);
         Bukkit.getPluginManager().registerEvents(miscEntityLimiterListener, plugin);
-        
-        registerGUI("misc-entity-limiter", "Misc Entity Limiter", "ARMOR_STAND", () -> new MiscEntityLimiterGUI(plugin, this));
     }
 
     @Override
@@ -38,8 +40,6 @@ public class MiscEntityLimiterModule extends Module {
         if (miscEntityLimiterListener != null) {
             HandlerList.unregisterAll(miscEntityLimiterListener);
         }
-        
-        unregisterGUI("misc-entity-limiter");
     }
 
     @Override

@@ -14,6 +14,11 @@ public class WildStackerIntegration extends Module {
     }
 
     @Override
+    public void onRegister() {
+        registerGUI("wildstacker", "WildStacker Integration", "NETHER_STAR", () -> null);
+    }
+
+    @Override
     public void onEnable() {
         if (!Bukkit.getPluginManager().isPluginEnabled("WildStacker")) {
             plugin.getLogger().info("WildStacker integration is enabled in config, but WildStacker is not installed.");

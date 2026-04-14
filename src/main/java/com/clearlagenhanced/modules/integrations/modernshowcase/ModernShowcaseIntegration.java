@@ -20,6 +20,11 @@ public class ModernShowcaseIntegration extends Module {
     }
 
     @Override
+    public void onRegister() {
+        registerGUI("modernshowcase", "ModernShowcase Integration", "GLASS_PANE", () -> null);
+    }
+
+    @Override
     public void onEnable() {
         registerLifecycleListener();
         refreshHookState();
@@ -29,7 +34,6 @@ public class ModernShowcaseIntegration extends Module {
         if (plugin == null || !DEPENDENCY_NAME.equals(plugin.getName())) {
             return;
         }
-
         refreshHookState();
     }
 
@@ -37,7 +41,6 @@ public class ModernShowcaseIntegration extends Module {
         if (plugin == null || !DEPENDENCY_NAME.equals(plugin.getName())) {
             return;
         }
-
         clearHook();
     }
 
@@ -57,7 +60,6 @@ public class ModernShowcaseIntegration extends Module {
         if (lifecycleListener != null) {
             return;
         }
-
         lifecycleListener = new ModernShowcaseLifecycleListener(this);
         Bukkit.getPluginManager().registerEvents(lifecycleListener, plugin);
     }
@@ -66,7 +68,6 @@ public class ModernShowcaseIntegration extends Module {
         if (lifecycleListener == null) {
             return;
         }
-
         HandlerList.unregisterAll(lifecycleListener);
         lifecycleListener = null;
     }
@@ -75,16 +76,13 @@ public class ModernShowcaseIntegration extends Module {
         if (!Bukkit.getPluginManager().isPluginEnabled(DEPENDENCY_NAME)) {
             return;
         }
-
         if (hook != null) {
             return;
         }
-
         ModernShowcaseHook modernShowcaseHook = new ModernShowcaseHook();
         if (!modernShowcaseHook.isEnabled()) {
             return;
         }
-
         hook = modernShowcaseHook;
         plugin.getLogger().info("ModernShowcase integration enabled");
     }
@@ -93,7 +91,6 @@ public class ModernShowcaseIntegration extends Module {
         if (hook == null) {
             return;
         }
-
         hook = null;
         plugin.getLogger().info("ModernShowcase integration disabled");
     }

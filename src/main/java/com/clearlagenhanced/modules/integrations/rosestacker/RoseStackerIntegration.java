@@ -14,6 +14,11 @@ public class RoseStackerIntegration extends Module {
     }
 
     @Override
+    public void onRegister() {
+        registerGUI("rosestacker", "RoseStacker Integration", "ROSE_BUSH", () -> null);
+    }
+
+    @Override
     public void onEnable() {
         if (!Bukkit.getPluginManager().isPluginEnabled("RoseStacker")) {
             plugin.getLogger().info("RoseStacker integration is enabled in config, but RoseStacker is not installed.");

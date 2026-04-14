@@ -1,5 +1,4 @@
 package com.clearlagenhanced.core.module;
-
 import com.clearlagenhanced.ClearLaggEnhanced;
 import com.clearlagenhanced.modules.entityclearing.inventory.EntityClearingGUI;
 import com.clearlagenhanced.modules.entityclearing.listeners.BreedingListener;
@@ -25,6 +24,11 @@ public class EntityClearingModule extends Module {
     public EntityClearingModule(ClearLaggEnhanced plugin) {
         super("Entity Clearing", "entity-clearing");
         this.plugin = plugin;
+    }
+
+    @Override
+    public void onRegister() {
+        registerGUI("entity-clearing", "Entity Clearing", "IRON_SWORD", () -> new EntityClearingGUI(plugin, this));
     }
 
     @Override
@@ -59,8 +63,6 @@ public class EntityClearingModule extends Module {
             breedingListener = new BreedingListener(plugin);
             Bukkit.getPluginManager().registerEvents(breedingListener, plugin);
         }
-        
-        registerGUI("entity-clearing", "Entity Clearing", "IRON_SWORD", () -> new EntityClearingGUI(plugin, this));
     }
 
     @Override
@@ -77,8 +79,6 @@ public class EntityClearingModule extends Module {
         if (breedingListener != null) {
             HandlerList.unregisterAll(breedingListener);
         }
-        
-        unregisterGUI("entity-clearing");
     }
 
     @Override

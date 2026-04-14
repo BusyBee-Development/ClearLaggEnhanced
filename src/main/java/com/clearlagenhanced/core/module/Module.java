@@ -24,6 +24,8 @@ public abstract class Module {
     public abstract void onEnable();
     public abstract void onDisable();
     public abstract void onReload();
+    public void onRegister() {
+    }
     public void setGUIRegistry(ModuleGUIRegistry guiRegistry) {
         this.guiRegistry = guiRegistry;
     }

@@ -6,7 +6,7 @@
 
     <groupId>com.clearlagenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>2026.4.5</version>
+    <version>2026.4.6</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
@@ -51,6 +51,10 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>mr-maven</id>
+            <url>https://maven.mr-micky.com/repository/maven-public/</url>
         </repository>
     </repositories>
 
@@ -131,6 +135,11 @@
             <groupId>com.github.cryptomorin</groupId>
             <artifactId>XSeries</artifactId>
             <version>13.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.mrmicky</groupId>
+            <artifactId>FastInv</artifactId>
+            <version>3.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -249,6 +258,10 @@
                                 <relocation>
                                     <pattern>com.cryptomorin.xseries</pattern>
                                     <shadedPattern>com.clearlagenhanced.libs.xseries</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>fr.mrmicky.fastinv</pattern>
+                                    <shadedPattern>com.clearlagenhanced.libs.fastinv</shadedPattern>
                                 </relocation>
                             </relocations>
                             <transformers>

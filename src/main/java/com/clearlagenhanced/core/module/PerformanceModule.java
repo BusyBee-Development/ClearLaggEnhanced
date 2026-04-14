@@ -1,6 +1,6 @@
 package com.clearlagenhanced.core.module;
-
 import com.clearlagenhanced.ClearLaggEnhanced;
+import com.clearlagenhanced.modules.performance.inventory.PerformanceGUI;
 import com.clearlagenhanced.modules.performance.models.PerformanceManager;
 import lombok.Getter;
 
@@ -11,6 +11,11 @@ public class PerformanceModule extends Module {
     public PerformanceModule(ClearLaggEnhanced plugin) {
         super("Performance", "performance");
         this.plugin = plugin;
+    }
+
+    @Override
+    public void onRegister() {
+        registerGUI("performance", "Performance", "CLOCK", () -> new PerformanceGUI(plugin, this));
     }
 
     @Override

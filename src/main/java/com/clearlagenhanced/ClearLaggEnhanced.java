@@ -5,10 +5,7 @@ import com.clearlagenhanced.core.gui.ModuleGUIRegistry;
 import com.clearlagenhanced.core.module.*;
 import com.clearlagenhanced.database.DatabaseManager;
 import com.clearlagenhanced.database.DatabaseSettings;
-import com.clearlagenhanced.database.DatabaseType;
 import com.clearlagenhanced.hooks.ClearLaggEnhancedExpansion;
-import com.clearlagenhanced.inventory.gui.GUIListener;
-import com.clearlagenhanced.inventory.gui.GUIManager;
 import com.clearlagenhanced.managers.ChatInputManager;
 import com.clearlagenhanced.managers.ConfigManager;
 import com.clearlagenhanced.managers.MessageManager;
@@ -26,6 +23,7 @@ import com.clearlagenhanced.utils.EntityProtectionUtils;
 import com.clearlagenhanced.utils.MessageUtils;
 import com.clearlagenhanced.utils.VersionCheck;
 import com.tcoded.folialib.FoliaLib;
+import fr.mrmicky.fastinv.FastInvManager;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
@@ -48,7 +46,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private MessageManager messageManager;
     @Getter private StackerManager stackerManager;
     @Getter private EntityProtectionUtils entityProtectionUtils;
-    @Getter private GUIManager guiManager;
     @Getter private ModuleGUIRegistry guiRegistry;
     @Getter private ModuleManager moduleManager;
     @Getter private ChatInputManager chatInputManager;
@@ -67,6 +64,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
         new Metrics(this, 26743);
 
         saveDefaultConfig();
+        FastInvManager.register(this);
         initializeCore();
         initializeModules();
         registerCommands();
@@ -142,24 +140,13 @@ public class ClearLaggEnhanced extends JavaPlugin {
             return;
         }
 
-        // 1. Disable all modules properly
         if (moduleManager != null) {
             moduleManager.disableAll();
         }
-
-        // 2. Unregister all events belonging to this plugin
         HandlerList.unregisterAll(this);
-
-        // 3. Shutdown core services (Database, GUI, etc.)
         shutdownCore();
-
-        // 4. Apply new core services and reset the GUI registry
         applyCoreServices(newCoreServices);
-
-        // 5. Re-initialize and reload modules from scratch
         initializeModules();
-
-        // 6. Re-register core listeners and placeholders
         registerListeners();
         registerPlaceholders();
 
@@ -180,10 +167,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
-        if (guiManager != null) {
-            GUIListener guiListener = new GUIListener(guiManager);
-            getServer().getPluginManager().registerEvents(guiListener, this);
-        }
         if (chatInputManager != null) {
             getServer().getPluginManager().registerEvents(chatInputManager, this);
         }
@@ -205,11 +188,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
     private void shutdownCore() {
         closeQuietlyDatabase();
 
-        if (guiManager != null) {
-            guiManager.shutdown();
-            guiManager = null;
-        }
-
         chatInputManager = null;
         entityProtectionUtils = null;
         stackerManager = null;
@@ -224,7 +202,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         DatabaseManager newDatabaseManager = new DatabaseManager(getName(), getLogger(), databaseSettings);
         StackerManager newStackerManager = new StackerManager(this);
         EntityProtectionUtils newEntityProtectionUtils = new EntityProtectionUtils(this, newStackerManager);
-        GUIManager newGuiManager = new GUIManager();
         ChatInputManager newChatInputManager = new ChatInputManager(this);
 
         return new CoreServices(
@@ -233,7 +210,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
                 newDatabaseManager,
                 newStackerManager,
                 newEntityProtectionUtils,
-                newGuiManager,
                 newChatInputManager
         );
     }
@@ -245,7 +221,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         databaseManager = coreServices.databaseManager();
         stackerManager = coreServices.stackerManager();
         entityProtectionUtils = coreServices.entityProtectionUtils();
-        guiManager = coreServices.guiManager();
         chatInputManager = coreServices.chatInputManager();
 
         if (guiRegistry == null) {
@@ -280,7 +255,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
             DatabaseManager databaseManager,
             StackerManager stackerManager,
             EntityProtectionUtils entityProtectionUtils,
-            GUIManager guiManager,
             ChatInputManager chatInputManager
     ) {
     }

@@ -1,6 +1,6 @@
 package com.clearlagenhanced.core.module;
-
 import com.clearlagenhanced.ClearLaggEnhanced;
+import com.clearlagenhanced.modules.chunkfinder.inventory.ChunkFinderGUI;
 import com.clearlagenhanced.modules.performance.models.PerformanceManager;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -12,6 +12,11 @@ public class ChunkFinderModule extends Module {
     public ChunkFinderModule(ClearLaggEnhanced plugin) {
         super("Chunk Finder", "chunk-finder");
         this.plugin = plugin;
+    }
+
+    @Override
+    public void onRegister() {
+        registerGUI("chunk-finder", "Chunk Finder", "COMPASS", () -> new ChunkFinderGUI(plugin, this));
     }
 
     @Override
