@@ -48,6 +48,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private ModuleGUIRegistry guiRegistry;
     @Getter private ModuleManager moduleManager;
     @Getter private ChatInputManager chatInputManager;
+    private VersionCheck versionCheck;
 
     public static PlatformScheduler scheduler() {
         return scheduler;
@@ -142,7 +143,16 @@ public class ClearLaggEnhanced extends JavaPlugin {
         if (moduleManager != null) {
             moduleManager.disableAll();
         }
-        HandlerList.unregisterAll(this);
+
+        if (versionCheck != null) {
+            HandlerList.unregisterAll(versionCheck);
+            versionCheck = null;
+        }
+
+        if (chatInputManager != null) {
+            HandlerList.unregisterAll(chatInputManager);
+        }
+
         shutdownCore();
         applyCoreServices(newCoreServices);
         initializeModules();
@@ -165,7 +175,8 @@ public class ClearLaggEnhanced extends JavaPlugin {
     }
 
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new VersionCheck(this), this);
+        versionCheck = new VersionCheck(this);
+        getServer().getPluginManager().registerEvents(versionCheck, this);
         if (chatInputManager != null) {
             getServer().getPluginManager().registerEvents(chatInputManager, this);
         }
