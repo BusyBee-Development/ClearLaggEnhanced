@@ -44,6 +44,7 @@ extra-protections:
   modern-showcase: true
   player-heads: true
   pets-module: true
+  citizens-support: true
   # Protect entities that carry any of these scoreboard tags.
   protected-entity-tags: []
 
@@ -54,6 +55,9 @@ whitelist:
   - "ZOMBIE_VILLAGER"
   - "IRON_GOLEM"
   - "ARMOR_STAND"
+  - "TEXT_DISPLAY"
+  - "ITEM_DISPLAY"
+  - "BLOCK_DISPLAY"
   - "ITEM_FRAME"
   - "GLOW_ITEM_FRAME"
   - "LEASH_HITCH"

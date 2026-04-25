@@ -114,6 +114,10 @@ public class EntityProtectionUtils {
             if (entity.hasMetadata("Pet") || entity.hasMetadata("isPet") || entity.hasMetadata("MyPet")) return true;
         }
 
+        if (settings.citizensSupport()) {
+            if (entity.hasMetadata("NPC")) return true;
+        }
+
         if (settings.playerHeads() && entity instanceof Item item) {
             if (item.getItemStack().getType() == Material.PLAYER_HEAD) return true;
         }
