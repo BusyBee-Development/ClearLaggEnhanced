@@ -19,6 +19,7 @@ public record ProtectionSettings(
     boolean modernShowcase,
     boolean playerHeads,
     boolean petsModule,
+    boolean citizensSupport,
     Set<String> protectedEntityTags,
     Set<String> whitelist,
     Set<String> itemWhitelist
@@ -29,6 +30,7 @@ public record ProtectionSettings(
             false,
             false,
             false,
+            true,
             true,
             true,
             true,
@@ -51,6 +53,7 @@ public record ProtectionSettings(
             config.getBoolean("extra-protections.modern-showcase", true),
             config.getBoolean("extra-protections.player-heads", true),
             config.getBoolean("extra-protections.pets-module", true),
+            config.getBoolean("extra-protections.citizens-support", true),
             normalizeExactValues(config.getStringList("extra-protections.protected-entity-tags"), false),
             normalizeExactValues(config.getStringList("whitelist"), true),
             normalizeExactValues(config.getStringList("item-whitelist"), true)
