@@ -16,6 +16,7 @@ limits-per-chunk:
 
 protect:
   named: true
+  citizens: true
   tags:
     - "CLE_PROTECTED"
 

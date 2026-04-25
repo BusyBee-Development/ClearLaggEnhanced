@@ -25,6 +25,7 @@ public class MiscEntitySweepService {
     private final Set<String> worldFilter = new HashSet<>();
     private final int maxChunksPerTick;
     private final boolean protectNamed;
+    private final boolean protectCitizens;
     private final Set<String> protectedTags = new HashSet<>();
     private final List<ChunkRef> pendingChunks = new ArrayList<>();
     private int chunkCursor;
@@ -37,6 +38,7 @@ public class MiscEntitySweepService {
         worldFilter.addAll(module.getConfig().getStringList("worlds"));
         maxChunksPerTick = Math.max(1, module.getConfig().getInt("sweep.max-chunks-per-tick", 20));
         protectNamed = module.getConfig().getBoolean("protect.named", true);
+        protectCitizens = module.getConfig().getBoolean("protect.citizens", true);
         protectedTags.addAll(module.getConfig().getStringList("protect.tags"));
     }
 
@@ -149,6 +151,9 @@ public class MiscEntitySweepService {
                 ItemStack stack = item.getItemStack();
                 if (stack.hasItemMeta() && stack.getItemMeta().hasDisplayName()) return true;
             }
+        }
+        if (protectCitizens && entity.hasMetadata("NPC")) {
+            return true;
         }
         if (!protectedTags.isEmpty()) {
             for (String tag : protectedTags) {
