@@ -20,6 +20,7 @@ public record ProtectionSettings(
     boolean playerHeads,
     boolean petsModule,
     boolean citizensSupport,
+    boolean mythicMobs,
     Set<String> protectedEntityTags,
     Set<String> whitelist,
     Set<String> itemWhitelist
@@ -30,6 +31,7 @@ public record ProtectionSettings(
             false,
             false,
             false,
+            true,
             true,
             true,
             true,
@@ -54,6 +56,7 @@ public record ProtectionSettings(
             config.getBoolean("extra-protections.player-heads", true),
             config.getBoolean("extra-protections.pets-module", true),
             config.getBoolean("extra-protections.citizens-support", true),
+            config.getBoolean("extra-protections.mythic-mobs", true),
             normalizeExactValues(config.getStringList("extra-protections.protected-entity-tags"), false),
             normalizeExactValues(config.getStringList("whitelist"), true),
             normalizeExactValues(config.getStringList("item-whitelist"), true)
