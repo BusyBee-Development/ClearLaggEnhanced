@@ -45,6 +45,7 @@ extra-protections:
   player-heads: true
   pets-module: true
   citizens-support: true
+  mythic-mobs: false
 
   # Protect entities that carry any of these scoreboard tags.
   protected-entity-tags: []
