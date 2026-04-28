@@ -19,7 +19,7 @@ public class ClearLaggEnhancedExpansion extends PlaceholderExpansion {
     @Override
     @NotNull
     public String getIdentifier() {
-        return "clearlagenhanced";
+        return "clearlaggenhanced";
     }
 
     @Override
@@ -41,25 +41,35 @@ public class ClearLaggEnhancedExpansion extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params) {
-        if (plugin.getPerformanceManager() == null) {
-            return null;
-        }
-
         return switch (params.toLowerCase()) {
-            case "tps" -> String.format("%.2f", plugin.getPerformanceManager().getTPS());
-            case "memory_used" -> String.valueOf(plugin.getPerformanceManager().getUsedMemory() / 1024 / 1024);
-            case "memory_max" -> String.valueOf(plugin.getPerformanceManager().getMaxMemory() / 1024 / 1024);
-            case "memory_percentage" -> String.format("%.1f", plugin.getPerformanceManager().getMemoryUsagePercentage());
-            case "entities_total" -> String.valueOf(plugin.getPerformanceManager().getTotalEntities());
-
-            case "next_clear" -> {
-
-                EntityClearingModule module = (EntityClearingModule) plugin.getModuleManager().getModule("entity-clearing");
-
-                yield String.valueOf(module != null ? module.getTimeUntilNextClear() : 0);
-
+            case "tps" -> {
+                var pm = plugin.getPerformanceManager();
+                yield pm != null ? String.format("%.2f", pm.getTPS()) : "0.00";
             }
-
+            case "memory_used" -> {
+                var pm = plugin.getPerformanceManager();
+                yield pm != null ? String.valueOf(pm.getUsedMemory() / 1024 / 1024) : "0";
+            }
+            case "memory_max" -> {
+                var pm = plugin.getPerformanceManager();
+                yield pm != null ? String.valueOf(pm.getMaxMemory() / 1024 / 1024) : "0";
+            }
+            case "memory_percentage" -> {
+                var pm = plugin.getPerformanceManager();
+                yield pm != null ? String.format("%.1f", pm.getMemoryUsagePercentage()) : "0.0";
+            }
+            case "entities_total" -> {
+                var pm = plugin.getPerformanceManager();
+                yield pm != null ? String.valueOf(pm.getTotalEntities()) : "0";
+            }
+            case "next_clear" -> {
+                EntityClearingModule module = (EntityClearingModule) plugin.getModuleManager().getModule("entity-clearing");
+                yield String.valueOf(module != null ? module.getTimeUntilNextClear() : 0);
+            }
+            case "next_clear_formatted" -> {
+                EntityClearingModule module = (EntityClearingModule) plugin.getModuleManager().getModule("entity-clearing");
+                yield module != null ? module.getFormattedTimeUntilNextClear() : "0s";
+            }
             default -> null;
         };
     }
