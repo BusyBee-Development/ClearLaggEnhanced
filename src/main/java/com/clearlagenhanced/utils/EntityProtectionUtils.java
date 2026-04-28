@@ -85,6 +85,10 @@ public class EntityProtectionUtils {
             return true;
         }
 
+        if (isMythicMob(entity)) {
+            return settings.mythicMobs();
+        }
+
         if (settings.modernShowcase() && msHook != null) {
             if (msHook.isShowcaseEntity(entity)) return true;
         }
@@ -136,6 +140,20 @@ public class EntityProtectionUtils {
 
         if (settings.protectStacked()) {
             if (stackerManager.isStacked(entity)) return true;
+        }
+
+        return false;
+    }
+
+    private boolean isMythicMob(@NotNull Entity entity) {
+        if (entity.hasMetadata("MythicMob")) {
+            return true;
+        }
+
+        for (NamespacedKey key : entity.getPersistentDataContainer().getKeys()) {
+            if (key.getNamespace().equalsIgnoreCase("mythicmobs")) {
+                return true;
+            }
         }
 
         return false;
