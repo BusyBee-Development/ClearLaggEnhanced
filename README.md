@@ -74,12 +74,13 @@ Real-time TPS and memory monitoring with color-coded indicators and detailed sta
 
 If PlaceholderAPI is installed, use these placeholders in other plugins:
 
-- `%clearlagenhanced_tps%` - Current server TPS
-- `%clearlagenhanced_memory_used%` - Used memory in MB
-- `%clearlagenhanced_memory_max%` - Maximum memory in MB
-- `%clearlagenhanced_memory_percentage%` - Memory usage percentage
-- `%clearlagenhanced_entities_total%` - Total entities on server
-- `%clearlagenhanced_next_clear%` - Seconds until next clear
+- `%clearlaggenhanced_tps%` - Current server TPS
+- `%clearlaggenhanced_memory_used%` - Used memory in MB
+- `%clearlaggenhanced_memory_max%` - Maximum memory in MB
+- `%clearlaggenhanced_memory_percentage%` - Memory usage percentage
+- `%clearlaggenhanced_entities_total%` - Total entities on server
+- `%clearlaggenhanced_next_clear%` - Seconds until next clear
+- `%clearlaggenhanced_next_clear_formatted%` - Human-readable time until next clear (e.g., "5m 20s")
 
 ## 🤝 Support
 
