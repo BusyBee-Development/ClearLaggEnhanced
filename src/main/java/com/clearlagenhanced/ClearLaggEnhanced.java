@@ -49,6 +49,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private ModuleManager moduleManager;
     @Getter private ChatInputManager chatInputManager;
     private VersionCheck versionCheck;
+    private ClearLaggEnhancedExpansion placeholderExpansion;
 
     public static PlatformScheduler scheduler() {
         return scheduler;
@@ -78,6 +79,10 @@ public class ClearLaggEnhanced extends JavaPlugin {
     public void onDisable() {
         if (moduleManager != null) {
             moduleManager.disableAll();
+        }
+
+        if (placeholderExpansion != null) {
+            placeholderExpansion.unregister();
         }
 
         shutdownCore();
@@ -184,7 +189,11 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
     private void registerPlaceholders() {
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new ClearLaggEnhancedExpansion(this).register();
+            if (placeholderExpansion != null) {
+                placeholderExpansion.unregister();
+            }
+            placeholderExpansion = new ClearLaggEnhancedExpansion(this);
+            placeholderExpansion.register();
         }
     }
 
