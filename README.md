@@ -84,7 +84,7 @@ If PlaceholderAPI is installed, use these placeholders in other plugins:
 ## 🤝 Support
 
 - **GitHub Issues:** [Report bugs or request features](https://github.com/BusyBee-Development/ClearLaggEnhanced/issues)
-- **Documentation:** [Full documentation](docs/)
+- **Documentation:** [Full documentation](https://busybeedev.net/docs/clearlaggenhanced/intro)
 - **Discord:** Join the community on [Discord](https://discord.com/invite/abdm29q7af) for support and to suggest new ideas.
 
 ## 🙏 Credits
