@@ -6,7 +6,7 @@
 
     <groupId>com.clearlagenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>2026.4.8</version>
+    <version>2026.4.9-Beta</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
@@ -282,18 +282,6 @@
                                     </includes>
                                 </filter>
                                 <filter>
-                                    <artifact>com.github.cryptomorin:XSeries</artifact>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </filter>
-                                <filter>
-                                    <artifact>fr.mrmicky:fastinv</artifact>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </filter>
-                                <filter>
                                     <artifact>org.bstats:*</artifact>
                                     <includes>
                                         <include>**</include>
@@ -316,3 +304,4 @@
         </plugins>
     </build>
 </project>
+
