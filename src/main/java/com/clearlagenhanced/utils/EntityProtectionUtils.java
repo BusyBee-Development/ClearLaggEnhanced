@@ -75,10 +75,18 @@ public class EntityProtectionUtils {
     }
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionContext context) {
-        return isProtected(entity, context.settings(), context.modernShowcaseHook());
+        return isProtected(entity, context.settings(), context.modernShowcaseHook(), true);
+    }
+
+    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionContext context, boolean checkWhitelist) {
+        return isProtected(entity, context.settings(), context.modernShowcaseHook(), checkWhitelist);
     }
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook) {
+        return isProtected(entity, settings, msHook, true);
+    }
+
+    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook, boolean checkWhitelist) {
         if (entity instanceof Player) return true;
 
         if (hasProtectedTag(entity, settings.protectedEntityTags())) {
@@ -130,7 +138,7 @@ public class EntityProtectionUtils {
             if (hasArmor(living)) return true;
         }
 
-        if (settings.whitelist().contains(entity.getType().name())) return true;
+        if (checkWhitelist && settings.whitelist().contains(entity.getType().name())) return true;
 
         if (entity instanceof Item item) {
             if (settings.itemWhitelist().contains(item.getItemStack().getType().name())) return true;
