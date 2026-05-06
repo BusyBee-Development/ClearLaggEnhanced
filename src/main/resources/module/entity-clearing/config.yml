@@ -1,6 +1,25 @@
+# ============================================================================ #
+#                           Entity Clearing Module                             #
+# ============================================================================ #
+# This module automatically clears entities based on an interval.
+# The module is enabled/disabled in the main config.yml.
+
+# ---------------------------------------------------------------------------- #
+#                              General Settings                                #
+# ---------------------------------------------------------------------------- #
+
 # Default/fallback time in seconds between clears.
 interval: 600
 
+# Worlds where entity clearing is active. Empty list means all worlds.
+worlds: []
+
+# Whether the module is enabled. (Legacy, use main config.yml)
+enabled: true
+
+# ---------------------------------------------------------------------------- #
+#                             Adaptive Interval                                #
+# ---------------------------------------------------------------------------- #
 # Optional adaptive interval scheduling.
 # The interval is re-evaluated at the start of each new clearing cycle.
 # The highest matching threshold wins. If no tier matches, the base interval above is used.
@@ -19,6 +38,9 @@ adaptive-interval:
     - threshold: 20000
       interval: 120
 
+# ---------------------------------------------------------------------------- #
+#                             Performance Gate                                 #
+# ---------------------------------------------------------------------------- #
 # Optional MSPT performance gate.
 # When enabled, automatic clearing is deferred while the server is healthy.
 # Clears are only allowed once the average MSPT has stayed at or above the threshold
@@ -28,6 +50,9 @@ performance-gate:
   mspt-threshold: 45.0
   sustained-seconds: 180
 
+# ---------------------------------------------------------------------------- #
+#                             Entity Protections                               #
+# ---------------------------------------------------------------------------- #
 protect-named-entities: true
 protect-tamed-entities: true
 protect-armored-entities: true
@@ -47,8 +72,10 @@ extra-protections:
   protected-entity-tags:
     - ''
 
-worlds: []
-
+# ---------------------------------------------------------------------------- #
+#                              Entity Whitelist                                #
+# ---------------------------------------------------------------------------- #
+# Entities in this list will NEVER be cleared.
 whitelist:
   - VILLAGER
   - ARMOR_STAND
@@ -154,6 +181,10 @@ whitelist:
   - FISHING_BOBBER
   - ENDER_DRAGON
 
+# ---------------------------------------------------------------------------- #
+#                               Item Whitelist                                 #
+# ---------------------------------------------------------------------------- #
+# Items in this list will NEVER be cleared when dropped on the ground.
 item-whitelist:
   - NETHERITE_INGOT
   - NETHERITE_BLOCK
@@ -222,12 +253,17 @@ item-whitelist:
   - FALLING_BLOCK
   - END_CRYSTAL
 
+# ---------------------------------------------------------------------------- #
+#                               Notifications                                  #
+# ---------------------------------------------------------------------------- #
 notifications:
+  # Times (in seconds) before clear to broadcast messages.
   broadcast-times:
     - 60
     - 30
     - 10
     - 5
+  # Where to show notifications. (ACTION_BAR, CHAT, TITLE, BOSS_BAR)
   types:
     - ACTION_BAR
   console-notifications: false
@@ -236,4 +272,3 @@ notifications:
     name: BLOCK_NOTE_BLOCK_PLING
     volume: 1.0
     pitch: 1.2
-enabled: true

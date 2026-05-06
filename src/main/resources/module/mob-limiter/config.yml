@@ -4,8 +4,14 @@
 # This module limits the number of mobs that can exist in a single chunk.
 # The module is enabled/disabled in the main config.yml.
 
+# ---------------------------------------------------------------------------- #
+#                               General Settings                                #
+# ---------------------------------------------------------------------------- #
 max-mobs-per-chunk: 25
 
+# ---------------------------------------------------------------------------- #
+#                               Per-Type Limits                                #
+# ---------------------------------------------------------------------------- #
 per-type-limits:
   enabled: true
   limits:

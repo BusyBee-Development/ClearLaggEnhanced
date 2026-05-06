@@ -5,7 +5,9 @@
 # Module-specific settings live in resources/module/<module-name>/config.yml.
 # Legacy per-module enabled keys are ignored at runtime.
 
-# Database Settings
+# ---------------------------------------------------------------------------- #
+#                             Database Settings                                #
+# ---------------------------------------------------------------------------- #
 # Supports SQLite and MySQL.
 # database.file is used only when database.type=sqlite.
 # database.mysql.* is used only when database.type=mysql.
@@ -31,7 +33,9 @@ database:
     keepalive-time-ms: 0
     validation-timeout-ms: 5000
 
-# Module System
+# ---------------------------------------------------------------------------- #
+#                               Module System                                  #
+# ---------------------------------------------------------------------------- #
 # config.yml is the only runtime source of truth for module enable/disable state.
 # Legacy module/<module-name>/config.yml enabled keys remain on disk for compatibility only.
 modules:

@@ -1,3 +1,15 @@
+# ============================================================================ #
+#                        Misc Entity Limiter Module                            #
+# ============================================================================ #
+# This module limits the number of miscellaneous entities (boats, minecarts, etc.)
+# per chunk to prevent excessive entity lag.
+# The module is enabled/disabled in the main config.yml.
+
+# ---------------------------------------------------------------------------- #
+#                               Entity Limits                                  #
+# ---------------------------------------------------------------------------- #
+# Maximum number of each entity type allowed per chunk.
+# Set to -1 to disable limiting for a specific type.
 limits-per-chunk:
   ARMOR_STAND: 50
   BOAT: 4
@@ -12,19 +24,36 @@ limits-per-chunk:
   MINECART_HOPPER: 4
   MINECART_FURNACE: 4
 
+# ---------------------------------------------------------------------------- #
+#                             Entity Protections                               #
+# ---------------------------------------------------------------------------- #
 protect:
   named: true
   citizens: true
+  # Protect entities with these scoreboard tags.
   tags:
     - CLE_PROTECTED
 
+# ---------------------------------------------------------------------------- #
+#                               Sweep Settings                                 #
+# ---------------------------------------------------------------------------- #
 sweep:
+  # How often to check for over-limit entities.
   interval-ticks: 100
+  # Maximum number of chunks to check per tick to prevent MSPT spikes.
   max-chunks-per-tick: 20
 
+# ---------------------------------------------------------------------------- #
+#                               Notifications                                  #
+# ---------------------------------------------------------------------------- #
 notify:
+  # Permission required to see limiter notifications.
   admins-permission: CLE.admin
+  # Minimum time between notifications to prevent spam.
   throttle-seconds: 60
 
+# Worlds where limiting is active. Empty list means all worlds.
 worlds: []
+
+# Whether the module is enabled. (Legacy, use main config.yml)
 enabled: true

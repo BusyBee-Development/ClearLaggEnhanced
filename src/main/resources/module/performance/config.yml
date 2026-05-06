@@ -4,4 +4,9 @@
 # This module monitors server performance and provides optimization data.
 # The module is enabled/disabled in the main config.yml.
 
+# ---------------------------------------------------------------------------- #
+#                               Module Settings                                #
+# ---------------------------------------------------------------------------- #
+
+# Interval (in ticks) to update performance metrics.
 update-interval: 20
