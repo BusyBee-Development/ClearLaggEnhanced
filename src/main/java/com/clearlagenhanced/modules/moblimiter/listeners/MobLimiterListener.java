@@ -95,7 +95,7 @@ public class MobLimiterListener implements Listener {
     }
 
     private boolean isCountable(@NotNull Entity entity, @Nullable EntityProtectionUtils.ProtectionContext protectionContext) {
-        return entity instanceof LivingEntity && (protectionContext == null || !plugin.getEntityProtectionUtils().isProtected(entity, protectionContext));
+        return entity instanceof LivingEntity && (protectionContext == null || !plugin.getEntityProtectionUtils().isProtected(entity, protectionContext, false));
     }
 
     private boolean isTypeLimitReached(@NotNull Chunk chunk, @NotNull EntityType entityType, @Nullable EntityProtectionUtils.ProtectionContext protectionContext) {
@@ -113,7 +113,7 @@ public class MobLimiterListener implements Listener {
         for (Entity entity : chunk.getEntities()) {
             if (entity.getType() == entityType
                     && entity instanceof LivingEntity
-                    && (protectionContext == null || !plugin.getEntityProtectionUtils().isProtected(entity, protectionContext))) {
+                    && (protectionContext == null || !plugin.getEntityProtectionUtils().isProtected(entity, protectionContext, false))) {
                 count.incrementAndGet();
             }
         }

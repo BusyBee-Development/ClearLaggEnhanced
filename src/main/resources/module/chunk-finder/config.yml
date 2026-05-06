@@ -4,5 +4,12 @@
 # This module identifies chunks with high entity counts.
 # The module is enabled/disabled in the main config.yml.
 
+# ---------------------------------------------------------------------------- #
+#                               Module Settings                                #
+# ---------------------------------------------------------------------------- #
+
+# Radius in chunks to search around the player.
 radius: 10
+
+# Minimum number of entities in a chunk to be considered "high count".
 entity-threshold: 50
