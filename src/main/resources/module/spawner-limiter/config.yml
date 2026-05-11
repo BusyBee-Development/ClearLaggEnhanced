@@ -4,13 +4,6 @@
 # This module limits mob spawning from spawners to prevent lag.
 # The module is enabled/disabled in the main config.yml.
 
-# ---------------------------------------------------------------------------- #
-#                               Module Settings                                #
-# ---------------------------------------------------------------------------- #
-
-# Multiplier for the delay between mob spawns from spawners.
-# 1.0 = Default, 2.0 = Double the time between spawns.
 spawn-delay-multiplier: 1.5
 
-# Worlds where spawner limiting is active. Empty list means all worlds.
 worlds: []

@@ -1,59 +1,31 @@
 # ============================================================================ #
 #                        Misc Entity Limiter Module                            #
 # ============================================================================ #
-# This module limits the number of miscellaneous entities (boats, minecarts, etc.)
-# per chunk to prevent excessive entity lag.
+# This module limits non-mob entities like boats, minecarts, and armor stands.
 # The module is enabled/disabled in the main config.yml.
 
-# ---------------------------------------------------------------------------- #
-#                               Entity Limits                                  #
-# ---------------------------------------------------------------------------- #
-# Maximum number of each entity type allowed per chunk.
-# Set to -1 to disable limiting for a specific type.
 limits-per-chunk:
-  ARMOR_STAND: 50
-  BOAT: 4
-  CHEST_BOAT: 4
-  MINECART: 4
-  ITEM_FRAME: 200
-  GLOW_ITEM_FRAME: 200
+  ARMOR_STAND: -1
+  BOAT: 5
+  CHEST_BOAT: 5
+  MINECART: 5
+  ITEM_FRAME: -1
+  GLOW_ITEM_FRAME: -1
   LEASH_HITCH: -1
-  PAINTING: 200
-  ITEM_DISPLAY: 200
-  MINECART_CHEST: 4
-  MINECART_HOPPER: 4
-  MINECART_FURNACE: 4
+  PAINTING: 5
 
-# ---------------------------------------------------------------------------- #
-#                             Entity Protections                               #
-# ---------------------------------------------------------------------------- #
 protect:
   named: true
   citizens: true
-  # Protect entities with these scoreboard tags.
   tags:
-    - CLE_PROTECTED
+    - "CLE_PROTECTED"
 
-# ---------------------------------------------------------------------------- #
-#                               Sweep Settings                                 #
-# ---------------------------------------------------------------------------- #
 sweep:
-  # How often to check for over-limit entities.
   interval-ticks: 100
-  # Maximum number of chunks to check per tick to prevent MSPT spikes.
   max-chunks-per-tick: 20
 
-# ---------------------------------------------------------------------------- #
-#                               Notifications                                  #
-# ---------------------------------------------------------------------------- #
 notify:
-  # Permission required to see limiter notifications.
-  admins-permission: CLE.admin
-  # Minimum time between notifications to prevent spam.
+  admins-permission: "CLE.admin"
   throttle-seconds: 60
 
-# Worlds where limiting is active. Empty list means all worlds.
 worlds: []
-
-# Whether the module is enabled. (Legacy, use main config.yml)
-enabled: true

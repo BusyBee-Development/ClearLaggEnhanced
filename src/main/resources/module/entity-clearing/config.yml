@@ -1,61 +1,40 @@
 # ============================================================================ #
-#                           Entity Clearing Module                             #
+#                          Entity Clearing Module                              #
 # ============================================================================ #
-# This module automatically clears entities based on an interval.
+# This module handles automated entity clearing based on configured intervals.
 # The module is enabled/disabled in the main config.yml.
 
-# ---------------------------------------------------------------------------- #
-#                              General Settings                                #
-# ---------------------------------------------------------------------------- #
-
 # Default/fallback time in seconds between clears.
-interval: 600
+interval: 300
 
-# Worlds where entity clearing is active. Empty list means all worlds.
-worlds: []
-
-# Whether the module is enabled. (Legacy, use main config.yml)
-enabled: true
-
-# ---------------------------------------------------------------------------- #
-#                             Adaptive Interval                                #
-# ---------------------------------------------------------------------------- #
 # Optional adaptive interval scheduling.
 # The interval is re-evaluated at the start of each new clearing cycle.
 # The highest matching threshold wins. If no tier matches, the base interval above is used.
 # Use ENTITY_COUNT to base the interval on the currently loaded entities in the configured worlds.
 # Use PLAYER_COUNT to base the interval on the current online player count.
 adaptive-interval:
-  enabled: true
+  enabled: false
   metric: "ENTITY_COUNT" # ENTITY_COUNT | PLAYER_COUNT
   tiers:
     - threshold: 0
-      interval: 300
-    - threshold: 10000
-      interval: 240
-    - threshold: 15000
-      interval: 180
-    - threshold: 20000
-      interval: 120
+      interval: 900
+    - threshold: 5000
+      interval: 750
+    - threshold: 7000
+      interval: 600
 
-# ---------------------------------------------------------------------------- #
-#                             Performance Gate                                 #
-# ---------------------------------------------------------------------------- #
 # Optional MSPT performance gate.
 # When enabled, automatic clearing is deferred while the server is healthy.
 # Clears are only allowed once the average MSPT has stayed at or above the threshold
 # for the configured sustained duration.
 performance-gate:
-  enabled: true
+  enabled: false
   mspt-threshold: 45.0
-  sustained-seconds: 180
+  sustained-seconds: 300
 
-# ---------------------------------------------------------------------------- #
-#                             Entity Protections                               #
-# ---------------------------------------------------------------------------- #
 protect-named-entities: true
 protect-tamed-entities: true
-protect-armored-entities: true
+protect-armored-entities: false
 protect-stacked-entities: false
 whitelist-all-mobs: false
 
@@ -69,206 +48,32 @@ extra-protections:
   mythic-mobs: false
 
   # Protect entities that carry any of these scoreboard tags.
-  protected-entity-tags:
-    - ''
+  protected-entity-tags: []
 
-# ---------------------------------------------------------------------------- #
-#                              Entity Whitelist                                #
-# ---------------------------------------------------------------------------- #
-# Entities in this list will NEVER be cleared.
+worlds: []
+
 whitelist:
-  - VILLAGER
-  - ARMOR_STAND
-  - ITEM_FRAME
-  - GLOW_ITEM_FRAME
-  - LEASH_HITCH
-  - PAINTING
-  - GHAST
-  - HAPPY_GHAST
-  - GHASTLING
-  - SKELETON_HORSE
-  - ENDERMITE
-  - SHULKER
-  - BEE
-  - POLAR_BEAR
-  - ZOMBIE_VILLAGER
-  - COW
-  - MUSHROOM_COW
-  - SHEEP
-  - PIG
-  - CHICKEN
-  - HORSE
-  - DONKEY
-  - MULE
-  - LLAMA
-  - TRADER_LLAMA
-  - RABBIT
-  - TURTLE
-  - PANDA
-  - FOX
-  - STRIDER
-  - AXOLOTL
-  - GOAT
-  - ALLAY
-  - SNIFFER
-  - CAMEL
-  - FROG
-  - TADPOLE
-  - CAT
-  - OCELOT
-  - IRON_GOLEM
-  - SNOW_GOLEM
-  - WANDERING_TRADER
-  - PARROT
-  - WOLF
-  - DOLPHIN
-  - BAT
-  - ARMADILLO
-  - ELDER_GUARDIAN
-  - ITEM_DISPLAY
-  - ANDESITE_WALL
-  - BLACKSTONE_WALL
-  - BRICK_WALL
-  - COBBLED_DEEPSLATE_WALL
-  - COBBLESTONE_WALL
-  - DEEPSLATE_BRICK_WALL
-  - DEEPSLATE_TILE_WALL
-  - DIORITE_WALL
-  - END_STONE_BRICK_WALL
-  - GRANITE_WALL
-  - MOSSY_COBBLESTONE_WALL
-  - MOSSY_STONE_BRICK_WALL
-  - MUD_BRICK_WALL
-  - NETHER_BRICK_WALL
-  - POLISHED_BLACKSTONE_BRICK_WALL
-  - POLISHED_BLACKSTONE_WALL
-  - POLISHED_DEEPSLATE_WALL
-  - POLISHED_TUFF_WALL
-  - PRISMARINE_WALL
-  - RED_NETHER_BRICK_WALL
-  - RED_SANDSTONE_WALL
-  - RESIN_BRICK_WALL
-  - SANDSTONE_WALL
-  - STONE_BRICK_WALL
-  - TUFF_BRICK_WALL
-  - TUFF_WALL
-  - MINECART
-  - CHEST_MINECART
-  - FURNACE_MINECART
-  - HOPPER_MINECART
-  - LEASH_KNOT
-  - OAK_BOAT
-  - SPRUCE_BOAT
-  - BIRCH_BOAT
-  - JUNGLE_BOAT
-  - ACACIA_BOAT
-  - DARK_OAK_BOAT
-  - MANGROVE_BOAT
-  - CHERRY_BOAT
-  - PALE_OAK_BOAT
-  - BAMBOO_RAFT
-  - OAK_CHEST_BOAT
-  - SPRUCE_CHEST_BOAT
-  - BIRCH_CHEST_BOAT
-  - JUNGLE_CHEST_BOAT
-  - ACACIA_CHEST_BOAT
-  - DARK_OAK_CHEST_BOAT
-  - MANGROVE_CHEST_BOAT
-  - CHERRY_CHEST_BOAT
-  - PALE_OAK_CHEST_BOAT
-  - BAMBOO_CHEST_RAFT
-  - COPPER_GOLEM
-  - FISHING_BOBBER
-  - ENDER_DRAGON
+  - "VILLAGER"
+  - "ZOMBIE_VILLAGER"
+  - "IRON_GOLEM"
+  - "ARMOR_STAND"
+  - "TEXT_DISPLAY"
+  - "ITEM_DISPLAY"
+  - "BLOCK_DISPLAY"
+  - "ITEM_FRAME"
+  - "GLOW_ITEM_FRAME"
+  - "LEASH_HITCH"
 
-# ---------------------------------------------------------------------------- #
-#                               Item Whitelist                                 #
-# ---------------------------------------------------------------------------- #
-# Items in this list will NEVER be cleared when dropped on the ground.
 item-whitelist:
-  - NETHERITE_INGOT
-  - NETHERITE_BLOCK
-  - NETHER_STAR
-  - ELYTRA
-  - TOTEM_OF_UNDYING
-  - BEACON
-  - DRAGON_EGG
-  - ENCHANTED_GOLDEN_APPLE
-  - CONDUIT
-  - TRIDENT
-  - SHULKER_BOX
-  - WHITE_SHULKER_BOX
-  - ORANGE_SHULKER_BOX
-  - MAGENTA_SHULKER_BOX
-  - LIGHT_BLUE_SHULKER_BOX
-  - YELLOW_SHULKER_BOX
-  - LIME_SHULKER_BOX
-  - PINK_SHULKER_BOX
-  - GRAY_SHULKER_BOX
-  - LIGHT_GRAY_SHULKER_BOX
-  - CYAN_SHULKER_BOX
-  - PURPLE_SHULKER_BOX
-  - BLUE_SHULKER_BOX
-  - BROWN_SHULKER_BOX
-  - GREEN_SHULKER_BOX
-  - RED_SHULKER_BOX
-  - BLACK_SHULKER_BOX
-  - ARMOR_STAND
-  - ITEM_FRAME
-  - GLOW_ITEM_FRAME
-  - LEASH_HITCH
-  - PAINTING
-  - ITEM_DISPLAY
-  - ANDESITE_WALL
-  - BLACKSTONE_WALL
-  - BRICK_WALL
-  - COBBLED_DEEPSLATE_WALL
-  - COBBLESTONE_WALL
-  - DEEPSLATE_BRICK_WALL
-  - DEEPSLATE_TILE_WALL
-  - DIORITE_WALL
-  - END_STONE_BRICK_WALL
-  - GRANITE_WALL
-  - MOSSY_COBBLESTONE_WALL
-  - MOSSY_STONE_BRICK_WALL
-  - MUD_BRICK_WALL
-  - NETHER_BRICK_WALL
-  - POLISHED_BLACKSTONE_BRICK_WALL
-  - POLISHED_BLACKSTONE_WALL
-  - POLISHED_DEEPSLATE_WALL
-  - POLISHED_TUFF_WALL
-  - PRISMARINE_WALL
-  - RED_NETHER_BRICK_WALL
-  - RED_SANDSTONE_WALL
-  - RESIN_BRICK_WALL
-  - SANDSTONE_WALL
-  - STONE_BRICK_WALL
-  - TUFF_BRICK_WALL
-  - TUFF_WALL
-  - MINECART
-  - CHEST_MINECART
-  - FURNACE_MINECART
-  - HOPPER_MINECART
-  - DRIED_GHAST
-  - FALLING_BLOCK
-  - END_CRYSTAL
+  - "NETHERITE_INGOT"
 
-# ---------------------------------------------------------------------------- #
-#                               Notifications                                  #
-# ---------------------------------------------------------------------------- #
 notifications:
-  # Times (in seconds) before clear to broadcast messages.
-  broadcast-times:
-    - 60
-    - 30
-    - 10
-    - 5
-  # Where to show notifications. (ACTION_BAR, CHAT, TITLE, BOSS_BAR)
+  broadcast-times: [60, 30, 10, 5]
   types:
-    - ACTION_BAR
+    - "ACTION_BAR"
   console-notifications: false
   sound:
-    enabled: false
-    name: BLOCK_NOTE_BLOCK_PLING
+    enabled: true
+    name: "BLOCK_NOTE_BLOCK_PLING"
     volume: 1.0
     pitch: 1.2

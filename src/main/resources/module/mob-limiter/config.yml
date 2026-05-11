@@ -4,29 +4,19 @@
 # This module limits the number of mobs that can exist in a single chunk.
 # The module is enabled/disabled in the main config.yml.
 
-# ---------------------------------------------------------------------------- #
-#                               General Settings                                #
-# ---------------------------------------------------------------------------- #
-max-mobs-per-chunk: 25
+max-mobs-per-chunk: 50
 
-# ---------------------------------------------------------------------------- #
-#                               Per-Type Limits                                #
-# ---------------------------------------------------------------------------- #
 per-type-limits:
   enabled: true
   limits:
-    ZOMBIE: 12
-    SKELETON: 12
-    CREEPER: 10
-    SPIDER: 5
-    ENDERMAN: 3
-    VILLAGER: 20
-    COW: 10
-    SHEEP: 10
-    PIG: 10
-    CHICKEN: 8
-    RABBIT: 6
+    ZOMBIE: 10
+    SKELETON: 10
+    CREEPER: 8
+    SPIDER: 8
+    ENDERMAN: 5
+    VILLAGER: 15
+    COW: 12
+    SHEEP: 12
+    PIG: 12
+    CHICKEN: 15
     IRON_GOLEM: 3
-    BAT: 1
-    GLOW_SQUID: 2
-
