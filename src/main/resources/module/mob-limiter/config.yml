@@ -6,6 +6,9 @@
 
 max-mobs-per-chunk: 50
 
+# If set to true, mobs spawned from spawners will not be counted towards the chunk limit.
+ignore-spawners: false
+
 per-type-limits:
   enabled: true
   limits:
