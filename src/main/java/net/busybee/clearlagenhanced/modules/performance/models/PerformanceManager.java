@@ -3,6 +3,7 @@ package net.busybee.clearlagenhanced.modules.performance.models;
 import net.busybee.clearlagenhanced.ClearLaggEnhanced;
 import net.busybee.clearlagenhanced.utils.MessageUtils;
 import com.tcoded.folialib.impl.PlatformScheduler;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import net.busybee.clearlagenhanced.core.module.Module;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -71,13 +72,32 @@ public class PerformanceManager {
         return used + "MB / " + max + "MB";
     }
 
+    private int cachedTotalEntities = 0;
+    private WrappedTask updateTask;
+
     public int getTotalEntities() {
+        return cachedTotalEntities;
+    }
+
+    public void updateEntityCount() {
         int total = 0;
         for (World world : Bukkit.getWorlds()) {
             total += world.getEntities().size();
         }
+        this.cachedTotalEntities = total;
+    }
 
-        return total;
+    public void start() {
+        if (updateTask != null) return;
+        // Update the cache every 5 seconds (100 ticks) on the main thread/global region
+        updateTask = scheduler.runTimer(this::updateEntityCount, 1L, 100L);
+    }
+
+    public void stop() {
+        if (updateTask != null) {
+            updateTask.cancel();
+            updateTask = null;
+        }
     }
 
     public void findLaggyChunksAsync(@NotNull Player player) {

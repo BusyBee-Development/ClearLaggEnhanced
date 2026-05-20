@@ -22,7 +22,9 @@ import net.busybee.clearlagenhanced.modules.miscentitylimiter.MiscEntityLimiterM
 import net.busybee.clearlagenhanced.modules.moblimiter.MobLimiterModule;
 import net.busybee.clearlagenhanced.modules.moblimiter.models.LagPreventionManager;
 import net.busybee.clearlagenhanced.modules.spawnerlimiter.SpawnerLimiterModule;
+import net.busybee.clearlagenhanced.utils.BStatsManager;
 import net.busybee.clearlagenhanced.utils.EntityProtectionUtils;
+import net.busybee.clearlagenhanced.utils.FastStatsManager;
 import net.busybee.clearlagenhanced.utils.MessageUtils;
 import net.busybee.clearlagenhanced.utils.VersionCheck;
 import com.tcoded.folialib.FoliaLib;
@@ -30,7 +32,6 @@ import fr.mrmicky.fastinv.FastInvManager;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import lombok.Getter;
 import net.busybee.clearlagenhanced.modules.performance.models.PerformanceManager;
-import org.bstats.bukkit.Metrics;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.HandlerList;
@@ -55,6 +56,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private ChatInputManager chatInputManager;
     private VersionCheck versionCheck;
     private ClearLaggEnhancedExpansion placeholderExpansion;
+    private FastStatsManager fastStatsManager;
 
     public static PlatformScheduler scheduler() {
         return scheduler;
@@ -67,7 +69,9 @@ public class ClearLaggEnhanced extends JavaPlugin {
         FoliaLib foliaLib = new FoliaLib(this);
         scheduler = foliaLib.getScheduler();
 
-        new Metrics(this, 26743);
+        new BStatsManager(this);
+        fastStatsManager = new FastStatsManager(this);
+        fastStatsManager.onEnable();
 
         saveDefaultConfig();
         FastInvManager.register(this);
@@ -88,6 +92,10 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
         if (placeholderExpansion != null) {
             placeholderExpansion.unregister();
+        }
+
+        if (fastStatsManager != null) {
+            fastStatsManager.onDisable();
         }
 
         shutdownCore();

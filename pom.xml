@@ -49,12 +49,16 @@
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>faststats-releases</id>
+            <url>https://repo.faststats.dev/releases</url>
         </repository>
         <repository>
             <id>mr-maven</id>
             <url>https://maven.mr-micky.com/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -141,6 +145,12 @@
             <artifactId>fastinv</artifactId>
             <version>3.0.4</version>
         </dependency>
+        <dependency>
+            <groupId>dev.faststats.metrics</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>0.22.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -264,6 +274,10 @@
                                     <pattern>fr.mrmicky.fastinv</pattern>
                                     <shadedPattern>net.busybee.clearlagenhanced.libs.fastinv</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>dev.faststats</pattern>
+                                    <shadedPattern>net.busybee.clearlagenhanced.libs.faststats</shadedPattern>
+                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
@@ -283,6 +297,12 @@
                                 </filter>
                                 <filter>
                                     <artifact>org.bstats:*</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <filter>
+                                    <artifact>dev.faststats.metrics:*</artifact>
                                     <includes>
                                         <include>**</include>
                                     </includes>

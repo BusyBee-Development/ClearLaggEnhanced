@@ -48,6 +48,8 @@ Thumbs.db
 # Environment files
 .env
 .env.*
+src/main/resources/faststats.properties
+src/main/resources/bstats.properties
 <<<<<<< HEAD
 .idea
 =======

@@ -21,15 +21,23 @@ public class PerformanceModule extends Module {
     @Override
     public void onEnable() {
         performanceManager = new PerformanceManager(plugin);
+        performanceManager.start();
     }
 
     @Override
     public void onDisable() {
+        if (performanceManager != null) {
+            performanceManager.stop();
+        }
     }
 
     @Override
     public void onReload() {
+        if (performanceManager != null) {
+            performanceManager.stop();
+        }
         performanceManager = new PerformanceManager(plugin);
+        performanceManager.start();
     }
 
     public double getTPS() {
