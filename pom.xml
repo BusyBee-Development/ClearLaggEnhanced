@@ -4,17 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.clearlagenhanced</groupId>
+    <groupId>net.busybee.clearlagenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>2026.5.0</version>
+    <version>2026.5.1</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
     <description>A modern, customizable lag prevention plugin for Minecraft servers</description>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     </properties>
@@ -250,19 +250,19 @@
                             <relocations>
                                 <relocation>
                                     <pattern>com.tcoded.folialib</pattern>
-                                    <shadedPattern>com.clearlagenhanced.libs.folialib</shadedPattern>
+                                    <shadedPattern>net.busybee.clearlagenhanced.libs.folialib</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.bstats</pattern>
-                                    <shadedPattern>com.clearlagenhanced.libs.bstats</shadedPattern>
+                                    <shadedPattern>net.busybee.clearlagenhanced.libs.bstats</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.cryptomorin.xseries</pattern>
-                                    <shadedPattern>com.clearlagenhanced.libs.xseries</shadedPattern>
+                                    <shadedPattern>net.busybee.clearlagenhanced.libs.xseries</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>fr.mrmicky.fastinv</pattern>
-                                    <shadedPattern>com.clearlagenhanced.libs.fastinv</shadedPattern>
+                                    <shadedPattern>net.busybee.clearlagenhanced.libs.fastinv</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
