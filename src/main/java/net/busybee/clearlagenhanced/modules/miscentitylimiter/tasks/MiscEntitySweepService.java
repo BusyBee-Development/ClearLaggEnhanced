@@ -5,6 +5,7 @@ import net.busybee.clearlagenhanced.core.module.Module;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -73,11 +74,18 @@ public class MiscEntitySweepService {
         while (processedChunks < maxChunksPerTick && chunkCursor < pendingChunks.size()) {
             ChunkRef chunkRef = pendingChunks.get(chunkCursor++);
             World world = Bukkit.getWorld(chunkRef.worldName());
+
             if (world == null || !world.isChunkLoaded(chunkRef.x(), chunkRef.z())) {
                 continue;
             }
 
-            processChunk(world.getChunkAt(chunkRef.x(), chunkRef.z()));
+            Location loc = new Location(world, chunkRef.x() << 4, 64, chunkRef.z() << 4);
+            ClearLaggEnhanced.scheduler().runAtLocation(loc, task -> {
+                if (world.isChunkLoaded(chunkRef.x(), chunkRef.z())) {
+                    processChunk(world.getChunkAt(chunkRef.x(), chunkRef.z()));
+                }
+            });
+
             processedChunks++;
         }
 
