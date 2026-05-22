@@ -30,11 +30,6 @@ public class EntityProtectionUtils {
         this.stackerManager = stackerManager;
     }
 
-    public boolean isProtected(@NotNull Entity entity) {
-        ProtectionContext context = createProtectionContext();
-        return context != null && isProtected(entity, context);
-    }
-
     public @Nullable ProtectionContext createProtectionContext() {
         ModuleManager moduleManager = plugin.getModuleManager();
         if (moduleManager == null) {
@@ -106,7 +101,7 @@ public class EntityProtectionUtils {
         }
 
         if (settings.protectNamed()) {
-            if (entity.getCustomName() != null && !entity.getCustomName().isEmpty()) return true;
+            if (entity.customName() != null) return true;
             
             if (entity instanceof Item item) {
                 ItemStack stack = item.getItemStack();
@@ -147,7 +142,7 @@ public class EntityProtectionUtils {
         if (settings.whitelistAllMobs() && entity instanceof LivingEntity) return true;
 
         if (settings.protectStacked()) {
-            if (stackerManager.isStacked(entity)) return true;
+            return stackerManager.isStacked(entity);
         }
 
         return false;

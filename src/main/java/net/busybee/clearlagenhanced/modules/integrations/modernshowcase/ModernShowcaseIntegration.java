@@ -8,6 +8,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 
 public class ModernShowcaseIntegration extends Module {
+
     private static final String DEPENDENCY_NAME = "ModernShowcase";
 
     private final ClearLaggEnhanced plugin;

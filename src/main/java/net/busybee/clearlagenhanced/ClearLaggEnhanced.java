@@ -1,4 +1,5 @@
 package net.busybee.clearlagenhanced;
+
 import net.busybee.clearlagenhanced.commands.LaggCommand;
 import net.busybee.clearlagenhanced.core.gui.ModuleGUIRegistry;
 import net.busybee.clearlagenhanced.core.module.*;
@@ -13,8 +14,6 @@ import net.busybee.clearlagenhanced.managers.ChatInputManager;
 import net.busybee.clearlagenhanced.managers.ConfigManager;
 import net.busybee.clearlagenhanced.managers.MessageManager;
 import net.busybee.clearlagenhanced.managers.StackerManager;
-import net.busybee.clearlagenhanced.modules.entityclearing.models.EntityManager;
-import net.busybee.clearlagenhanced.modules.entityclearing.models.NotificationManager;
 import net.busybee.clearlagenhanced.modules.integrations.modernshowcase.ModernShowcaseIntegration;
 import net.busybee.clearlagenhanced.modules.integrations.rosestacker.RoseStackerIntegration;
 import net.busybee.clearlagenhanced.modules.integrations.wildstacker.WildStackerIntegration;
@@ -122,16 +121,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         moduleManager.registerModule(new ModernShowcaseIntegration(this));
 
         moduleManager.loadAll();
-    }
-
-    public EntityManager getEntityManager() {
-        EntityClearingModule module = (EntityClearingModule) moduleManager.getModule("Entity Clearing");
-        return module != null ? module.getEntityManager() : null;
-    }
-
-    public NotificationManager getNotificationManager() {
-        EntityClearingModule module = (EntityClearingModule) moduleManager.getModule("Entity Clearing");
-        return module != null ? module.getNotificationManager() : null;
     }
 
     public PerformanceManager getPerformanceManager() {
@@ -275,10 +264,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
     public MobLimiterModule getMobLimiterModule() {
         return (MobLimiterModule) moduleManager.getModule("Mob Limiter");
-    }
-
-    public ChunkFinderModule getChunkFinderModule() {
-        return (ChunkFinderModule) moduleManager.getModule("Chunk Finder");
     }
 
     private record CoreServices(

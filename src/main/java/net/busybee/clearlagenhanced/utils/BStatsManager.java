@@ -1,4 +1,5 @@
 package net.busybee.clearlagenhanced.utils;
+
 import net.busybee.clearlagenhanced.ClearLaggEnhanced;
 import org.bstats.bukkit.Metrics;
 

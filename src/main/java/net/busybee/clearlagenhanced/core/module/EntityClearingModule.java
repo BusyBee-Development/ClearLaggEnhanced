@@ -32,7 +32,7 @@ public class EntityClearingModule extends Module {
 
     @Override
     public void onEnable() {
-        notificationManager = new NotificationManager(plugin, this);
+        notificationManager = new NotificationManager(this);
         entityManager = new EntityManager(plugin, this);
         plugin.getEntityProtectionUtils().refreshSettingsCache();
 

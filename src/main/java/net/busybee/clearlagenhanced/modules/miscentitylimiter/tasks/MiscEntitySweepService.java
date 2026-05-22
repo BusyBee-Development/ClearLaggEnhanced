@@ -146,7 +146,7 @@ public class MiscEntitySweepService {
 
     private boolean isExempt(Entity entity) {
         if (protectNamed) {
-            if (entity.getCustomName() != null && !entity.getCustomName().isEmpty()) return true;
+            if (entity.customName() != null) return true;
             if (entity instanceof Item item) {
                 ItemStack stack = item.getItemStack();
                 if (stack.hasItemMeta() && stack.getItemMeta().hasDisplayName()) return true;

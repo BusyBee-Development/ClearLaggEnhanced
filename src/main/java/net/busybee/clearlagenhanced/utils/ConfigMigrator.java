@@ -235,6 +235,7 @@ public class ConfigMigrator {
     public List<String> getAddedKeys() {
         return new ArrayList<>(addedKeys);
     }
+
     public List<String> getRemovedKeys() {
         return new ArrayList<>(removedKeys);
     }

@@ -1,30 +1,24 @@
 package net.busybee.clearlagenhanced.modules.entityclearing.models;
 
-import net.busybee.clearlagenhanced.ClearLaggEnhanced;
 import net.busybee.clearlagenhanced.core.module.Module;
 import net.busybee.clearlagenhanced.utils.MessageUtils;
-import com.tcoded.folialib.impl.PlatformScheduler;
 
 import java.util.List;
 import java.util.Map;
 
 public class NotificationManager {
 
-    private final ClearLaggEnhanced plugin;
     private final Module module;
-    private final PlatformScheduler scheduler;
 
-    public NotificationManager(ClearLaggEnhanced plugin, Module module) {
-        this.plugin = plugin;
+    public NotificationManager(Module module) {
         this.module = module;
-        this.scheduler = ClearLaggEnhanced.scheduler();
     }
 
     public void sendClearWarnings(int secondsRemaining) {
         if (secondsRemaining <= 0) return;
 
         List<Integer> broadcastTimes = module.getConfig().getIntegerList("notifications.broadcast-times");
-        if (broadcastTimes == null || broadcastTimes.isEmpty()) return;
+        if (broadcastTimes.isEmpty()) return;
 
         if (broadcastTimes.contains(secondsRemaining)) {
             boolean toConsole = module.getConfig().getBoolean("notifications.broadcast-to-console", false);

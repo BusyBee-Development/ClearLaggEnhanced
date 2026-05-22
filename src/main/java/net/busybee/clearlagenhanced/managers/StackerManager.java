@@ -59,8 +59,4 @@ public class StackerManager {
 
         return Optional.empty();
     }
-
-    public List<StackerHook> getRegisteredHooks() {
-        return new ArrayList<>(hooks);
-    }
 }

@@ -5,6 +5,7 @@ import net.busybee.clearlagenhanced.core.module.Module;
 import org.bukkit.Bukkit;
 
 public class WildStackerIntegration extends Module {
+
     private final ClearLaggEnhanced plugin;
     private WildStackerHook hook;
 

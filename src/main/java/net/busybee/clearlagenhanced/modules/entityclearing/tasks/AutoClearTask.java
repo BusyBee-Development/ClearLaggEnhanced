@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AutoClearTask {
+
     private final ClearLaggEnhanced plugin;
     private final EntityManager entityManager;
     private final NotificationManager notificationManager;

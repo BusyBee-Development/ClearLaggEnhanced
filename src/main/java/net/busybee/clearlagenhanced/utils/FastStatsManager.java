@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class FastStatsManager {
+
     private final ClearLaggEnhanced plugin;
     private final BukkitMetrics metrics;
 

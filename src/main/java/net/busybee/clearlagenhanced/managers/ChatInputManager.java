@@ -37,11 +37,11 @@ public class ChatInputManager implements Listener {
 
             if (message.equalsIgnoreCase("cancel")) {
                 MessageUtils.sendMessage(player, "gui.input-cancelled");
-                ClearLaggEnhanced.scheduler().runNextTick(task -> callback.accept(null));
+                ClearLaggEnhanced.scheduler().runAtEntity(player, task -> callback.accept(null));
                 return;
             }
 
-            ClearLaggEnhanced.scheduler().runNextTick(task -> callback.accept(message));
+            ClearLaggEnhanced.scheduler().runAtEntity(player, task -> callback.accept(message));
         }
     }
 }

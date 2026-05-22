@@ -63,7 +63,7 @@ public class MiscEntityLimiterListener implements Listener {
 
     private boolean exempt(@NotNull Entity entity) {
         if (protectNamed) {
-            if (entity.getCustomName() != null && !entity.getCustomName().isEmpty()) return true;
+            if (entity.customName() != null) return true;
 
             if (entity instanceof Item item) {
                 ItemStack stack = item.getItemStack();

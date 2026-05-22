@@ -8,6 +8,7 @@ import net.busybee.clearlagenhanced.modules.entityclearing.models.AdaptiveInterv
 import net.busybee.clearlagenhanced.modules.entityclearing.tasks.AutoClearTask;
 import net.busybee.clearlagenhanced.utils.MessageUtils;
 import com.cryptomorin.xseries.XMaterial;
+import com.tcoded.folialib.impl.PlatformScheduler;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -24,8 +25,9 @@ import java.util.Map;
 public class EntityClearingGUI extends InventoryGUI {
     private final ClearLaggEnhanced plugin;
     private final EntityClearingModule module;
+    private final PlatformScheduler scheduler;
     private WrappedTask refreshTask;
-    
+
     public EntityClearingGUI(ClearLaggEnhanced plugin, Module module) {
         this(plugin, (EntityClearingModule) module);
     }
@@ -34,8 +36,9 @@ public class EntityClearingGUI extends InventoryGUI {
         super(36, ChatColor.translateAlternateColorCodes('&', "&c&lEntity Clearing"));
         this.plugin = plugin;
         this.module = module;
+        this.scheduler = ClearLaggEnhanced.scheduler();
     }
-    
+
     @Override
     public void decorate(Player player) {
         boolean enabled = module.isEnabled();
@@ -49,34 +52,40 @@ public class EntityClearingGUI extends InventoryGUI {
                 module.getConfig().getString("adaptive-interval.metric")
         );
         List<AdaptiveIntervalSettings.Tier> adaptiveTiers = readAdaptiveTiers();
-        
+
         setItem(10, createToggleItem(enabled), event -> {
+            Player clicker = (Player) event.getWhoClicked();
             plugin.getModuleManager().setModuleEnabled(module, !enabled);
-            new EntityClearingGUI(plugin, module).open((Player) event.getWhoClicked());
+            scheduler.runAtEntity(clicker, task ->
+                new EntityClearingGUI(plugin, module).open(clicker)
+            );
         });
-        
+
         setItem(12, createIntervalItem(fallbackInterval, adaptiveIntervalEnabled, statusSnapshot), event -> {
             Player clicker = (Player) event.getWhoClicked();
             MessageUtils.sendMessage(clicker, "gui.enter-interval");
-            clicker.closeInventory();
-
-            plugin.getChatInputManager().requestInput(clicker, input -> {
-                if (input != null) {
-                    try {
-                        int newVal = Integer.parseInt(input);
-                        if (newVal < 10) {
-                            MessageUtils.sendMessage(clicker, "gui.interval-min", "min", "10");
-                        } else {
-                            module.getConfig().set("interval", newVal);
-                            module.saveConfig();
-                            module.onReload(); // This refreshes the auto-clear task
-                            MessageUtils.sendMessage(clicker, "gui.interval-set", "interval", input);
+            scheduler.runAtEntity(clicker, task -> {
+                clicker.closeInventory();
+                plugin.getChatInputManager().requestInput(clicker, input -> {
+                    if (input != null) {
+                        try {
+                            int newVal = Integer.parseInt(input);
+                            if (newVal < 10) {
+                                MessageUtils.sendMessage(clicker, "gui.interval-min", "min", "10");
+                            } else {
+                                module.getConfig().set("interval", newVal);
+                                module.saveConfig();
+                                module.onReload(); // This refreshes the auto-clear task
+                                MessageUtils.sendMessage(clicker, "gui.interval-set", "interval", input);
+                            }
+                        } catch (NumberFormatException e) {
+                            MessageUtils.sendMessage(clicker, "gui.invalid-number");
                         }
-                    } catch (NumberFormatException e) {
-                        MessageUtils.sendMessage(clicker, "gui.invalid-number");
                     }
-                }
-                new EntityClearingGUI(plugin, module).open(clicker);
+                    scheduler.runAtEntity(clicker, t2 ->
+                        new EntityClearingGUI(plugin, module).open(clicker)
+                    );
+                });
             });
         });
 
@@ -86,21 +95,24 @@ public class EntityClearingGUI extends InventoryGUI {
             if (event.isShiftClick()) {
                 MessageUtils.sendMessage(clicker, "gui.enter-adaptive-thresholds");
                 MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-format");
-                clicker.closeInventory();
-
-                plugin.getChatInputManager().requestInput(clicker, input -> {
-                    if (input != null) {
-                        try {
-                            List<AdaptiveIntervalSettings.Tier> parsedTiers = parseTierInput(input);
-                            saveAdaptiveTiers(parsedTiers);
-                            module.onReload();
-                            MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-set");
-                        } catch (IllegalArgumentException exception) {
-                            MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-invalid", "reason", exception.getMessage());
+                scheduler.runAtEntity(clicker, task -> {
+                    clicker.closeInventory();
+                    plugin.getChatInputManager().requestInput(clicker, input -> {
+                        if (input != null) {
+                            try {
+                                List<AdaptiveIntervalSettings.Tier> parsedTiers = parseTierInput(input);
+                                saveAdaptiveTiers(parsedTiers);
+                                module.onReload();
+                                MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-set");
+                            } catch (IllegalArgumentException exception) {
+                                MessageUtils.sendMessage(clicker, "gui.adaptive-thresholds-invalid", "reason", exception.getMessage());
+                            }
                         }
-                    }
 
-                    new EntityClearingGUI(plugin, module).open(clicker);
+                        scheduler.runAtEntity(clicker, t2 ->
+                            new EntityClearingGUI(plugin, module).open(clicker)
+                        );
+                    });
                 });
                 return;
             }
@@ -113,7 +125,9 @@ public class EntityClearingGUI extends InventoryGUI {
                 module.saveConfig();
                 module.onReload();
                 MessageUtils.sendMessage(clicker, "gui.adaptive-metric-set", "metric", nextMetric.name());
-                new EntityClearingGUI(plugin, module).open(clicker);
+                scheduler.runAtEntity(clicker, task ->
+                    new EntityClearingGUI(plugin, module).open(clicker)
+                );
                 return;
             }
 
@@ -121,34 +135,47 @@ public class EntityClearingGUI extends InventoryGUI {
             module.saveConfig();
             module.onReload();
             MessageUtils.sendMessage(clicker, "gui.adaptive-enabled-set", "state", (!adaptiveIntervalEnabled) ? "enabled" : "disabled");
-            new EntityClearingGUI(plugin, module).open(clicker);
+            scheduler.runAtEntity(clicker, task ->
+                new EntityClearingGUI(plugin, module).open(clicker)
+            );
         });
-        
+
         setItem(14, createProtectionItem("Named Entities", protectNamed), event -> {
+            Player clicker = (Player) event.getWhoClicked();
             module.getConfig().set("protect-named-entities", !protectNamed);
             module.saveConfig();
             plugin.getEntityProtectionUtils().refreshSettingsCache();
-            new EntityClearingGUI(plugin, module).open((Player) event.getWhoClicked());
+            scheduler.runAtEntity(clicker, task ->
+                new EntityClearingGUI(plugin, module).open(clicker)
+            );
         });
-        
+
         setItem(16, createProtectionItem("Tamed Entities", protectTamed), event -> {
+            Player clicker = (Player) event.getWhoClicked();
             module.getConfig().set("protect-tamed-entities", !protectTamed);
             module.saveConfig();
             plugin.getEntityProtectionUtils().refreshSettingsCache();
-            new EntityClearingGUI(plugin, module).open((Player) event.getWhoClicked());
+            scheduler.runAtEntity(clicker, task ->
+                new EntityClearingGUI(plugin, module).open(clicker)
+            );
         });
-        
+
         setItem(20, createProtectionItem("Stacked Entities", protectStacked), event -> {
+            Player clicker = (Player) event.getWhoClicked();
             module.getConfig().set("protect-stacked-entities", !protectStacked);
             module.saveConfig();
             plugin.getEntityProtectionUtils().refreshSettingsCache();
-            new EntityClearingGUI(plugin, module).open((Player) event.getWhoClicked());
+            scheduler.runAtEntity(clicker, task ->
+                new EntityClearingGUI(plugin, module).open(clicker)
+            );
         });
-        
+
         setItem(31, createBackItem(), event -> {
             Player clicker = (Player) event.getWhoClicked();
-            clicker.closeInventory();
-            clicker.performCommand("lagg admin");
+            scheduler.runAtEntity(clicker, task -> {
+                clicker.closeInventory();
+                clicker.performCommand("lagg admin");
+            });
         });
     }
 
@@ -158,14 +185,13 @@ public class EntityClearingGUI extends InventoryGUI {
 
         Player player = (Player) event.getPlayer();
         stopRefreshTask();
-        refreshTask = ClearLaggEnhanced.scheduler().runTimer(() -> {
+        refreshTask = scheduler.runAtEntityTimer(player, () -> {
             if (!player.isOnline() || player.getOpenInventory().getTopInventory() != getInventory()) {
                 stopRefreshTask();
                 return;
             }
 
             decorate(player);
-            // player.updateInventory(); // FastInv handles updates
         }, 20L, 20L);
     }
 
@@ -173,7 +199,7 @@ public class EntityClearingGUI extends InventoryGUI {
     protected void onClose(InventoryCloseEvent event) {
         stopRefreshTask();
     }
-    
+
     private ItemStack createToggleItem(boolean enabled) {
         ItemStack item = enabled ? XMaterial.GREEN_WOOL.parseItem() : XMaterial.RED_WOOL.parseItem();
         if (item != null) {
@@ -188,7 +214,7 @@ public class EntityClearingGUI extends InventoryGUI {
         }
         return item;
     }
-    
+
     private ItemStack createIntervalItem(int fallbackInterval, boolean adaptiveIntervalEnabled, AutoClearTask.StatusSnapshot statusSnapshot) {
         ItemStack item = XMaterial.CLOCK.parseItem();
         if (item != null) {
@@ -265,7 +291,7 @@ public class EntityClearingGUI extends InventoryGUI {
         item.setItemMeta(meta);
         return item;
     }
-    
+
     private ItemStack createProtectionItem(String name, boolean enabled) {
         ItemStack item = enabled ? XMaterial.GREEN_WOOL.parseItem() : XMaterial.RED_WOOL.parseItem();
         if (item != null) {
@@ -386,11 +412,11 @@ public class EntityClearingGUI extends InventoryGUI {
 
     private void stopRefreshTask() {
         if (refreshTask != null) {
-            ClearLaggEnhanced.scheduler().cancelTask(refreshTask);
+            scheduler.cancelTask(refreshTask);
             refreshTask = null;
         }
     }
-    
+
     private ItemStack createBackItem() {
         ItemStack item = XMaterial.ARROW.parseItem();
         if (item != null) {

@@ -80,11 +80,28 @@ public class PerformanceManager {
     }
 
     public void updateEntityCount() {
-        int total = 0;
+        List<Chunk> chunks = new ArrayList<>();
         for (World world : Bukkit.getWorlds()) {
-            total += world.getEntities().size();
+            Collections.addAll(chunks, world.getLoadedChunks());
         }
-        this.cachedTotalEntities = total;
+
+        if (chunks.isEmpty()) {
+            this.cachedTotalEntities = 0;
+            return;
+        }
+
+        AtomicInteger total = new AtomicInteger(0);
+        AtomicInteger pending = new AtomicInteger(chunks.size());
+
+        for (Chunk chunk : chunks) {
+            Location loc = new Location(chunk.getWorld(), chunk.getX() << 4, 0, chunk.getZ() << 4);
+            scheduler.runAtLocation(loc, task -> {
+                total.addAndGet(chunk.getEntities().length);
+                if (pending.decrementAndGet() == 0) {
+                    this.cachedTotalEntities = total.get();
+                }
+            });
+        }
     }
 
     public void start() {
