@@ -6,11 +6,9 @@ import dev.faststats.core.data.Metric;
 import net.busybee.clearlagenhanced.ClearLaggEnhanced;
 import net.busybee.clearlagenhanced.modules.performance.models.PerformanceManager;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 public class FastStatsManager {
+
+    private static final String FASTSTATS_TOKEN = "90b9a58974a453e2f3c2a00860e15641";
 
     private final ClearLaggEnhanced plugin;
     private final BukkitMetrics metrics;
@@ -21,10 +19,9 @@ public class FastStatsManager {
 
     public FastStatsManager(ClearLaggEnhanced plugin) {
         this.plugin = plugin;
-        String token = loadToken();
 
         this.metrics = BukkitMetrics.factory()
-                .token(token)
+                .token(FASTSTATS_TOKEN)
                 .errorTracker(ERROR_TRACKER)
                 .addMetric(Metric.number("server_tps", () -> {
                     PerformanceManager pm = plugin.getPerformanceManager();
@@ -35,17 +32,6 @@ public class FastStatsManager {
                     return pm != null ? pm.getTotalEntities() : 0;
                 }))
                 .create(plugin);
-    }
-
-    private String loadToken() {
-        Properties props = new Properties();
-        try (InputStream is = plugin.getResource("faststats.properties")) {
-            if (is != null) {
-                props.load(is);
-                return props.getProperty("token", "YOUR_TOKEN_HERE");
-            }
-        } catch (IOException ignored) {}
-        return "YOUR_TOKEN_HERE";
     }
 
     public void onEnable() {
