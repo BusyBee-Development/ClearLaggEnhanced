@@ -84,6 +84,12 @@ public class EntityProtectionUtils {
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook, boolean checkWhitelist) {
         if (entity instanceof Player) return true;
 
+        // Check if the entity is stacked early so we can handle naming protection correctly
+        boolean isStacked = stackerManager.isStacked(entity);
+        if (isStacked && settings.protectStacked()) {
+            return true;
+        }
+
         if (hasProtectedTag(entity, settings.protectedEntityTags())) {
             return true;
         }
@@ -100,7 +106,10 @@ public class EntityProtectionUtils {
             if (entity.getVehicle() instanceof Boat) return true;
         }
 
-        if (settings.protectNamed()) {
+        // Only check named protection if it's NOT a stacked entity (or if we don't care about stacker naming)
+        // Stacker plugins typically use custom display names to show stack size, which would
+        // otherwise cause them to be protected if protect-named-entities is true.
+        if (settings.protectNamed() && !isStacked) {
             if (entity.customName() != null) return true;
             
             if (entity instanceof Item item) {
@@ -140,10 +149,6 @@ public class EntityProtectionUtils {
         }
 
         if (settings.whitelistAllMobs() && entity instanceof LivingEntity) return true;
-
-        if (settings.protectStacked()) {
-            return stackerManager.isStacked(entity);
-        }
 
         return false;
     }
