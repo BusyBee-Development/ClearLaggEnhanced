@@ -1,0 +1,41 @@
+package net.busybee.clearlaggenhanced.modules.spawnerlimiter;
+import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
+import net.busybee.clearlaggenhanced.core.Module;
+import net.busybee.clearlaggenhanced.modules.spawnerlimiter.inventory.SpawnerLimiterGUI;
+import net.busybee.clearlaggenhanced.modules.spawnerlimiter.listeners.SpawnerLimiterListener;
+import org.bukkit.Bukkit;
+import org.bukkit.event.HandlerList;
+
+public class SpawnerLimiterModule extends Module {
+    private final ClearLaggEnhanced plugin;
+    private SpawnerLimiterListener spawnerLimiterListener;
+
+    public SpawnerLimiterModule(ClearLaggEnhanced plugin) {
+        super("Spawner Limiter", "spawner-limiter");
+        this.plugin = plugin;
+    }
+
+    @Override
+    public void onRegister() {
+        registerGUI("spawner-limiter", "Spawner Limiter", "SPAWNER", () -> new SpawnerLimiterGUI(plugin, this));
+    }
+
+    @Override
+    public void onEnable() {
+        spawnerLimiterListener = new SpawnerLimiterListener(plugin, this);
+        Bukkit.getPluginManager().registerEvents(spawnerLimiterListener, plugin);
+    }
+
+    @Override
+    public void onDisable() {
+        if (spawnerLimiterListener != null) {
+            HandlerList.unregisterAll(spawnerLimiterListener);
+        }
+    }
+
+    @Override
+    public void onReload() {
+        onDisable();
+        onEnable();
+    }
+}
