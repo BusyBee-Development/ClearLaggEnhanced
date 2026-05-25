@@ -5,6 +5,7 @@ import net.busybee.clearlaggenhanced.gui.ModuleGUIRegistry;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.gui.base.InventoryGUI;
 import com.cryptomorin.xseries.XMaterial;
+import com.cryptomorin.xseries.XSound;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -44,8 +45,9 @@ public class AdminGUI extends InventoryGUI {
             ModuleGUIRegistry.ModuleGUIInfo info = guiRegistry.getGUIInfo(moduleId);
             Module module = plugin.getModuleManager().getModule(moduleId);
             boolean enabled = module != null && module.isEnabled();
+            boolean available = module == null || module.isAvailable();
 
-            setItem(slot, createModuleItem(info.displayName(), info.iconMaterial(), enabled), event -> {
+            setItem(slot, createModuleItem(info.displayName(), info.iconMaterial(), enabled, available), event -> {
                 if (event.getClick().isLeftClick()) {
                     InventoryGUI moduleGUI = info.guiSupplier().get();
                     if (moduleGUI != null) {
@@ -53,7 +55,14 @@ public class AdminGUI extends InventoryGUI {
                     }
                 } else if (event.getClick().isRightClick()) {
                     if (module != null) {
-                        plugin.getModuleManager().setModuleEnabled(module, !module.isEnabled());
+                        boolean newState = !module.isEnabled();
+                        plugin.getModuleManager().setModuleEnabled(module, newState);
+                        
+                        Player clicker = (Player) event.getWhoClicked();
+                        XSound.BLOCK_NOTE_BLOCK_PLING.play(clicker, 1.0f, newState ? 2.0f : 0.5f);
+                        clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', 
+                            "&a[CLE] &7Module &e" + module.getName() + " &7is now " + (newState ? "&aEnabled" : "&cDisabled")));
+                        
                         decorate(player);
                     }
                 }
@@ -86,7 +95,7 @@ public class AdminGUI extends InventoryGUI {
         });
     }
 
-    private ItemStack createModuleItem(String name, String materialName, boolean enabled) {
+    private ItemStack createModuleItem(String name, String materialName, boolean enabled, boolean available) {
         ItemStack item = XMaterial.matchXMaterial(materialName).map(XMaterial::parseItem).orElse(XMaterial.PAPER.parseItem());
         if (item != null) {
             ItemMeta meta = item.getItemMeta();
@@ -94,6 +103,14 @@ public class AdminGUI extends InventoryGUI {
                 meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', (enabled ? "&a" : "&c") + name));
                 List<String> lore = new ArrayList<>();
                 lore.add(ChatColor.translateAlternateColorCodes('&', "&7Status: " + (enabled ? "&aEnabled" : "&cDisabled")));
+                
+                if (!available) {
+                    lore.add("");
+                    lore.add(ChatColor.translateAlternateColorCodes('&', "&c&lWARNING: &7Dependency missing!"));
+                    lore.add(ChatColor.translateAlternateColorCodes('&', "&7This integration will not function"));
+                    lore.add(ChatColor.translateAlternateColorCodes('&', "&7until the target plugin is installed."));
+                }
+                
                 lore.add("");
                 lore.add(ChatColor.translateAlternateColorCodes('&', "&eLeft-Click to configure"));
                 lore.add(ChatColor.translateAlternateColorCodes('&', "&eRight-Click to toggle"));

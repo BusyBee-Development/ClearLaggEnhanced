@@ -26,6 +26,11 @@ public class ModernShowcaseIntegration extends Module {
     }
 
     @Override
+    public boolean isAvailable() {
+        return Bukkit.getPluginManager().isPluginEnabled(DEPENDENCY_NAME);
+    }
+
+    @Override
     public void onEnable() {
         registerLifecycleListener();
         refreshHookState();

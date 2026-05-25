@@ -35,9 +35,13 @@ public class ModuleManager {
     public void registerModule(Module module) {
         module.setPlugin(plugin);
         module.setGUIRegistry(guiRegistry);
+        String nameLower = module.getName().toLowerCase();
+        String folderLower = module.getFolderName().toLowerCase();
+        
         modules.put(module.getName(), module);
-        modules.put(module.getName().toLowerCase(), module);
-        modulesByFolderName.put(module.getFolderName().toLowerCase(), module);
+        modules.put(nameLower, module);
+        modulesByFolderName.put(folderLower, module);
+        
         module.onRegister();
     }
 

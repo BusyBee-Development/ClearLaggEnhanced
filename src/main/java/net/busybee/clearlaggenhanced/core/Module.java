@@ -82,6 +82,10 @@ public abstract class Module {
         this.enabled = enabled;
     }
 
+    public boolean isAvailable() {
+        return true;
+    }
+
     protected boolean getBoolean(String path, boolean def) {
         return config != null ? config.getBoolean(path, def) : def;
     }

@@ -153,10 +153,14 @@ public class EntityProtectionUtils {
             return true;
         }
 
-        for (NamespacedKey key : entity.getPersistentDataContainer().getKeys()) {
-            if (key.getNamespace().equalsIgnoreCase("mythicmobs")) {
-                return true;
+        try {
+            for (NamespacedKey key : entity.getPersistentDataContainer().getKeys()) {
+                if (key.getNamespace().equalsIgnoreCase("mythicmobs")) {
+                    return true;
+                }
             }
+        } catch (java.util.ConcurrentModificationException e) {
+            return true;
         }
 
         return false;
