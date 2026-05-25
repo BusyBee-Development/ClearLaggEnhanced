@@ -36,6 +36,15 @@ public final class VersionCheck implements Listener {
         fetchLatestVersion();
     }
 
+    public String getLatestVersion() {
+        return latestVersion;
+    }
+
+    public boolean isUpdateAvailable() {
+        if (latestVersion == null) return false;
+        return isNewerVersion(latestVersion, plugin.getDescription().getVersion());
+    }
+
     private void fetchLatestVersion() {
         CompletableFuture.runAsync(() -> {
             try {

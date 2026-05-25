@@ -24,6 +24,7 @@ import net.busybee.clearlagenhanced.modules.spawnerlimiter.SpawnerLimiterModule;
 import net.busybee.clearlagenhanced.utils.BStatsManager;
 import net.busybee.clearlagenhanced.utils.EntityProtectionUtils;
 import net.busybee.clearlagenhanced.utils.FastStatsManager;
+import net.busybee.clearlagenhanced.utils.FoliaUpdateNotifier;
 import net.busybee.clearlagenhanced.utils.MessageUtils;
 import net.busybee.clearlagenhanced.utils.VersionCheck;
 import com.tcoded.folialib.FoliaLib;
@@ -54,6 +55,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private ModuleManager moduleManager;
     @Getter private ChatInputManager chatInputManager;
     private VersionCheck versionCheck;
+    private FoliaLib foliaLib;
     private ClearLaggEnhancedExpansion placeholderExpansion;
     private FastStatsManager fastStatsManager;
 
@@ -65,7 +67,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        FoliaLib foliaLib = new FoliaLib(this);
+        foliaLib = new FoliaLib(this);
         scheduler = foliaLib.getScheduler();
 
         new BStatsManager(this);
@@ -79,6 +81,10 @@ public class ClearLaggEnhanced extends JavaPlugin {
         registerCommands();
         registerListeners();
         registerPlaceholders();
+
+        if (versionCheck != null) {
+            new FoliaUpdateNotifier(this, versionCheck).check();
+        }
 
         getLogger().info("ClearLaggEnhanced has been enabled!");
     }
@@ -165,6 +171,10 @@ public class ClearLaggEnhanced extends JavaPlugin {
         initializeModules();
         registerListeners();
         registerPlaceholders();
+
+        if (versionCheck != null) {
+            new FoliaUpdateNotifier(this, versionCheck).check();
+        }
 
         if (sender != null) {
             MessageUtils.sendMessage(sender, "notifications.reload-complete");
