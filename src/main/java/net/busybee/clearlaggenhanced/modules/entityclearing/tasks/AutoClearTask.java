@@ -250,6 +250,12 @@ public class AutoClearTask {
 
     private @Nullable Method resolveAverageTickTimeMethod() {
         try {
+            // Detect Folia - global MSPT is not supported
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return null;
+        } catch (ClassNotFoundException ignored) {}
+
+        try {
             return Bukkit.getServer().getClass().getMethod("getAverageTickTime");
         } catch (ReflectiveOperationException ignored) {
             return null;
@@ -270,9 +276,10 @@ public class AutoClearTask {
             if (value instanceof Number number) {
                 return number.doubleValue();
             }
-        } catch (ReflectiveOperationException exception) {
+        } catch (Exception exception) {
             if (!averageTickTimeUnavailableLogged) {
-                plugin.getLogger().warning("Failed to sample average MSPT for the entity clearing performance gate: " + exception.getMessage() + ". Continuing with normal clearing behavior.");
+                Throwable cause = (exception instanceof java.lang.reflect.InvocationTargetException ite) ? ite.getCause() : exception;
+                plugin.getLogger().warning("Entity clearing performance gate is not supported on this platform: " + (cause != null ? cause.getMessage() : "null"));
                 averageTickTimeUnavailableLogged = true;
             }
         }
