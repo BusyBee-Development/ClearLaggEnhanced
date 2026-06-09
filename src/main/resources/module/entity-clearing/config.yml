@@ -52,6 +52,7 @@ extra-protections:
 
 worlds: []
 
+# Entities that should NOT be cleared.
 whitelist:
   - "VILLAGER"
   - "ZOMBIE_VILLAGER"
@@ -64,6 +65,7 @@ whitelist:
   - "GLOW_ITEM_FRAME"
   - "LEASH_HITCH"
 
+# Items that should NOT be cleared when dropped on the ground.
 item-whitelist:
   - "NETHERITE_INGOT"
 
