@@ -16,7 +16,7 @@ public class UpdateWarn {
             " - WildStacker",
             " - RoseStacker",
             " - Modernshowcase",
-            "These are empty folders and can be safely ignored.",
+            "For now the gui.yml is staying but the configs wont be.",
             "======================================================"
     };
 
