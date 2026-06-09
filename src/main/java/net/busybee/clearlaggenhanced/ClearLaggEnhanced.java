@@ -59,7 +59,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        // Call the enhanced silencing method first
         silenceLoggers();
 
         foliaLib = new FoliaLib(this);
@@ -79,9 +78,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         getLogger().info("ClearLaggEnhanced is ready!");
     }
 
-    /**
-     * Silences HikariCP logs across JUL, Log4j2, and Logback frameworks.
-     */
     private void silenceLoggers() {
         String[] loggers = {
                 "com.zaxxer.hikari",
@@ -91,13 +87,11 @@ public class ClearLaggEnhanced extends JavaPlugin {
                 "com.zaxxer.hikari.pool.PoolBase"
         };
 
-        // 1. Silence via Java Util Logging (JUL)
         java.util.logging.Level julLevel = java.util.logging.Level.SEVERE;
         for (String loggerName : loggers) {
             java.util.logging.Logger.getLogger(loggerName).setLevel(julLevel);
         }
 
-        // 2. Silence via Log4j2 (Standard on Paper/Spigot)
         try {
             Class<?> levelClass = Class.forName("org.apache.logging.log4j.Level");
             Object errorLevel = levelClass.getField("ERROR").get(null);
@@ -109,7 +103,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
             }
         } catch (Throwable ignored) {}
 
-        // 3. Silence via Logback
         try {
             Class<?> factoryClass = Class.forName("org.slf4j.LoggerFactory");
             Object loggerContext = factoryClass.getMethod("getILoggerFactory").invoke(null);
@@ -158,7 +151,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         moduleManager.registerModule(new MiscEntityLimiterModule(this));
         moduleManager.registerModule(new ChunkFinderModule(this));
         moduleManager.registerModule(new PerformanceModule(this));
-
         moduleManager.registerModule(new WildStackerIntegration(this));
         moduleManager.registerModule(new RoseStackerIntegration(this));
         moduleManager.registerModule(new ModernShowcaseIntegration(this));
@@ -281,7 +273,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
         ModuleManager newModuleManager = new ModuleManager(this, newConfigManager, newGuiRegistry);
         VersionCheck newVersionCheck = new VersionCheck(this);
         BStatsManager newBStatsManager = new BStatsManager(this);
-        FastStatsManager newFastStatsManager = new FastStatsManager(this);
+        FastStatsManager newFastStatsManager = new FastStatsManager(this, newModuleManager);
 
         registerModules(newModuleManager);
 
