@@ -34,7 +34,18 @@ public class AdminGUI extends InventoryGUI {
     @Override
     public void decorate(Player player) {
         List<String> sortedKeys = new ArrayList<>(guiRegistry.getRegisteredGUIs().keySet());
-        sortedKeys.sort(String::compareTo);
+        List<String> lastThree = List.of("modernshowcase", "rosestacker", "wildstacker");
+
+        sortedKeys.sort((a, b) -> {
+            boolean aLast = lastThree.contains(a);
+            boolean bLast = lastThree.contains(b);
+
+            if (aLast && !bLast) return 1;
+            if (!aLast && bLast) return -1;
+            if (aLast && bLast) return Integer.compare(lastThree.indexOf(a), lastThree.indexOf(b));
+
+            return a.compareTo(b);
+        });
 
         int slot = 10;
         int maxSlot = getInventory().getSize() - 10;

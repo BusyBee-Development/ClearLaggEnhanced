@@ -170,6 +170,13 @@ public class EntityClearingGUI extends InventoryGUI {
             );
         });
 
+        setItem(22, createWhitelistItem(), event -> {
+            Player clicker = (Player) event.getWhoClicked();
+            scheduler.runAtEntity(clicker, task ->
+                new MobWhitelistGUI(plugin, module, 0).open(clicker)
+            );
+        });
+
         setItem(31, createBackItem(), event -> {
             Player clicker = (Player) event.getWhoClicked();
             scheduler.runAtEntity(clicker, task -> {
@@ -423,6 +430,24 @@ public class EntityClearingGUI extends InventoryGUI {
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
                 meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&fBack to Main Menu"));
+                item.setItemMeta(meta);
+            }
+        }
+        return item;
+    }
+
+    private ItemStack createWhitelistItem() {
+        ItemStack item = XMaterial.ZOMBIE_HEAD.parseItem();
+        if (item != null) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&bEdit Whitelists"));
+                List<String> lore = new ArrayList<>();
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&7Select which &fentities &7and"));
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&fitems &7should be ignored."));
+                lore.add("");
+                lore.add(ChatColor.translateAlternateColorCodes('&', "&aClick to open"));
+                meta.setLore(lore);
                 item.setItemMeta(meta);
             }
         }

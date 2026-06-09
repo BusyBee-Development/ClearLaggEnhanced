@@ -43,24 +43,28 @@ public record ProtectionSettings(
             Set.of()
     );
 
-    public static @NotNull ProtectionSettings fromConfig(@NotNull ConfigurationSection config) {
+    public static @NotNull ProtectionSettings fromConfig(@NotNull ConfigurationSection mainConfig, @NotNull ConfigurationSection entitiesConfig) {
         return new ProtectionSettings(
-            config.getBoolean("protect-named-entities", true),
-            config.getBoolean("protect-tamed-entities", true),
-            config.getBoolean("protect-armored-entities", false),
-            config.getBoolean("protect-stacked-entities", false),
-            config.getBoolean("whitelist-all-mobs", false),
-            config.getBoolean("extra-protections.mobs-in-boats", true),
-            config.getBoolean("extra-protections.mobs-from-breeding", true),
-            config.getBoolean("extra-protections.modern-showcase", true),
-            config.getBoolean("extra-protections.player-heads", true),
-            config.getBoolean("extra-protections.pets-module", true),
-            config.getBoolean("extra-protections.citizens-support", true),
-            config.getBoolean("extra-protections.mythic-mobs", true),
-            normalizeExactValues(config.getStringList("extra-protections.protected-entity-tags"), false),
-            normalizeExactValues(config.getStringList("whitelist"), true),
-            normalizeExactValues(config.getStringList("item-whitelist"), true)
+            mainConfig.getBoolean("protect-named-entities", true),
+            mainConfig.getBoolean("protect-tamed-entities", true),
+            mainConfig.getBoolean("protect-armored-entities", false),
+            mainConfig.getBoolean("protect-stacked-entities", false),
+            mainConfig.getBoolean("whitelist-all-mobs", false),
+            mainConfig.getBoolean("extra-protections.mobs-in-boats", true),
+            mainConfig.getBoolean("extra-protections.mobs-from-breeding", true),
+            mainConfig.getBoolean("extra-protections.modern-showcase", true),
+            mainConfig.getBoolean("extra-protections.player-heads", true),
+            mainConfig.getBoolean("extra-protections.pets-module", true),
+            mainConfig.getBoolean("extra-protections.citizens-support", true),
+            mainConfig.getBoolean("extra-protections.mythic-mobs", true),
+            normalizeExactValues(mainConfig.getStringList("extra-protections.protected-entity-tags"), false),
+            normalizeExactValues(mainConfig.getStringList("whitelist"), true),
+            normalizeExactValues(mainConfig.getStringList("item-whitelist"), true)
         );
+    }
+
+    public static @NotNull ProtectionSettings fromConfig(@NotNull ConfigurationSection config) {
+        return fromConfig(config, config);
     }
 
     private static @NotNull Set<String> normalizeExactValues(@NotNull List<String> values, boolean uppercase) {

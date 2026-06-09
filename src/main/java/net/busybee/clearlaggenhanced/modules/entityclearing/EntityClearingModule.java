@@ -1,4 +1,5 @@
 package net.busybee.clearlaggenhanced.modules.entityclearing;
+
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.modules.entityclearing.inventory.EntityClearingGUI;
@@ -11,13 +12,18 @@ import net.busybee.clearlaggenhanced.modules.entityclearing.tasks.AutoClearTask;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
-
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class EntityClearingModule extends Module {
     private final ClearLaggEnhanced plugin;
     @Getter private EntityManager entityManager;
     @Getter private NotificationManager notificationManager;
+    @Getter private FileConfiguration entitiesConfig;
+    private File entitiesFile;
     private BreedingListener breedingListener;
     private AutoClearTask autoClearTask;
 
@@ -33,6 +39,7 @@ public class EntityClearingModule extends Module {
 
     @Override
     public void onEnable() {
+        loadEntitiesConfig();
         notificationManager = new NotificationManager(this);
         entityManager = new EntityManager(plugin, this);
         plugin.getEntityProtectionUtils().refreshSettingsCache();
@@ -81,7 +88,27 @@ public class EntityClearingModule extends Module {
         }
     }
 
-    @Override
+    public void loadEntitiesConfig() {
+        File modFolder = new File(new File(plugin.getDataFolder(), "module"), getFolderName());
+        if (!modFolder.exists()) {
+            modFolder.mkdirs();
+        }
+        entitiesFile = new File(modFolder, "entities.yml");
+        if (!entitiesFile.exists()) {
+            plugin.saveResource("module/" + getFolderName() + "/entities.yml", false);
+        }
+        entitiesConfig = YamlConfiguration.loadConfiguration(entitiesFile);
+    }
+
+    public void saveEntitiesConfig() {
+        if (entitiesConfig == null || entitiesFile == null) return;
+        try {
+            entitiesConfig.save(entitiesFile);
+        } catch (IOException e) {
+            plugin.getLogger().severe("Failed to save entities config: " + e.getMessage());
+        }
+    }
+
     public void onReload() {
         onDisable();
         onEnable();

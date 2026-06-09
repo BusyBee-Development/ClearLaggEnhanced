@@ -48,7 +48,12 @@ public class EntityManager {
                 plugin.getLogger().info("Automatic entity clearing started...");
             }
 
-            final ProtectionSettings settings = ProtectionSettings.fromConfig(module.getConfig());
+            final ProtectionSettings settings;
+            if (module instanceof net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule ecModule) {
+                settings = ProtectionSettings.fromConfig(ecModule.getConfig(), ecModule.getEntitiesConfig());
+            } else {
+                settings = ProtectionSettings.fromConfig(module.getConfig());
+            }
 
             ModernShowcaseHook msHookTemp = null;
             if (settings.modernShowcase()) {
