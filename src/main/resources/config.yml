@@ -45,6 +45,8 @@ modules:
   misc-entity-limiter: true
   chunk-finder: true
   performance: true
+
+# 3rd Party Plugins
   wildstacker: false
   rosestacker: false
-  modernshowcase: true
+  modernshowcase: false
