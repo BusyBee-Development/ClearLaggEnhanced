@@ -23,6 +23,7 @@ public record ProtectionSettings(
     boolean citizensSupport,
     boolean mythicMobs,
     boolean infernalMobs,
+    boolean modDex,
     Set<String> protectedEntityTags,
     Set<String> whitelist,
     Set<String> itemWhitelist
@@ -34,6 +35,7 @@ public record ProtectionSettings(
             false,
             false,
             false,
+            true,
             true,
             true,
             true,
@@ -63,6 +65,7 @@ public record ProtectionSettings(
             mainConfig.getBoolean("extra-protections.citizens-support", true),
             mainConfig.getBoolean("extra-protections.mythic-mobs", true),
             mainConfig.getBoolean("extra-protections.infernal-mobs", true),
+            mainConfig.getBoolean("extra-protections.mod-dex", true),
             normalizeExactValues(mainConfig.getStringList("extra-protections.protected-entity-tags"), false),
             normalizeExactValues(mainConfig.getStringList("whitelist"), true),
             normalizeExactValues(mainConfig.getStringList("item-whitelist"), true)

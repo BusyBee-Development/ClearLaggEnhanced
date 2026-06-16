@@ -49,6 +49,7 @@ extra-protections:
   citizens-support: true
   mythic-mobs: false
   infernal-mobs: false
+  mod-dex: false
 
   # Protect entities that carry any of these scoreboard tags.
   protected-entity-tags: []

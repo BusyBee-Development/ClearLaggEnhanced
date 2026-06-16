@@ -101,6 +101,10 @@ public class EntityProtectionUtils {
                 return settings.infernalMobs();
             }
 
+            if (isModDexMob(entity)) {
+                return settings.modDex();
+            }
+
             if (settings.modernShowcase() && msHook != null) {
                 if (msHook.isShowcaseEntity(entity)) return true;
             }
@@ -177,6 +181,17 @@ public class EntityProtectionUtils {
             return entity.hasMetadata("infernalMetadata") || 
                    entity.hasMetadata("InfernalMob") || 
                    entity.hasMetadata("infernalMob");
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    private boolean isModDexMob(@NotNull Entity entity) {
+        try {
+            if (entity.hasMetadata("moddex") || entity.hasMetadata("ModDex")) return true;
+
+            for (NamespacedKey key : entity.getPersistentDataContainer().getKeys()) {
+                if (key.getNamespace().equalsIgnoreCase("moddex")) return true;
+            }
         } catch (Exception ignored) {}
         return false;
     }
