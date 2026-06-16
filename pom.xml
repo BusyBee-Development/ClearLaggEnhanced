@@ -6,7 +6,7 @@
 
     <groupId>net.busybee.clearlaggenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>2026.5.4</version>
+    <version>2026.6.0</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
