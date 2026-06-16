@@ -34,6 +34,7 @@ performance-gate:
   sustained-seconds: 300
 
 protect-named-entities: true
+protect-persistent-named-only: false
 protect-tamed-entities: true
 protect-armored-entities: false
 protect-stacked-entities: false
@@ -47,6 +48,7 @@ extra-protections:
   pets-module: true
   citizens-support: true
   mythic-mobs: false
+  infernal-mobs: false
 
   # Protect entities that carry any of these scoreboard tags.
   protected-entity-tags: []

@@ -10,6 +10,7 @@ import java.util.Set;
 
 public record ProtectionSettings(
     boolean protectNamed,
+    boolean protectPersistentNamedOnly,
     boolean protectTamed,
     boolean protectArmored,
     boolean protectStacked,
@@ -21,16 +22,19 @@ public record ProtectionSettings(
     boolean petsModule,
     boolean citizensSupport,
     boolean mythicMobs,
+    boolean infernalMobs,
     Set<String> protectedEntityTags,
     Set<String> whitelist,
     Set<String> itemWhitelist
 ) {
     public static final ProtectionSettings DEFAULTS = new ProtectionSettings(
             true,
+            false,
             true,
             false,
             false,
             false,
+            true,
             true,
             true,
             true,
@@ -46,6 +50,7 @@ public record ProtectionSettings(
     public static @NotNull ProtectionSettings fromConfig(@NotNull ConfigurationSection mainConfig, @NotNull ConfigurationSection entitiesConfig) {
         return new ProtectionSettings(
             mainConfig.getBoolean("protect-named-entities", true),
+            mainConfig.getBoolean("protect-persistent-named-only", false),
             mainConfig.getBoolean("protect-tamed-entities", true),
             mainConfig.getBoolean("protect-armored-entities", false),
             mainConfig.getBoolean("protect-stacked-entities", false),
@@ -57,6 +62,7 @@ public record ProtectionSettings(
             mainConfig.getBoolean("extra-protections.pets-module", true),
             mainConfig.getBoolean("extra-protections.citizens-support", true),
             mainConfig.getBoolean("extra-protections.mythic-mobs", true),
+            mainConfig.getBoolean("extra-protections.infernal-mobs", true),
             normalizeExactValues(mainConfig.getStringList("extra-protections.protected-entity-tags"), false),
             normalizeExactValues(mainConfig.getStringList("whitelist"), true),
             normalizeExactValues(mainConfig.getStringList("item-whitelist"), true)

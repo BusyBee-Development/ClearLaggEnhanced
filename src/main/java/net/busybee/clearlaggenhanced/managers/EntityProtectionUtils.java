@@ -97,6 +97,10 @@ public class EntityProtectionUtils {
                 return settings.mythicMobs();
             }
 
+            if (isInfernalMob(entity)) {
+                return settings.infernalMobs();
+            }
+
             if (settings.modernShowcase() && msHook != null) {
                 if (msHook.isShowcaseEntity(entity)) return true;
             }
@@ -106,7 +110,11 @@ public class EntityProtectionUtils {
             }
 
             if (settings.protectNamed() && !isStacked) {
-                if (entity.customName() != null) return true;
+                if (entity.customName() != null) {
+                    if (!settings.protectPersistentNamedOnly() || entity.isPersistent()) {
+                        return true;
+                    }
+                }
 
                 if (entity instanceof Item item) {
                     ItemStack stack = item.getItemStack();
@@ -160,6 +168,15 @@ public class EntityProtectionUtils {
                     if (value.asBoolean()) return true;
                 }
             }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    private boolean isInfernalMob(@NotNull Entity entity) {
+        try {
+            return entity.hasMetadata("infernalMetadata") || 
+                   entity.hasMetadata("InfernalMob") || 
+                   entity.hasMetadata("infernalMob");
         } catch (Exception ignored) {}
         return false;
     }
