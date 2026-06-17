@@ -10,6 +10,7 @@ import net.busybee.clearlaggenhanced.hooks.ClearLaggEnhancedExpansion;
 import net.busybee.clearlaggenhanced.managers.*;
 import net.busybee.clearlaggenhanced.modules.chunkfinder.ChunkFinderModule;
 import net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule;
+import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DIntegration;
 import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernShowcaseIntegration;
 import net.busybee.clearlaggenhanced.modules.integrations.rosestacker.RoseStackerIntegration;
 import net.busybee.clearlaggenhanced.modules.integrations.wildstacker.WildStackerIntegration;
@@ -157,6 +158,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
         moduleManager.registerModule(new WildStackerIntegration(this));
         moduleManager.registerModule(new RoseStackerIntegration(this));
         moduleManager.registerModule(new ModernShowcaseIntegration(this));
+        moduleManager.registerModule(new GriefPrevention3DIntegration(this));
     }
 
     public PerformanceManager getPerformanceManager() {

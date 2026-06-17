@@ -5,6 +5,8 @@ import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.models.ProtectionSettings;
 import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernShowcaseHook;
 import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernShowcaseIntegration;
+import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DHook;
+import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DIntegration;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.*;
@@ -31,10 +33,11 @@ public class EntityProtectionUtils {
     public ProtectionContext createProtectionContext() {
         ProtectionSettings settings = cachedSettings;
         ModernShowcaseHook msHook = null;
+        GriefPrevention3DHook gp3dHook = null;
 
         ModuleManager moduleManager = plugin.getModuleManager();
         if (moduleManager == null) {
-            return new ProtectionContext(settings, null);
+            return new ProtectionContext(settings, null, null);
         }
 
         if (settings.modernShowcase()) {
@@ -44,7 +47,14 @@ public class EntityProtectionUtils {
             }
         }
 
-        return new ProtectionContext(settings, msHook);
+        if (settings.griefPrevention3D()) {
+            Module gpModule = moduleManager.getModule("griefprevention3d");
+            if (gpModule != null && gpModule.isEnabled()) {
+                gp3dHook = ((GriefPrevention3DIntegration) gpModule).getHook();
+            }
+        }
+
+        return new ProtectionContext(settings, msHook, gp3dHook);
     }
 
     public void refreshSettingsCache() {
@@ -69,18 +79,22 @@ public class EntityProtectionUtils {
     }
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionContext context) {
-        return isProtected(entity, context.settings(), context.modernShowcaseHook(), true);
+        return isProtected(entity, context.settings(), context.modernShowcaseHook(), context.griefPrevention3DHook(), true);
     }
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionContext context, boolean checkWhitelist) {
-        return isProtected(entity, context.settings(), context.modernShowcaseHook(), checkWhitelist);
+        return isProtected(entity, context.settings(), context.modernShowcaseHook(), context.griefPrevention3DHook(), checkWhitelist);
     }
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook) {
-        return isProtected(entity, settings, msHook, true);
+        return isProtected(entity, settings, msHook, null, true);
     }
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook, boolean checkWhitelist) {
+        return isProtected(entity, settings, msHook, null, checkWhitelist);
+    }
+
+    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook, @Nullable GriefPrevention3DHook gp3dHook, boolean checkWhitelist) {
         if (entity instanceof Player) return true;
 
         try {
@@ -107,6 +121,10 @@ public class EntityProtectionUtils {
 
             if (settings.modernShowcase() && msHook != null) {
                 if (msHook.isShowcaseEntity(entity)) return true;
+            }
+
+            if (settings.griefPrevention3D() && gp3dHook != null) {
+                if (isPeacefulMob(entity) && gp3dHook.isInsideClaim(entity)) return true;
             }
 
             if (settings.mobsInBoats()) {
@@ -223,5 +241,15 @@ public class EntityProtectionUtils {
         return false;
     }
 
-    public record ProtectionContext(ProtectionSettings settings, @Nullable ModernShowcaseHook modernShowcaseHook) {}
+    private boolean isPeacefulMob(@NotNull Entity entity) {
+        return entity instanceof Animals ||
+               entity instanceof NPC ||
+               entity instanceof Ambient ||
+               entity instanceof WaterMob ||
+               entity instanceof AbstractVillager ||
+               entity instanceof Golem ||
+               entity instanceof Allay;
+    }
+
+    public record ProtectionContext(ProtectionSettings settings, @Nullable ModernShowcaseHook modernShowcaseHook, @Nullable GriefPrevention3DHook griefPrevention3DHook) {}
 }

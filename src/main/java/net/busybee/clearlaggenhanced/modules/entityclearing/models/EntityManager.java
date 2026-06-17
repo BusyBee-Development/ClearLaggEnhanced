@@ -5,6 +5,8 @@ import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.managers.StackerManager;
 import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernShowcaseHook;
 import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernShowcaseIntegration;
+import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DHook;
+import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DIntegration;
 import net.busybee.clearlaggenhanced.models.ProtectionSettings;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import org.bukkit.Bukkit;
@@ -64,6 +66,15 @@ public class EntityManager {
             }
             final ModernShowcaseHook msHook = msHookTemp;
 
+            GriefPrevention3DHook gp3dHookTemp = null;
+            if (settings.griefPrevention3D()) {
+                Module gpModule = plugin.getModuleManager().getModule("griefprevention3d");
+                if (gpModule != null && gpModule.isEnabled()) {
+                    gp3dHookTemp = ((GriefPrevention3DIntegration) gpModule).getHook();
+                }
+            }
+            final GriefPrevention3DHook gp3dHook = gp3dHookTemp;
+
             final List<String> worlds = module.getConfig().getStringList("worlds");
             final List<Chunk> allChunks = Collections.synchronizedList(new ArrayList<>());
             final CountDownLatch chunkLatch = new CountDownLatch(1);
@@ -118,7 +129,7 @@ public class EntityManager {
                                     continue;
                                 }
 
-                                if (plugin.getEntityProtectionUtils().isProtected(entity, settings, msHook)) {
+                                if (plugin.getEntityProtectionUtils().isProtected(entity, settings, msHook, gp3dHook, true)) {
                                     skipped.incrementAndGet();
                                     continue;
                                 }
