@@ -187,10 +187,16 @@ public class EntityProtectionUtils {
 
     private boolean isModDexMob(@NotNull Entity entity) {
         try {
-            if (entity.hasMetadata("moddex") || entity.hasMetadata("ModDex")) return true;
+            if (entity.hasMetadata("moddex") || entity.hasMetadata("ModDex") ||
+                entity.hasMetadata("RareMob") || entity.hasMetadata("RareMobDiscovered")) {
+                return true;
+            }
 
             for (NamespacedKey key : entity.getPersistentDataContainer().getKeys()) {
-                if (key.getNamespace().equalsIgnoreCase("moddex")) return true;
+                if (key.getNamespace().equalsIgnoreCase("moddex") ||
+                    key.getNamespace().equalsIgnoreCase("mobdex")) {
+                    return true;
+                }
             }
         } catch (Exception ignored) {}
         return false;
