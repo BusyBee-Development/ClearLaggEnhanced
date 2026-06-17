@@ -50,6 +50,7 @@ extra-protections:
   mythic-mobs: false
   infernal-mobs: false
   mod-dex: false
+  grief-prevention-3d: true
 
   # Protect entities that carry any of these scoreboard tags.
   protected-entity-tags: []
