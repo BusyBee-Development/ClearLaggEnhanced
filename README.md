@@ -1,6 +1,7 @@
 # ClearLaggEnhanced
 
-[![Version](https://img.shields.io/badge/version-2026.5.2-blue.svg)](https://github.com/BusyBee-Development/ClearLaggEnhanced/releases)
+[![Version](https://img.shields.io/badge/version-2026.6.0-blue.svg)](https://github.com/BusyBee-Development/ClearLaggEnhanced/releases)
+[![Servers](https://img.shields.io/bstats/servers/26743?label=Servers&color=blue)](https://bstats.org/plugin/bukkit/ClearLaggEnhanced/26743)
 
 A modern, high-performance lag prevention plugin for Minecraft servers running Paper, Spigot, and Folia. Designed to help server owners maintain optimal server performance through intelligent entity management, advanced lag prevention systems, and real-time performance monitoring.
 
@@ -19,7 +20,7 @@ Full documentation is available in the [Wiki](https://busybeedev.net/docs/clearl
 - **Folia Support** - Full compatibility with Folia's regionized threading system
 - **Performance Database** - Optimized SQLite/MySQL storage with HikariCP connection pooling
 - **Smart Configuration** - Automatic updates while preserving your changes and comments
-- **Plugin Integrations** - Full support for ModernShowcase, RoseStacker, and WildStacker
+- **Plugin Integrations** - Full support for ModernShowcase, RoseStacker, WildStacker, and GriefPrevention3D
 - **PlaceholderAPI** - Rich placeholder support for other plugins
 
 ## 📦 Quick Start
@@ -28,7 +29,7 @@ Full documentation is available in the [Wiki](https://busybeedev.net/docs/clearl
 
 - **Minecraft:** 1.20+
 - **Server:** Paper, Spigot, or Folia
-- **Java:** 17 or higher
+- **Java:** 21 or higher
 
 ### Installation
 
@@ -39,21 +40,28 @@ Full documentation is available in the [Wiki](https://busybeedev.net/docs/clearl
 5. Reload with `/lagg reload`
 ## 🎮 Basic Commands
 
-| Command             | Description                          | Permission        |
-|---------------------|--------------------------------------|-------------------|
-| `/lagg help`        | Display the help menu                | `CLE.help`        |
-| `/lagg clear`       | Manually clear entities now          | `CLE.clear`       |
-| `/lagg next`        | Show time until next automatic clear | `CLE.next`        |
-| `/lagg tps`         | Display current server TPS           | `CLE.tps`         |
-| `/lagg admin`       | Open the admin GUI                   | `CLE.admin`       |
-| `/lagg reload`      | Reload plugin configuration          | `CLE.reload`      |
+| Command             | Description                                          | Permission        |
+|---------------------|------------------------------------------------------|-------------------|
+| `/lagg help`        | Display the help menu                                | `CLE.help`        |
+| `/lagg clear`       | Manually clear entities now                          | `CLE.clear`       |
+| `/lagg clearstatus` | View detailed entity clearing module status          | `CLE.clearstatus` |
+| `/lagg next`        | Show time until next automatic clear                 | `CLE.next`        |
+| `/lagg tps`         | Display current server TPS                           | `CLE.tps`         |
+| `/lagg ram`         | Display detailed server memory usage statistics      | `CLE.ram`         |
+| `/lagg chunkfinder` | Locate laggy chunks with high entity counts          | `CLE.chunkfinder` |
+| `/lagg admin`       | Open the admin GUI                                   | `CLE.admin`       |
+| `/lagg reload`      | Reload plugin configuration                          | `CLE.reload`      |
 
 **Aliases:** `/clearlagg`, `/clearlag`, `/cl`, `/cle`
 
 ## 🔧 Modules
 
 ### Entity Clearing Module
-Automatically clears entities at configurable intervals with smart protection for named, tamed, stacked, and custom-tagged entities. Includes protection for mobs in boats, bred mobs, and plugin-managed entities.
+Automatically clears entities at configurable intervals with smart protection for named, tamed, stacked, and custom-tagged entities.
+- **Intelligent Protection:** Support for peaceful mobs (Animals, Villagers, Golems, etc.) in claims, mobs in boats, bred mobs, plugin-managed entities, and scoreboard tags.
+- **Adaptive Scheduling:** Dynamically adjust clear intervals based on entity or player count.
+- **Performance Gates:** Defer clears while server MSPT is healthy (excludes Folia).
+- **Integration Support:** Built-in protection for GriefPrevention (standard & 3D), ModernShowcase, RoseStacker, and WildStacker.
 
 ### Mob Limiter Module
 Controls entity spawning per chunk with global and per-type limits. Prevents excessive mob spawning that causes lag.
