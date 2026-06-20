@@ -1,8 +1,8 @@
 package net.busybee.clearlaggenhanced.managers;
 
-import dev.faststats.bukkit.BukkitMetrics;
-import dev.faststats.core.ErrorTracker;
-import dev.faststats.core.data.Metric;
+import dev.faststats.ErrorTracker;
+import dev.faststats.bukkit.BukkitContext;
+import dev.faststats.data.Metric;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.modules.performance.PerformanceModule;
@@ -14,7 +14,7 @@ public class FastStatsManager {
 
     private final ClearLaggEnhanced plugin;
     private final ModuleManager moduleManager;
-    private final BukkitMetrics metrics;
+    private final BukkitContext context;
 
     public static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware()
             .anonymize("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", "[uuid hidden]")
@@ -24,18 +24,19 @@ public class FastStatsManager {
         this.plugin = plugin;
         this.moduleManager = moduleManager;
 
-        this.metrics = BukkitMetrics.factory()
-                .token(FASTSTATS_TOKEN)
-                .errorTracker(ERROR_TRACKER)
-                .addMetric(Metric.number("server_tps", () -> {
-                    PerformanceManager pm = getPerformanceManager();
-                    return pm != null ? pm.getTPS() : 20.0;
-                }))
-                .addMetric(Metric.number("entities_total", () -> {
-                    PerformanceManager pm = getPerformanceManager();
-                    return pm != null ? pm.getTotalEntities() : 0;
-                }))
-                .create(plugin);
+        this.context = new BukkitContext.Factory(plugin, FASTSTATS_TOKEN)
+                .errorTrackerService(ERROR_TRACKER)
+                .metrics(factory -> factory
+                        .addMetric(Metric.number("server_tps", () -> {
+                            PerformanceManager pm = getPerformanceManager();
+                            return pm != null ? pm.getTPS() : 20.0;
+                        }))
+                        .addMetric(Metric.number("entities_total", () -> {
+                            PerformanceManager pm = getPerformanceManager();
+                            return pm != null ? pm.getTotalEntities() : 0;
+                        }))
+                        .create())
+                .create();
     }
 
     private PerformanceManager getPerformanceManager() {
@@ -44,9 +45,9 @@ public class FastStatsManager {
     }
 
     public void onEnable() {
-        metrics.ready();
+        context.ready();
     }
     public void onDisable() {
-        metrics.shutdown();
+        context.shutdown();
     }
 }

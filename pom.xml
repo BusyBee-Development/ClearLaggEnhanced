@@ -6,7 +6,7 @@
 
     <groupId>net.busybee.clearlaggenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>2026.6.0</version>
+    <version>2026.6.1</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
@@ -148,7 +148,7 @@
         <dependency>
             <groupId>dev.faststats.metrics</groupId>
             <artifactId>bukkit</artifactId>
-            <version>0.22.0</version>
+            <version>0.27.0</version>
         </dependency>
 
         <dependency>
