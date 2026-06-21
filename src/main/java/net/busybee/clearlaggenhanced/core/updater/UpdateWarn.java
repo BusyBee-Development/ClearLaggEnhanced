@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 public class UpdateWarn {
 
     // Set to false to disable this warning
-    private static final boolean DISABLE = true;
+    private static final boolean DISABLE = false;
 
     // Edit this array to change the message lines
     private static final String[] WARNING_MESSAGE = {
