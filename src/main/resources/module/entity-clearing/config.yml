@@ -69,6 +69,7 @@ whitelist:
   - "ITEM_FRAME"
   - "GLOW_ITEM_FRAME"
   - "LEASH_HITCH"
+  - "LEASH_KNOT"
 
 # Items that should NOT be cleared when dropped on the ground.
 item-whitelist:

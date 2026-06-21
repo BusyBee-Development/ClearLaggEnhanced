@@ -168,7 +168,17 @@ public class EntityProtectionUtils {
                 if (hasArmor(living)) return true;
             }
 
-            if (checkWhitelist && settings.whitelist().contains(entity.getType().name())) return true;
+            if (checkWhitelist) {
+                String typeName = entity.getType().name();
+                if (settings.whitelist().contains(typeName)) return true;
+
+                // Special handling for leash knots and hitching posts (compatibility)
+                if (typeName.equals("LEASH_KNOT") || typeName.equals("LEASH_HITCH")) {
+                    if (settings.whitelist().contains("LEASH_KNOT") || settings.whitelist().contains("LEASH_HITCH")) {
+                        return true;
+                    }
+                }
+            }
 
             if (entity instanceof Item item) {
                 if (settings.itemWhitelist().contains(item.getItemStack().getType().name())) return true;

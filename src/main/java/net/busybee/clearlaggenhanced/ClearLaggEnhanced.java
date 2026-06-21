@@ -6,6 +6,7 @@ import net.busybee.clearlaggenhanced.core.updater.UpdateWarn;
 import net.busybee.clearlaggenhanced.core.updater.VersionCheck;
 import net.busybee.clearlaggenhanced.database.DatabaseSettings;
 import net.busybee.clearlaggenhanced.gui.ModuleGUIRegistry;
+import net.busybee.clearlaggenhanced.gui.impl.IntegrationsGUI;
 import net.busybee.clearlaggenhanced.hooks.ClearLaggEnhancedExpansion;
 import net.busybee.clearlaggenhanced.managers.*;
 import net.busybee.clearlaggenhanced.modules.chunkfinder.ChunkFinderModule;
@@ -281,6 +282,8 @@ public class ClearLaggEnhanced extends JavaPlugin {
         FastStatsManager newFastStatsManager = new FastStatsManager(this, newModuleManager);
 
         registerModules(newModuleManager);
+
+        newGuiRegistry.registerModuleGUI("integrations", "Plugin Integrations", "CHEST", () -> new IntegrationsGUI(this));
 
         return new CoreServices(
                 newConfigManager,

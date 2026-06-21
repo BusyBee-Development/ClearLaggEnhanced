@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 public class UpdateWarn {
 
     // Set to false to disable this warning
-    private static final boolean ENABLED = true;
+    private static final boolean DISABLE = true;
 
     // Edit this array to change the message lines
     private static final String[] WARNING_MESSAGE = {
@@ -25,7 +25,7 @@ public class UpdateWarn {
      * @param plugin The main plugin instance
      */
     public static void sendWarning(ClearLaggEnhanced plugin) {
-        if (!ENABLED) return;
+        if (!DISABLE) return;
 
         for (String line : WARNING_MESSAGE) {
             plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + line);
