@@ -23,7 +23,6 @@ public class GriefPrevention3DIntegration extends Module {
 
     @Override
     public void onRegister() {
-        registerGUI("griefprevention3d", "GriefPrevention3D Integration", "GOLDEN_SHOVEL", () -> null);
     }
 
     @Override

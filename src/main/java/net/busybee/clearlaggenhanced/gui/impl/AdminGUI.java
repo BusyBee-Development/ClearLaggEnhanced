@@ -34,15 +34,15 @@ public class AdminGUI extends InventoryGUI {
     @Override
     public void decorate(Player player) {
         List<String> sortedKeys = new ArrayList<>(guiRegistry.getRegisteredGUIs().keySet());
-        List<String> lastThree = List.of("modernshowcase", "rosestacker", "wildstacker");
+        List<String> lastOnes = List.of("integrations");
 
         sortedKeys.sort((a, b) -> {
-            boolean aLast = lastThree.contains(a);
-            boolean bLast = lastThree.contains(b);
+            boolean aLast = lastOnes.contains(a);
+            boolean bLast = lastOnes.contains(b);
 
             if (aLast && !bLast) return 1;
             if (!aLast && bLast) return -1;
-            if (aLast && bLast) return Integer.compare(lastThree.indexOf(a), lastThree.indexOf(b));
+            if (aLast && bLast) return Integer.compare(lastOnes.indexOf(a), lastOnes.indexOf(b));
 
             return a.compareTo(b);
         });

@@ -21,7 +21,6 @@ public class WildStackerIntegration extends Module {
 
     @Override
     public void onRegister() {
-        registerGUI("wildstacker", "WildStacker Integration", "NETHER_STAR", () -> null);
     }
 
     @Override

@@ -20,7 +20,6 @@ public class RoseStackerIntegration extends Module {
 
     @Override
     public void onRegister() {
-        registerGUI("rosestacker", "RoseStacker Integration", "ROSE_BUSH", () -> null);
     }
 
     @Override

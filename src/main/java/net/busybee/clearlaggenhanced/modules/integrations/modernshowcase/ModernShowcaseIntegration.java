@@ -22,7 +22,6 @@ public class ModernShowcaseIntegration extends Module {
 
     @Override
     public void onRegister() {
-        registerGUI("modernshowcase", "ModernShowcase Integration", "GLASS_PANE", () -> null);
     }
 
     @Override
