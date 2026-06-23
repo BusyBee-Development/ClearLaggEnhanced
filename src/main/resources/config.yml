@@ -46,8 +46,8 @@ modules:
   chunk-finder: true
   performance: true
 
-# 3rd Party Plugins
+  # 3rd Party Plugins
   wildstacker: false
   rosestacker: false
   modernshowcase: false
-  griefprevention3d: true
+  griefprevention3d: false
