@@ -128,6 +128,13 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        HandlerList.unregisterAll(this);
+
+        try {
+            FastInvManager.closeAll();
+        } catch (Throwable ignored) {
+        }
+
         if (moduleManager != null) {
             moduleManager.disableAll();
         }
