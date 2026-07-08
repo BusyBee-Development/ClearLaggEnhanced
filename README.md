@@ -1,6 +1,6 @@
 # ClearLaggEnhanced
 
-[![Version](https://img.shields.io/badge/version-2026.6.0-blue.svg)](https://github.com/BusyBee-Development/ClearLaggEnhanced/releases)
+[![Version](https://img.shields.io/badge/version-2026.7.0-blue.svg)](https://github.com/BusyBee-Development/ClearLaggEnhanced/releases)
 [![Servers](https://img.shields.io/bstats/servers/26743?label=Servers&color=blue)](https://bstats.org/plugin/bukkit/ClearLaggEnhanced/26743)
 
 A modern, high-performance lag prevention plugin for Minecraft servers running Paper, Spigot, and Folia. Designed to help server owners maintain optimal server performance through intelligent entity management, advanced lag prevention systems, and real-time performance monitoring.

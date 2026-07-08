@@ -6,7 +6,7 @@
 
     <groupId>net.busybee.clearlaggenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>2026.6.2</version>
+    <version>2026.7.0</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
@@ -133,11 +133,6 @@
             <groupId>com.github.BusyBee-Development</groupId>
             <artifactId>XSeries</artifactId>
             <version>26.x</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.mrmicky</groupId>
-            <artifactId>fastinv</artifactId>
-            <version>3.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
@@ -269,10 +264,6 @@
                                 <relocation>
                                     <pattern>com.cryptomorin.xseries</pattern>
                                     <shadedPattern>net.busybee.clearlaggenhanced.libs.xseries</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>fr.mrmicky.fastinv</pattern>
-                                    <shadedPattern>net.busybee.clearlaggenhanced.libs.fastinv</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>dev.faststats</pattern>
