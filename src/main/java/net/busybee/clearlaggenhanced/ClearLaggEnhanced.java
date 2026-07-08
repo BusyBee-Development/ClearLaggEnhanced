@@ -23,7 +23,7 @@ import net.busybee.clearlaggenhanced.modules.performance.models.PerformanceManag
 import net.busybee.clearlaggenhanced.modules.spawnerlimiter.SpawnerLimiterModule;
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
 import com.tcoded.folialib.FoliaLib;
-import fr.mrmicky.fastinv.FastInvManager;
+import net.busybee.clearlaggenhanced.libs.fastinv.FastInvManager;
 import com.tcoded.folialib.impl.PlatformScheduler;
 import lombok.Getter;
 import org.bukkit.command.CommandSender;

@@ -1,6 +1,6 @@
 package net.busybee.clearlaggenhanced.gui.base;
 
-import fr.mrmicky.fastinv.FastInv;
+import net.busybee.clearlaggenhanced.libs.fastinv.FastInv;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
