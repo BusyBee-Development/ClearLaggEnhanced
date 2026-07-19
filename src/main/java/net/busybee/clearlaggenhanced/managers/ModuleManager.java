@@ -177,7 +177,7 @@ public class ModuleManager {
         return "modules." + module.getFolderName();
     }
 
-    private void warnIfLegacyEnabledKeyPresent(Module module, FileConfiguration config) {
+        private void warnIfLegacyEnabledKeyPresent(Module module, FileConfiguration config) {
         if (config == null || !config.contains("enabled")) {
             return;
         }
@@ -187,8 +187,16 @@ public class ModuleManager {
             return;
         }
 
-        plugin.getLogger().info("Ignoring legacy key module/" + module.getFolderName()
-                + "/config.yml:enabled. Use config.yml " + getModuleTogglePath(module) + " instead.");
+        plugin.getLogger().info("Migrating legacy 'enabled' key in module/" + module.getFolderName() + "/config.yml to main config.yml...");
+        config.set("enabled", null);
+        
+        File modFolder = new File(moduleFolder, module.getFolderName());
+        File configFile = new File(modFolder, "config.yml");
+        try {
+            config.save(configFile);
+        } catch (java.io.IOException e) {
+            plugin.getLogger().warning("Failed to save cleaned config for " + module.getName());
+        }
     }
 
     public Module getModule(String identifier) {

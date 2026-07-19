@@ -75,6 +75,11 @@ public class MessageManager {
         return parseMessage(message, placeholders, player);
     }
 
+    public String getLegacyMessage(@NotNull String path, @NotNull Map<String, String> placeholders) {
+        Component component = getMessage(path, placeholders);
+        return legacySerializer.serialize(component);
+    }
+
     public Component parseMessage(@NotNull String message, Map<String, String> placeholders, Player player) {
         if (message.isEmpty()) {
             return Component.empty();

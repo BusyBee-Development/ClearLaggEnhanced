@@ -30,6 +30,17 @@ notifications:
   blocked: "<red>⛔</red> <gray>[<red>MiscLimiter</red>]</gray> <gray>Blocked</gray> <yellow>{type}</yellow> <gray>in chunk</gray> <white>[{x}, {z}]</white>"
   trimmed: "<gold>✂</gold> <gray>[<gold>MiscLimiter</gold>]</gray> <gray>Trimmed</gray> <yellow>{removed}</yellow> <yellow>{type}</yellow> <gray>in chunk</gray> <white>[{x}, {z}]</white>"
 
+  # --- Packet Limiter ---
+  packet-limiter:
+    admin-notify: "<red>⚠</red> <gray>[<red>PacketLimiter</red>]</gray> <red>Player <white>{player}</white> is sending too many packets! <dark_gray>({pps} PPS, Violation #{violations})</dark_gray>"
+    player-notify: "<red>⚠</red> <red>You are sending too many packets! Please slow down.</red>"
+    kick-message: "<red>Kicked for packet spamming.\n<gray>Please contact an administrator if you believe this is an error.</gray>"
+
+  # --- AFK Optimization ---
+  afk:
+    distance-lowered: "<gray>[</gray><gold>CLE</gold><gray>]</gray> <gray>Your simulation distance has been lowered while AFK.</gray>"
+    distance-restored: "<gray>[</gray><gold>CLE</gold><gray>]</gray> <gray>Your simulation distance has been restored.</gray>"
+
 # ---------------------------------------------------------------------------- #
 #                                 Commands                                     #
 # ---------------------------------------------------------------------------- #
@@ -84,6 +95,8 @@ chunkfinder:
 
 # --- Performance ---
 performance:
+  snapshot-triggered: "<red>⚡</red> <gray>[<red>Performance</red>]</gray> <yellow>Low TPS detected (<white>{tps}</white>). Taking a lag snapshot...</yellow>"
+  snapshot-saved: "<green>✓</green> <gray>[<gold>Performance</gold>]</gray> <gray>Lag snapshot saved to <white>snapshots/{filename}</white></gray>"
   tps: "<aqua>⚡</aqua> <aqua>Current TPS:</aqua> <white>{tps}</white>"
   memory: "<aqua>⚡</aqua> <aqua>Memory:</aqua> <white>{usage}</white> <gray>({percentage}%)</gray>"
   ram:

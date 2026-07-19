@@ -9,6 +9,7 @@ import net.busybee.clearlaggenhanced.gui.ModuleGUIRegistry;
 import net.busybee.clearlaggenhanced.gui.impl.IntegrationsGUI;
 import net.busybee.clearlaggenhanced.hooks.ClearLaggEnhancedExpansion;
 import net.busybee.clearlaggenhanced.managers.*;
+import net.busybee.clearlaggenhanced.modules.afk.AFKModule;
 import net.busybee.clearlaggenhanced.modules.chunkfinder.ChunkFinderModule;
 import net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule;
 import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DIntegration;
@@ -18,6 +19,7 @@ import net.busybee.clearlaggenhanced.modules.integrations.wildstacker.WildStacke
 import net.busybee.clearlaggenhanced.modules.miscentitylimiter.MiscEntityLimiterModule;
 import net.busybee.clearlaggenhanced.modules.moblimiter.MobLimiterModule;
 import net.busybee.clearlaggenhanced.modules.moblimiter.models.LagPreventionManager;
+import net.busybee.clearlaggenhanced.modules.packetlimiter.PacketLimiterModule;
 import net.busybee.clearlaggenhanced.modules.performance.PerformanceModule;
 import net.busybee.clearlaggenhanced.modules.performance.models.PerformanceManager;
 import net.busybee.clearlaggenhanced.modules.spawnerlimiter.SpawnerLimiterModule;
@@ -163,6 +165,8 @@ public class ClearLaggEnhanced extends JavaPlugin {
         moduleManager.registerModule(new MiscEntityLimiterModule(this));
         moduleManager.registerModule(new ChunkFinderModule(this));
         moduleManager.registerModule(new PerformanceModule(this));
+        moduleManager.registerModule(new PacketLimiterModule(this));
+        moduleManager.registerModule(new AFKModule(this));
         moduleManager.registerModule(new WildStackerIntegration(this));
         moduleManager.registerModule(new RoseStackerIntegration(this));
         moduleManager.registerModule(new ModernShowcaseIntegration(this));

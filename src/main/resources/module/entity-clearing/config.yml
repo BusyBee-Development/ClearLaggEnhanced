@@ -50,7 +50,10 @@ extra-protections:
   mythic-mobs: false
   infernal-mobs: false
   mod-dex: false
-  grief-prevention-3d: true
+  grief-prevention-3d: false
+  oraxen: false
+  nexo: false
+  items-adder: false
 
   # Protect entities that carry any of these scoreboard tags.
   protected-entity-tags: []
@@ -58,6 +61,8 @@ extra-protections:
 worlds: []
 
 # Entities that should NOT be cleared.
+# If you need help with names BusyBee now has a materials list.
+# Check it out at https://busybeedev.net/docs/clearlaggenhanced/materials
 whitelist:
   - "VILLAGER"
   - "ZOMBIE_VILLAGER"

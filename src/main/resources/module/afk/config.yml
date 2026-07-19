@@ -1,0 +1,18 @@
+# ============================================================================ #
+#                          AFK Optimization Module                             #
+# ============================================================================ #
+# Dynamically adjusts simulation distance for AFK players to save CPU resources.
+# Requires Paper/Folia to function.
+
+# Time in seconds of inactivity before a player is considered AFK.
+afk-threshold: 300
+
+# Simulation distance for AFK players (number of chunks).
+# Lower values save more resources.
+afk-simulation-distance: 2
+
+# Restore the player's simulation distance to the server default when they return.
+restore-default-distance: true
+
+# Should a message be sent to the player when their simulation distance is adjusted?
+notify-player: false

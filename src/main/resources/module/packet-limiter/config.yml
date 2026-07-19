@@ -1,0 +1,42 @@
+# ============================================================================ #
+#                          Packet Limiter Module                               #
+# ============================================================================ #
+# Protects the server from packet spam and crasher clients.
+# Requires ProtocolLib to be installed on the server.
+
+# Maximum packets per second a player can send before being flagged.
+max-packets-per-second: 150
+
+# How many violations (seconds exceeding max-pps) before the player is kicked.
+kick-threshold: 10
+
+# Duration in seconds to block a player from sending packets after a minor violation.
+block-duration: 5
+
+# Should admins with 'clearlag.admin' permission be notified of violations?
+notify-admins: true
+
+# Should the player be notified when they are being throttled?
+notify-player: true
+
+# Packet types to monitor (standard set for movement/interaction)
+# Do NOT change unless you know what you are doing.
+monitored-packets:
+  - "POSITION"
+  - "POSITION_LOOK"
+  - "LOOK"
+  - "ARM_ANIMATION"
+  - "BLOCK_DIG"
+  - "BLOCK_PLACE"
+  - "USE_ENTITY"
+  - "USE_ITEM"
+  - "WINDOW_CLICK"
+  - "ENTITY_ACTION"
+  - "HELD_ITEM_SLOT"
+  - "VEHICLE_MOVE"
+  - "STEER_VEHICLE"
+  - "ABILITIES"
+  - "SETTINGS"
+  - "TAB_COMPLETE"
+  - "CHAT"
+  - "KEEP_ALIVE"

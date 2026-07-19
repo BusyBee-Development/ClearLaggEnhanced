@@ -252,6 +252,7 @@ public class AutoClearTask {
         try {
             // Detect Folia - global MSPT is not supported
             Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            this.isFolia = true;
             return null;
         } catch (ClassNotFoundException ignored) {}
 
@@ -261,11 +262,37 @@ public class AutoClearTask {
             return null;
         }
     }
+    }
+
+        private @Nullable Double sampleTps() {
+                if (averageTickTimeMethod == null && Bukkit.getServer().getClass().getName().contains("RegionizedServer")) { plugin.getLogger().info("Performance gate is active on Folia; note that metrics are limited in regionized environments."); } else { plugin.getLogger().warning("Entity clearing performance gate is enabled, but getAverageTickTime() is unavailable on this server. Continuing with normal clearing behavior."); }
+            return Bukkit.getServer().getTPS()[0];
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    private @Nullable Double sampleTps() {
+        try {
+            return Bukkit.getServer().getTPS()[0];
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
 
     private @Nullable Double sampleAverageTickTime() {
         if (averageTickTimeMethod == null) {
+            Double tps = sampleTps();
+            if (tps != null) {
+                return 1000.0 / Math.max(0.1, tps);
+            }
+
             if (!averageTickTimeUnavailableLogged) {
-                plugin.getLogger().warning("Entity clearing performance gate is enabled, but getAverageTickTime() is unavailable on this server. Continuing with normal clearing behavior.");
+                if (isFolia) {
+                    plugin.getLogger().info("Performance gate is active on Folia; note that metrics are limited in regionized environments.");
+                } else {
+                    plugin.getLogger().warning("Entity clearing performance gate is enabled, but performance metrics are unavailable. Continuing with normal clearing behavior.");
+                }
                 averageTickTimeUnavailableLogged = true;
             }
             return null;

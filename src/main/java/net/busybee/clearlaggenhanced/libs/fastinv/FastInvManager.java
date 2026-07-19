@@ -1,5 +1,7 @@
 package net.busybee.clearlaggenhanced.libs.fastinv;
 
+import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
+import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -105,7 +107,7 @@ public final class FastInvManager {
                     FastInv inv = (FastInv) e.getInventory().getHolder();
 
                     if (this.plugin.isEnabled() && inv.handleClose(e)) {
-                        Bukkit.getScheduler().runTask(this.plugin, () -> inv.open((Player) e.getPlayer()));
+                        ClearLaggEnhanced.scheduler().runAtEntity(e.getPlayer(), t -> inv.open((Player) e.getPlayer()));
                     }
                 }
             } catch (Exception ignored) {}

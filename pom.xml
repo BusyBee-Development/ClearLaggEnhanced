@@ -6,7 +6,7 @@
 
     <groupId>net.busybee.clearlaggenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>2026.7.0</version>
+    <version>2026.7.1</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
@@ -55,6 +55,10 @@
         <repository>
             <id>mr-maven</id>
             <url>https://maven.mr-micky.com/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>dmulloy2-repo</id>
+            <url>https://repo.dmulloy2.net/repository/public/</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
@@ -163,6 +167,12 @@
             <artifactId>junit-jupiter</artifactId>
             <version>1.20.4</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>5.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>

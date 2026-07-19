@@ -127,6 +127,10 @@ public class EntityProtectionUtils {
                 if (isPeacefulMob(entity) && gp3dHook.isInsideClaim(entity)) return true;
             }
 
+            if (settings.oraxen() && isOraxen(entity)) return true;
+            if (settings.nexo() && isNexo(entity)) return true;
+            if (settings.itemsAdder() && isItemsAdder(entity)) return true;
+
             if (settings.mobsInBoats()) {
                 if (entity.getVehicle() instanceof Boat) return true;
             }
@@ -259,6 +263,27 @@ public class EntityProtectionUtils {
                entity instanceof AbstractVillager ||
                entity instanceof Golem ||
                entity instanceof Allay;
+    }
+
+    private boolean isOraxen(@NotNull Entity entity) {
+        try {
+            return entity.getPersistentDataContainer().has(new NamespacedKey("oraxen", "id"), PersistentDataType.STRING);
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    private boolean isNexo(@NotNull Entity entity) {
+        try {
+            return entity.getPersistentDataContainer().has(new NamespacedKey("nexo", "id"), PersistentDataType.STRING);
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    private boolean isItemsAdder(@NotNull Entity entity) {
+        try {
+            return entity.getPersistentDataContainer().has(new NamespacedKey("itemsadder", "id"), PersistentDataType.STRING);
+        } catch (Exception ignored) {}
+        return false;
     }
 
     public record ProtectionContext(ProtectionSettings settings, @Nullable ModernShowcaseHook modernShowcaseHook, @Nullable GriefPrevention3DHook griefPrevention3DHook) {}

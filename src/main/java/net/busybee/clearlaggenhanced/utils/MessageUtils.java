@@ -38,6 +38,11 @@ public class MessageUtils {
         sendMessage(player, path, placeholders);
     }
 
+    public static String getLegacyMessage(@NotNull String path) {
+        if (messageManager == null) return "MessageManager not initialized!";
+        return messageManager.getLegacyMessage(path, new HashMap<>());
+    }
+
     public static void sendMessage(@NotNull CommandSender sender, @NotNull Component message) {
         sender.sendMessage(message);
     }
