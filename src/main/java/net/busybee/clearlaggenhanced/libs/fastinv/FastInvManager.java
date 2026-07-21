@@ -1,7 +1,6 @@
 package net.busybee.clearlaggenhanced.libs.fastinv;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
-import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +12,7 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -50,14 +50,16 @@ public final class FastInvManager {
      * Close all open FastInv inventories.
      */
     public static void closeAll() {
-        Bukkit.getOnlinePlayers().forEach(p -> {
+        // Use a copy of the collection to avoid ConcurrentModificationException during shutdown
+        new ArrayList<>(Bukkit.getOnlinePlayers()).forEach(p -> {
             try {
                 Inventory topInventory = p.getOpenInventory().getTopInventory();
-                if (topInventory.getHolder() instanceof FastInv) {
+                // Safely check holder; getHolder() can throw NPE during shutdown on some inventories
+                if (topInventory != null && topInventory.getHolder() instanceof FastInv) {
                     p.closeInventory();
                 }
             } catch (Exception ignored) {
-                // If getHolder() fails (e.g. during shutdown), we safely ignore it.
+                // Ignore failures during shutdown (e.g., world already unloaded, NPE in getHolder)
             }
         });
     }

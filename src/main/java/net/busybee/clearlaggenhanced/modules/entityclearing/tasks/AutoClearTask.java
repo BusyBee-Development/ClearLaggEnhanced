@@ -39,6 +39,7 @@ public class AutoClearTask {
     private volatile StatusSnapshot statusSnapshot;
     private volatile long thresholdBreachedSinceMillis = -1L;
     private volatile boolean averageTickTimeUnavailableLogged;
+    private boolean isFolia;
 
     public AutoClearTask(
             ClearLaggEnhanced plugin,
@@ -259,15 +260,6 @@ public class AutoClearTask {
         try {
             return Bukkit.getServer().getClass().getMethod("getAverageTickTime");
         } catch (ReflectiveOperationException ignored) {
-            return null;
-        }
-    }
-    }
-
-        private @Nullable Double sampleTps() {
-                if (averageTickTimeMethod == null && Bukkit.getServer().getClass().getName().contains("RegionizedServer")) { plugin.getLogger().info("Performance gate is active on Folia; note that metrics are limited in regionized environments."); } else { plugin.getLogger().warning("Entity clearing performance gate is enabled, but getAverageTickTime() is unavailable on this server. Continuing with normal clearing behavior."); }
-            return Bukkit.getServer().getTPS()[0];
-        } catch (Throwable ignored) {
             return null;
         }
     }
