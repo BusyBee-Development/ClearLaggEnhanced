@@ -32,21 +32,21 @@ permissions:
       CLE.chunkfinder: true
       CLE.admin: true
       CLE.reload: true
-  CLE.admin:
-    description: Access to admin GUI
-    default: op
+  CLE.next:
+    description: Access to next command
+    default: true
   CLE.help:
     description: Access to help command
     default: true
+  CLE.admin:
+    description: Access to admin GUI
+    default: op
   CLE.clear:
     description: Access to clear command
     default: op
   CLE.clearstatus:
     description: Access to entity clear status command
     default: op
-  CLE.next:
-    description: Access to next command
-    default: true
   CLE.tps:
     description: Access to tps command
     default: op
