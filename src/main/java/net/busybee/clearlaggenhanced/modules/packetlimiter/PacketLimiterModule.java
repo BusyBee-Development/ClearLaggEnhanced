@@ -1,11 +1,5 @@
 package net.busybee.clearlaggenhanced.modules.packetlimiter;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
@@ -16,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PacketLimiterModule extends Module {
-    private ProtocolManager protocolManager;
+    private PacketLimiterHook hook;
     private final Map<UUID, PlayerPacketData> playerData = new ConcurrentHashMap<>();
     private final Map<UUID, Long> blockedPlayers = new ConcurrentHashMap<>();
 
@@ -38,14 +32,15 @@ public class PacketLimiterModule extends Module {
             return;
         }
 
-        registerListeners();
+        this.hook = new PacketLimiterHook(this, plugin);
+        this.hook.register(getStringList("monitored-packets"));
     }
 
     @Override
     public void onDisable() {
-        if (protocolManager != null) {
-            protocolManager.removePacketListeners(plugin);
-            protocolManager = null;
+        if (hook != null) {
+            hook.unregister();
+            hook = null;
         }
         playerData.clear();
         blockedPlayers.clear();
@@ -57,39 +52,8 @@ public class PacketLimiterModule extends Module {
         onEnable();
     }
 
-    private void registerListeners() {
-        this.protocolManager = ProtocolLibrary.getProtocolManager();
-        
-        List<String> packetNames = getStringList("monitored-packets");
-        List<PacketType> types = new ArrayList<>();
-        
-        for (String name : packetNames) {
-            try {
-                java.lang.reflect.Field field = PacketType.Play.Client.class.getField(name);
-                PacketType type = (PacketType) field.get(null);
-                types.add(type);
-            } catch (Exception ignored) {}
-        }
-
-        if (types.isEmpty()) {
-            plugin.getLogger().warning("No valid packet types found for Packet Limiter! Disabling module.");
-            setEnabled(false);
-            return;
-        }
-
-        protocolManager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.NORMAL, types) {
-            @Override
-            public void onPacketReceiving(PacketEvent event) {
-                handlePacket(event);
-            }
-        });
-    }
-
-    private void handlePacket(PacketEvent event) {
-        Player player = event.getPlayer();
-        if (player == null) return;
-
-        if (player.hasPermission("clearlag.packetlimit.bypass")) return;
+    public boolean shouldCancelPacket(Player player) {
+        if (player.hasPermission("clearlag.packetlimit.bypass")) return false;
 
         UUID uuid = player.getUniqueId();
         
@@ -97,13 +61,16 @@ public class PacketLimiterModule extends Module {
         Long unblockTime = blockedPlayers.get(uuid);
         if (unblockTime != null) {
             if (System.currentTimeMillis() < unblockTime) {
-                event.setCancelled(true);
-                return;
+                return true;
             } else {
                 blockedPlayers.remove(uuid);
             }
         }
+        return false;
+    }
 
+    public void processPacket(Player player) {
+        UUID uuid = player.getUniqueId();
         PlayerPacketData data = playerData.computeIfAbsent(uuid, k -> new PlayerPacketData());
         long now = System.currentTimeMillis();
         
