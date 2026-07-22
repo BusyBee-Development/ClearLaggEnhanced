@@ -38,6 +38,12 @@ public class MessageUtils {
         sendMessage(player, path, placeholders);
     }
 
+    public static void sendActionBar(@NotNull Player player, @NotNull String path, @NotNull Map<String, String> placeholders) {
+        if (messageManager == null) return;
+        Component message = messageManager.getMessage(path, placeholders, player);
+        player.sendActionBar(message);
+    }
+
     public static String getLegacyMessage(@NotNull String path) {
         if (messageManager == null) return "MessageManager not initialized!";
         return messageManager.getLegacyMessage(path, new HashMap<>());
@@ -90,6 +96,15 @@ public class MessageUtils {
                 Component msg = messageManager.getMessage(path, placeholders, player);
                 player.sendMessage(msg);
             }
+        }
+    }
+
+    public static void broadcastActionBar(@NotNull String path, @NotNull Map<String, String> placeholders) {
+        if (messageManager == null) return;
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Component msg = messageManager.getMessage(path, placeholders, player);
+            player.sendActionBar(msg);
         }
     }
 }
