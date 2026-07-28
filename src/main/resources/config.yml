@@ -45,8 +45,8 @@ modules:
   misc-entity-limiter: true
   chunk-finder: true
   performance: true
-  packet-limiter: true
-  afk: true
+  packet-limiter: false
+  afk: false
 
   # 3rd Party Plugins
   wildstacker: false
