@@ -3,6 +3,7 @@ package net.busybee.clearlaggenhanced.modules.performance.models;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
@@ -64,8 +65,8 @@ public class GlobalEntityRegistry implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSpawn(EntitySpawnEvent event) {
         Entity entity = event.getEntity();
-        Chunk chunk = entity.getLocation().getChunk();
-        ChunkKey key = new ChunkKey(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+        Location loc = entity.getLocation();
+        ChunkKey key = new ChunkKey(loc.getWorld().getName(), loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
         
         chunkEntityCounts.computeIfAbsent(key, k -> new AtomicInteger(0)).incrementAndGet();
         globalEntityCount.incrementAndGet();
@@ -81,8 +82,8 @@ public class GlobalEntityRegistry implements Listener {
     }
 
     private void handleEntityRemoval(Entity entity) {
-        Chunk chunk = entity.getLocation().getChunk();
-        ChunkKey key = new ChunkKey(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+        Location loc = entity.getLocation();
+        ChunkKey key = new ChunkKey(loc.getWorld().getName(), loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
         
         AtomicInteger count = chunkEntityCounts.get(key);
         if (count != null && count.get() > 0) {
