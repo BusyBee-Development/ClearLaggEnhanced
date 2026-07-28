@@ -99,6 +99,25 @@ public class MessageUtils {
         }
     }
 
+    public static void broadcastPermissionMessage(@NotNull String path, @NotNull Map<String, String> placeholders, @NotNull String permission, boolean toConsole) {
+        if (messageManager == null) {
+            Bukkit.getConsoleSender().sendMessage(Component.text("MessageManager not initialized!"));
+            return;
+        }
+
+        if (toConsole) {
+            Component consoleMsg = messageManager.getMessage(path, placeholders);
+            Bukkit.getConsoleSender().sendMessage(consoleMsg);
+        }
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.hasPermission(permission)) {
+                Component msg = messageManager.getMessage(path, placeholders, player);
+                player.sendMessage(msg);
+            }
+        }
+    }
+
     public static void broadcastActionBar(@NotNull String path, @NotNull Map<String, String> placeholders) {
         if (messageManager == null) return;
 

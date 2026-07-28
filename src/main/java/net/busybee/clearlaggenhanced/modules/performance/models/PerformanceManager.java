@@ -103,7 +103,7 @@ public class PerformanceManager {
 
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("tps", String.format("%.2f", getTPS()));
-        MessageUtils.broadcastMessage("performance.snapshot-triggered", placeholders, true, true);
+        MessageUtils.broadcastPermissionMessage("performance.snapshot-triggered", placeholders, "CLE.performance.snapshot", true);
 
         java.io.File snapshotsDir = new java.io.File(plugin.getDataFolder(), "snapshots");
         if (!snapshotsDir.exists()) snapshotsDir.mkdirs();
@@ -153,7 +153,7 @@ public class PerformanceManager {
 
             Map<String, String> successPh = new HashMap<>();
             successPh.put("filename", filename);
-            MessageUtils.broadcastMessage("performance.snapshot-saved", successPh, true, true);
+            MessageUtils.broadcastPermissionMessage("performance.snapshot-saved", successPh, "CLE.performance.snapshot", true);
         } catch (java.io.IOException e) {
             plugin.getLogger().severe("Failed to save lag snapshot: " + e.getMessage());
         }

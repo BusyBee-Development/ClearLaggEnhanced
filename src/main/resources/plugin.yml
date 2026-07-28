@@ -32,6 +32,7 @@ permissions:
       CLE.chunkfinder: true
       CLE.admin: true
       CLE.reload: true
+      CLE.performance.snapshot: true
   CLE.next:
     description: Access to next command
     default: true
@@ -58,4 +59,7 @@ permissions:
     default: op
   CLE.reload:
     description: Access to reload command
+    default: op
+  CLE.performance.snapshot:
+    description: Allows receiving notifications when a performance snapshot is triggered and saved
     default: op
