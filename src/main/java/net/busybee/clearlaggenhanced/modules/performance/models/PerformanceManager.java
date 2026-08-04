@@ -177,9 +177,9 @@ public class PerformanceManager {
         int radius = (config != null) ? config.getInt("radius", 10) : 10;
         int entityThreshold = (config != null) ? config.getInt("entity-threshold", 50) : 50;
 
-        Chunk playerChunk = player.getLocation().getChunk();
-        int playerX = playerChunk.getX();
-        int playerZ = playerChunk.getZ();
+        Location loc = player.getLocation();
+        int playerX = loc.getBlockX() >> 4;
+        int playerZ = loc.getBlockZ() >> 4;
 
         List<ChunkInfo> laggyChunks = new ArrayList<>();
 

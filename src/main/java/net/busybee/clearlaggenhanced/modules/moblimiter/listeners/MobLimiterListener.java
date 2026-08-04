@@ -4,6 +4,7 @@ import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.modules.moblimiter.models.LagPreventionManager;
 import net.busybee.clearlaggenhanced.managers.EntityProtectionUtils;
+import net.busybee.clearlaggenhanced.utils.ChunkUtils;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -62,7 +63,9 @@ public class MobLimiterListener implements Listener {
             return;
         }
 
-        Chunk chunk = entity.getLocation().getChunk();
+        Chunk chunk = ChunkUtils.getChunkAtIfLoaded(entity.getLocation());
+        if (chunk == null) return;
+        
         EntityType entityType = entity.getType();
 
         boolean globalLimitReached = limiter.isMobLimitReached(chunk, protectionContext);
@@ -86,7 +89,9 @@ public class MobLimiterListener implements Listener {
             return;
         }
 
-        Chunk chunk = entity.getLocation().getChunk();
+        Chunk chunk = ChunkUtils.getChunkAtIfLoaded(entity.getLocation());
+        if (chunk == null) return;
+        
         EntityType entityType = entity.getType();
 
         boolean globalLimitReached = limiter.isMobLimitReached(chunk, protectionContext);
@@ -100,8 +105,10 @@ public class MobLimiterListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onCreatureSpawnMonitor(@NotNull CreatureSpawnEvent event) {
-        final Chunk chunk = event.getEntity().getLocation().getChunk();
-        limiter.optimizeChunk(chunk);
+        final Chunk chunk = ChunkUtils.getChunkAtIfLoaded(event.getEntity().getLocation());
+        if (chunk != null) {
+            limiter.optimizeChunk(chunk);
+        }
     }
 
     private boolean isCountable(@NotNull Entity entity, @Nullable EntityProtectionUtils.ProtectionContext protectionContext) {

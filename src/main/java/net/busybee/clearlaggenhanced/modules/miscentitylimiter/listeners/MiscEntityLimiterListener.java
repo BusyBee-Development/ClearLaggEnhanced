@@ -4,6 +4,7 @@ import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.modules.miscentitylimiter.tasks.MiscEntitySweepService;
 import com.tcoded.folialib.impl.PlatformScheduler;
+import net.busybee.clearlaggenhanced.utils.ChunkUtils;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -114,10 +115,11 @@ public class MiscEntityLimiterListener implements Listener {
             return;
         }
 
-        if (overCapIfAdded(entity.getLocation().getChunk(), entity.getType())) {
+        Chunk chunk = ChunkUtils.getChunkAtIfLoaded(entity.getLocation());
+        if (chunk != null && overCapIfAdded(chunk, entity.getType())) {
             event.setCancelled(true);
             if (notifier != null) {
-                notifier.notifyAdmins(event.getLocation().getChunk(), entity.getType(), 0, true);
+                notifier.notifyAdmins(chunk, entity.getType(), 0, true);
             }
         }
     }
@@ -133,10 +135,11 @@ public class MiscEntityLimiterListener implements Listener {
             return;
         }
 
-        if (overCapIfAdded(hanging.getLocation().getChunk(), hanging.getType())) {
+        Chunk chunk = ChunkUtils.getChunkAtIfLoaded(hanging.getLocation());
+        if (chunk != null && overCapIfAdded(chunk, hanging.getType())) {
             event.setCancelled(true);
             if (notifier != null) {
-                notifier.notifyAdmins(hanging.getLocation().getChunk(), hanging.getType(), 0, true);
+                notifier.notifyAdmins(chunk, hanging.getType(), 0, true);
             }
         }
     }
@@ -152,10 +155,11 @@ public class MiscEntityLimiterListener implements Listener {
             return;
         }
 
-        if (overCapIfAdded(entity.getLocation().getChunk(), entity.getType())) {
+        Chunk chunk = ChunkUtils.getChunkAtIfLoaded(entity.getLocation());
+        if (chunk != null && overCapIfAdded(chunk, entity.getType())) {
             scheduler.runAtEntity(entity, task -> entity.remove());
             if (notifier != null) {
-                notifier.notifyAdmins(entity.getLocation().getChunk(), entity.getType(), 1, false);
+                notifier.notifyAdmins(chunk, entity.getType(), 1, false);
             }
         }
     }

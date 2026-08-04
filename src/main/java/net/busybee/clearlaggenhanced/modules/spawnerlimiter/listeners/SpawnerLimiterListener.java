@@ -3,6 +3,7 @@ package net.busybee.clearlaggenhanced.modules.spawnerlimiter.listeners;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.modules.moblimiter.MobLimiterModule;
+import net.busybee.clearlaggenhanced.utils.ChunkUtils;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.CreatureSpawner;
@@ -56,8 +57,8 @@ public class SpawnerLimiterListener implements Listener {
             return;
         }
 
-        Chunk chunk = event.getLocation().getChunk();
-        if (isMobCapReached(chunk)) {
+        Chunk chunk = ChunkUtils.getChunkAtIfLoaded(event.getLocation());
+        if (chunk != null && isMobCapReached(chunk)) {
             event.setCancelled(true);
             return;
         }

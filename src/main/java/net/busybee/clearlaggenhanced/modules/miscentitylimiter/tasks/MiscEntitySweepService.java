@@ -3,6 +3,7 @@ package net.busybee.clearlaggenhanced.modules.miscentitylimiter.tasks;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
+import net.busybee.clearlaggenhanced.utils.ChunkUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -81,8 +82,9 @@ public class MiscEntitySweepService {
 
             Location loc = new Location(world, chunkRef.x() << 4, 64, chunkRef.z() << 4);
             ClearLaggEnhanced.scheduler().runAtLocation(loc, task -> {
-                if (world.isChunkLoaded(chunkRef.x(), chunkRef.z())) {
-                    processChunk(world.getChunkAt(chunkRef.x(), chunkRef.z()));
+                Chunk chunk = ChunkUtils.getChunkAtIfLoaded(world, chunkRef.x(), chunkRef.z());
+                if (chunk != null) {
+                    processChunk(chunk);
                 }
             });
 
