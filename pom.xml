@@ -13,8 +13,7 @@
     <description>A modern, customizable lag prevention plugin for Minecraft servers</description>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     </properties>
@@ -51,10 +50,6 @@
         <repository>
             <id>faststats-releases</id>
             <url>https://repo.faststats.dev/releases</url>
-        </repository>
-        <repository>
-            <id>mr-maven</id>
-            <url>https://maven.mr-micky.com/repository/maven-public/</url>
         </repository>
         <repository>
             <id>dmulloy2-repo</id>
@@ -147,7 +142,7 @@
         <dependency>
             <groupId>dev.faststats.metrics</groupId>
             <artifactId>bukkit</artifactId>
-            <version>0.28.0</version>
+            <version>0.29.4</version>
         </dependency>
 
         <dependency>
@@ -208,8 +203,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.1</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <release>21</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -288,6 +282,9 @@
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
                                         <exclude>META-INF/MANIFEST.MF</exclude>
+                                        <exclude>module-info.class</exclude>
+                                        <exclude>META-INF/versions/*/module-info.class</exclude>
+                                        <exclude>META-INF/faststats.properties</exclude>
                                     </excludes>
                                 </filter>
                                 <filter>
