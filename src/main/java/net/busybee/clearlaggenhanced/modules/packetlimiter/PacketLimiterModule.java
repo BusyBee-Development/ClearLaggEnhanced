@@ -56,8 +56,7 @@ public class PacketLimiterModule extends Module {
         if (player.hasPermission("clearlag.packetlimit.bypass")) return false;
 
         UUID uuid = player.getUniqueId();
-        
-        // Check if player is currently blocked
+
         Long unblockTime = blockedPlayers.get(uuid);
         if (unblockTime != null) {
             if (System.currentTimeMillis() < unblockTime) {
@@ -104,14 +103,12 @@ public class PacketLimiterModule extends Module {
                 MessageUtils.sendMessage(player, "notifications.packet-limiter.player-notify");
             }
 
-            // Temporary block
             if (data.violations >= 3) {
                 int blockDuration = getInt("block-duration", 5);
                 blockedPlayers.put(player.getUniqueId(), System.currentTimeMillis() + (blockDuration * 1000L));
                 plugin.getLogger().warning("Blocked " + player.getName() + " for " + blockDuration + "s due to packet spam.");
             }
 
-            // Kick
             int kickThreshold = getInt("kick-threshold", 10);
             if (data.violations >= kickThreshold) {
                 ClearLaggEnhanced.scheduler().runAtEntity(player, t -> {

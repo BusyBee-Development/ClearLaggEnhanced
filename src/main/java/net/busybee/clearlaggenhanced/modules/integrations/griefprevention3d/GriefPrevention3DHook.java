@@ -21,7 +21,6 @@ public class GriefPrevention3DHook {
                 Object gpInstance = gpClass.getField("instance").get(null);
                 dataStore = gpClass.getField("dataStore").get(gpInstance);
 
-                // getClaimAt(Location, boolean, Claim)
                 Class<?> claimClass = Class.forName("me.ryanhamshire.GriefPrevention.Claim");
                 getClaimAtMethod = dataStore.getClass().getMethod("getClaimAt", Location.class, boolean.class, claimClass);
 

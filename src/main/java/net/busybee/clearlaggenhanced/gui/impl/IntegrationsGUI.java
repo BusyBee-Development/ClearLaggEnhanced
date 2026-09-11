@@ -31,7 +31,6 @@ public class IntegrationsGUI extends InventoryGUI {
 
     @Override
     public void decorate(Player player) {
-        // Fill background
         ItemStack glass = XMaterial.GRAY_STAINED_GLASS_PANE.parseItem();
         if (glass != null) {
             ItemMeta meta = glass.getItemMeta();
@@ -67,7 +66,6 @@ public class IntegrationsGUI extends InventoryGUI {
             if (slot == 13) slot = 14; // Skip middle slot
         }
 
-        // Back button
         ItemStack backItem = XMaterial.BARRIER.parseItem();
         if (backItem != null) {
             ItemMeta meta = backItem.getItemMeta();

@@ -82,8 +82,6 @@ public class ModuleManager {
                 plugin.getLogger().severe("Failed to enable module " + module.getName() + ": " + e.getMessage());
                 e.printStackTrace();
             }
-        } else {
-            // Module is disabled
         }
     }
 

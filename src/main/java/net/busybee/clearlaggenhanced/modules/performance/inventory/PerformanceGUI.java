@@ -30,7 +30,6 @@ public class PerformanceGUI extends InventoryGUI {
         setItem(13, createInfoItem(XMaterial.COMPARATOR, "&6Memory Usage", List.of(ChatColor.translateAlternateColorCodes('&', "&7" + module.getFormattedMemoryUsage()))));
         setItem(16, createInfoItem(XMaterial.CHICKEN_SPAWN_EGG, "&6Total Entities", List.of(ChatColor.translateAlternateColorCodes('&', "&7" + module.getTotalEntities()))));
         setItem(22, createInfoItem(XMaterial.BARRIER, "&cBack", List.of()), event -> {
-            plugin.getGuiRegistry().getGUIInfo("admin"); // This is not how it works, but I can just open AdminGUI
             new AdminGUI(plugin, plugin.getGuiRegistry()).open(player);
         });
     }
