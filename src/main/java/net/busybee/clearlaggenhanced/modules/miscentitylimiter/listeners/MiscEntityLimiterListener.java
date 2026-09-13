@@ -3,7 +3,7 @@ package net.busybee.clearlaggenhanced.modules.miscentitylimiter.listeners;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.modules.miscentitylimiter.tasks.MiscEntitySweepService;
-import com.tcoded.folialib.impl.PlatformScheduler;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import net.busybee.clearlaggenhanced.utils.ChunkUtils;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MiscEntityLimiterListener implements Listener {
 
-    private final PlatformScheduler scheduler;
+    private final PluginScheduler scheduler;
     private final Map<EntityType, Integer> caps;
     private final Set<String> worldFilter;
     private final boolean protectNamed;

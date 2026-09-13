@@ -6,7 +6,7 @@
 
     <groupId>net.busybee.clearlaggenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>26.9.0</version>
+    <version>26.9.1</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
@@ -109,12 +109,6 @@
             <artifactId>lombok</artifactId>
             <version>1.18.48</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tcoded</groupId>
-            <artifactId>FoliaLib</artifactId>
-            <version>0.5.1</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.bgsoftware</groupId>
@@ -258,10 +252,6 @@
                             <minimizeJar>true</minimizeJar>
                             <relocations>
                                 <relocation>
-                                    <pattern>com.tcoded.folialib</pattern>
-                                    <shadedPattern>net.busybee.clearlaggenhanced.libs.folialib</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>net.busybee.clearlaggenhanced.libs.bstats</shadedPattern>
                                 </relocation>
@@ -284,14 +274,7 @@
                                         <exclude>META-INF/MANIFEST.MF</exclude>
                                         <exclude>module-info.class</exclude>
                                         <exclude>META-INF/versions/*/module-info.class</exclude>
-                                        <exclude>META-INF/faststats.properties</exclude>
                                     </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>com.tcoded:FoliaLib</artifact>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
                                 </filter>
                                 <filter>
                                     <artifact>org.bstats:*</artifact>

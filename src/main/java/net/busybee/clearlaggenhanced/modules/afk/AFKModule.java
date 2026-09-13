@@ -3,7 +3,7 @@ package net.busybee.clearlaggenhanced.modules.afk;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AFKModule extends Module implements Listener {
     private final Map<UUID, Long> lastActivity = new ConcurrentHashMap<>();
     private final Map<UUID, Integer> originalDistance = new ConcurrentHashMap<>();
-    private WrappedTask task;
+    private ScheduledTask task;
 
     public AFKModule(ClearLaggEnhanced plugin) {
         super("AFK Optimization", "afk");

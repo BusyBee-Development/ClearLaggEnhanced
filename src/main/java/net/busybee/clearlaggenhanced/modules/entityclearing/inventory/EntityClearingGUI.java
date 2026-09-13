@@ -8,8 +8,8 @@ import net.busybee.clearlaggenhanced.modules.entityclearing.models.AdaptiveInter
 import net.busybee.clearlaggenhanced.modules.entityclearing.tasks.AutoClearTask;
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
 import com.cryptomorin.xseries.XMaterial;
-import com.tcoded.folialib.impl.PlatformScheduler;
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -25,8 +25,8 @@ import java.util.Map;
 public class EntityClearingGUI extends InventoryGUI {
     private final ClearLaggEnhanced plugin;
     private final EntityClearingModule module;
-    private final PlatformScheduler scheduler;
-    private WrappedTask refreshTask;
+    private final PluginScheduler scheduler;
+    private ScheduledTask refreshTask;
 
     public EntityClearingGUI(ClearLaggEnhanced plugin, Module module) {
         this(plugin, (EntityClearingModule) module);

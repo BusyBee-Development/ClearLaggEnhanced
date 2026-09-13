@@ -6,7 +6,7 @@ import net.busybee.clearlaggenhanced.modules.entityclearing.models.AdaptiveInter
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.EntityManager;
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.NotificationManager;
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.PerformanceGateSettings;
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -33,7 +33,7 @@ public class AutoClearTask {
     private final @Nullable Method averageTickTimeMethod;
 
     @Getter
-    private WrappedTask task;
+    private ScheduledTask task;
 
     private final AtomicInteger remainingTime;
     private volatile StatusSnapshot statusSnapshot;

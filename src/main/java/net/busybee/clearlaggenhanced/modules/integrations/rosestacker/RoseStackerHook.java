@@ -2,7 +2,7 @@ package net.busybee.clearlaggenhanced.modules.integrations.rosestacker;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.hooks.StackerHook;
-import com.tcoded.folialib.impl.PlatformScheduler;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
@@ -15,7 +15,7 @@ public class RoseStackerHook implements StackerHook {
 
     private static final String PLUGIN_NAME = "RoseStacker";
     private RoseStackerAPI api;
-    private final PlatformScheduler scheduler = ClearLaggEnhanced.scheduler();
+    private final PluginScheduler scheduler = ClearLaggEnhanced.scheduler();
 
     @Override
     public String getName() {

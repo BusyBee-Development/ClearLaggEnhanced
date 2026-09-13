@@ -1,24 +1,22 @@
 package net.busybee.clearlaggenhanced.core.updater;
 
-import com.tcoded.folialib.FoliaLib;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import org.jetbrains.annotations.NotNull;
 
 public class FoliaUpdateNotifier {
 
     private final ClearLaggEnhanced plugin;
     private final VersionCheck versionCheck;
-    private final FoliaLib foliaLib;
 
     public FoliaUpdateNotifier(@NotNull ClearLaggEnhanced plugin, @NotNull VersionCheck versionCheck) {
         this.plugin = plugin;
         this.versionCheck = versionCheck;
-        this.foliaLib = new FoliaLib(plugin);
     }
 
     public void check() {
         ClearLaggEnhanced.scheduler().runLater(() -> {
-            if (!foliaLib.isFolia()) {
+            if (!PluginScheduler.isFolia()) {
                 return;
             }
 

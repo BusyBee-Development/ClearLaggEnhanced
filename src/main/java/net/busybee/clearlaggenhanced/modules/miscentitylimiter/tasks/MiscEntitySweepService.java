@@ -2,7 +2,7 @@ package net.busybee.clearlaggenhanced.modules.miscentitylimiter.tasks;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.busybee.clearlaggenhanced.utils.ChunkUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -22,7 +22,7 @@ public class MiscEntitySweepService {
 
     private final ClearLaggEnhanced plugin;
     private final Module module;
-    private WrappedTask sweepTask;
+    private ScheduledTask sweepTask;
     private final Map<EntityType, Integer> caps = new EnumMap<>(EntityType.class);
     private final Set<String> worldFilter = new HashSet<>();
     private final int maxChunksPerTick;

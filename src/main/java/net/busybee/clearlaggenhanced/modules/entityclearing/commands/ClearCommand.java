@@ -4,7 +4,7 @@ import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.commands.SubCommand;
 import net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule;
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
-import com.tcoded.folialib.impl.PlatformScheduler;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClearCommand implements SubCommand {
 
-    private final PlatformScheduler scheduler = ClearLaggEnhanced.scheduler();
+    private final PluginScheduler scheduler = ClearLaggEnhanced.scheduler();
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {

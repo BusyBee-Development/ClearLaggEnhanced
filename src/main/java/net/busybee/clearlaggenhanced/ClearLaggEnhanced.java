@@ -24,9 +24,8 @@ import net.busybee.clearlaggenhanced.modules.performance.PerformanceModule;
 import net.busybee.clearlaggenhanced.modules.performance.models.PerformanceManager;
 import net.busybee.clearlaggenhanced.modules.spawnerlimiter.SpawnerLimiterModule;
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
-import com.tcoded.folialib.FoliaLib;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import net.busybee.clearlaggenhanced.libs.fastinv.FastInvManager;
-import com.tcoded.folialib.impl.PlatformScheduler;
 import lombok.Getter;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -40,7 +39,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter
     private static ClearLaggEnhanced instance;
 
-    private static PlatformScheduler scheduler;
+    private static PluginScheduler scheduler;
 
     @Getter private DatabaseManager databaseManager;
     @Getter private ConfigManager configManager;
@@ -53,10 +52,9 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private VersionCheck versionCheck;
     @Getter private BStatsManager bStatsManager;
     @Getter private FastStatsManager fastStatsManager;
-    private FoliaLib foliaLib;
     private ClearLaggEnhancedExpansion placeholderExpansion;
 
-    public static PlatformScheduler scheduler() {
+    public static PluginScheduler scheduler() {
         return scheduler;
     }
 
@@ -66,12 +64,18 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
         silenceLoggers();
 
-        foliaLib = new FoliaLib(this);
-        scheduler = foliaLib.getScheduler();
+        scheduler = new PluginScheduler(this);
 
         saveDefaultConfig();
         FastInvManager.register(this);
-        initializeCore();
+
+        try {
+            initializeCore();
+        } catch (RuntimeException exception) {
+            getLogger().severe("Failed to initialize core services: " + exception.getMessage());
+            getLogger().severe("ClearLaggEnhanced will stay enabled with commands available, but modules and the database are inactive until '/lagg reload' succeeds.");
+        }
+
         registerCommands();
         registerListeners();
         registerPlaceholders();

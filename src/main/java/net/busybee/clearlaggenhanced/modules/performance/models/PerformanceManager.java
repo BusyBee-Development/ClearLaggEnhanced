@@ -2,8 +2,8 @@ package net.busybee.clearlaggenhanced.modules.performance.models;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
-import com.tcoded.folialib.impl.PlatformScheduler;
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.busybee.clearlaggenhanced.core.Module;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PerformanceManager {
 
     private final ClearLaggEnhanced plugin;
-    private final PlatformScheduler scheduler;
+    private final PluginScheduler scheduler;
     private final boolean isPaperServer;
     private GlobalEntityRegistry entityRegistry;
 
@@ -72,7 +72,7 @@ public class PerformanceManager {
     }
 
     private int cachedTotalEntities = 0;
-    private WrappedTask updateTask;
+    private ScheduledTask updateTask;
 
     public int getTotalEntities() {
         return cachedTotalEntities;

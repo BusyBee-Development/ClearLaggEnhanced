@@ -5,7 +5,7 @@ import com.bgsoftware.wildstacker.api.objects.StackedEntity;
 import com.bgsoftware.wildstacker.api.objects.StackedItem;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.hooks.StackerHook;
-import com.tcoded.folialib.impl.PlatformScheduler;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -14,7 +14,7 @@ import org.bukkit.entity.LivingEntity;
 public class WildStackerHook implements StackerHook {
 
     private static final String PLUGIN_NAME = "WildStacker";
-    private final PlatformScheduler scheduler = ClearLaggEnhanced.scheduler();
+    private final PluginScheduler scheduler = ClearLaggEnhanced.scheduler();
 
     @Override
     public String getName() {

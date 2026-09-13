@@ -8,7 +8,7 @@ import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernS
 import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DHook;
 import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DIntegration;
 import net.busybee.clearlaggenhanced.models.ProtectionSettings;
-import com.tcoded.folialib.impl.PlatformScheduler;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -27,7 +27,7 @@ public class EntityManager {
     private final ClearLaggEnhanced plugin;
     private final Module module;
     private final StackerManager stackerManager;
-    private final PlatformScheduler scheduler;
+    private final PluginScheduler scheduler;
     private final AtomicBoolean isClearing = new AtomicBoolean(false);
 
     public EntityManager(ClearLaggEnhanced plugin, Module module) {

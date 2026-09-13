@@ -4,7 +4,7 @@ import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.gui.base.InventoryGUI;
 import com.cryptomorin.xseries.XMaterial;
-import com.tcoded.folialib.impl.PlatformScheduler;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +17,7 @@ public class MiscEntityLimiterGUI extends InventoryGUI {
 
     private final ClearLaggEnhanced plugin;
     private final Module module;
-    private final PlatformScheduler scheduler;
+    private final PluginScheduler scheduler;
 
     public MiscEntityLimiterGUI(ClearLaggEnhanced plugin, Module module) {
         super(27, ChatColor.translateAlternateColorCodes('&', "&b&lMisc Entity Limiter"));
