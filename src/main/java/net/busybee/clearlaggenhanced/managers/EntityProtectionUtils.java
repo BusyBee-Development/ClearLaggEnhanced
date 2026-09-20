@@ -115,10 +115,6 @@ public class EntityProtectionUtils {
                 return settings.infernalMobs();
             }
 
-            if (isModDexMob(entity)) {
-                return settings.modDex();
-            }
-
             if (settings.modernShowcase() && msHook != null) {
                 if (msHook.isShowcaseEntity(entity)) return true;
             }
@@ -197,6 +193,7 @@ public class EntityProtectionUtils {
         return false;
     }
 
+    // "MythicMob" metadata is MythicMobs' own documented cross-plugin compatibility marker.
     private boolean isMythicMob(@NotNull Entity entity) {
         try {
             if (entity.hasMetadata("MythicMob")) {
@@ -208,28 +205,12 @@ public class EntityProtectionUtils {
         return false;
     }
 
+    // "infernalMetadata" is the actual key InfernalMobs sets; the other two are legacy/defensive fallbacks.
     private boolean isInfernalMob(@NotNull Entity entity) {
         try {
-            return entity.hasMetadata("infernalMetadata") || 
-                   entity.hasMetadata("InfernalMob") || 
+            return entity.hasMetadata("infernalMetadata") ||
+                   entity.hasMetadata("InfernalMob") ||
                    entity.hasMetadata("infernalMob");
-        } catch (Exception ignored) {}
-        return false;
-    }
-
-    private boolean isModDexMob(@NotNull Entity entity) {
-        try {
-            if (entity.hasMetadata("moddex") || entity.hasMetadata("ModDex") ||
-                entity.hasMetadata("RareMob") || entity.hasMetadata("RareMobDiscovered")) {
-                return true;
-            }
-
-            for (NamespacedKey key : entity.getPersistentDataContainer().getKeys()) {
-                if (key.getNamespace().equalsIgnoreCase("moddex") ||
-                    key.getNamespace().equalsIgnoreCase("mobdex")) {
-                    return true;
-                }
-            }
         } catch (Exception ignored) {}
         return false;
     }
@@ -265,6 +246,9 @@ public class EntityProtectionUtils {
                entity instanceof Allay;
     }
 
+    // Best-effort PDC key guesses, unverified against current plugin internals — not a confirmed
+    // API convention like isMythicMob/isInfernalMob. Most Oraxen/Nexo/ItemsAdder furniture now
+    // uses Display entities anyway, which are already protected globally via the whitelist.
     private boolean isOraxen(@NotNull Entity entity) {
         try {
             return entity.getPersistentDataContainer().has(new NamespacedKey("oraxen", "id"), PersistentDataType.STRING);
