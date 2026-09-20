@@ -1,0 +1,24 @@
+name: Sync docs to busybeedev.net
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Sync docs/ to busybeedev.net
+        env:
+          DOCS_SYNC_URL: ${{ vars.DOCS_SYNC_URL }}
+          DOCS_SYNC_API_KEY: ${{ secrets.DOCS_SYNC_API_KEY }}
+        run: node .github/scripts/sync-docs.mjs
