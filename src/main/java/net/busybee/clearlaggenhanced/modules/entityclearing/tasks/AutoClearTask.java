@@ -92,9 +92,10 @@ public class AutoClearTask {
                         return;
                     }
 
+                    long clearStart = System.currentTimeMillis();
                     int cleared = entityManager.clearEntities();
                     if (cleared != -1) {
-                        notificationManager.sendClearComplete(cleared);
+                        notificationManager.sendClearComplete(cleared, System.currentTimeMillis() - clearStart);
                     }
                     remainingTime.set(resolveNextInterval(performanceGateStatus).activeIntervalSeconds());
                 } else {

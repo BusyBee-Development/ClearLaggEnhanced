@@ -24,19 +24,25 @@ public class NotificationManager {
         if (broadcastTimes.isEmpty()) return;
 
         if (broadcastTimes.contains(secondsRemaining)) {
-            sendNotification("warnings.entity-clear", Map.of("seconds", String.valueOf(secondsRemaining)));
-            playNotificationSound();
+            sendNotification("warnings.entity-clear", Map.of("seconds", String.valueOf(secondsRemaining)), null);
+            playNotificationSound(null);
         }
     }
 
-    public void sendClearComplete(int count) {
-        sendNotification("notifications.clear-complete", Map.of("count", String.valueOf(count), "time", "0"));
-        playNotificationSound();
+    public void sendClearComplete(int count, long durationMs) {
+        Map<String, String> placeholders = Map.of("count", String.valueOf(count), "time", String.valueOf(durationMs));
+        sendNotification("notifications.clear-complete", placeholders, "clear-complete");
+        playNotificationSound("clear-complete");
     }
 
-    private void sendNotification(String path, Map<String, String> placeholders) {
-        boolean toConsole = module.getConfig().getBoolean("notifications.console-notifications", false);
-        List<String> types = module.getConfig().getStringList("notifications.types");
+    public void playClearCompleteSound(Player player) {
+        if (player == null) return;
+        playNotificationSound("clear-complete", player);
+    }
+
+    private void sendNotification(String path, Map<String, String> placeholders, String overrideKey) {
+        boolean toConsole = getBoolean(overrideKey, "console-notifications", false);
+        List<String> types = getStringList(overrideKey, "types");
 
         if (toConsole) {
             MessageUtils.broadcastMessage(path, placeholders, true, false);
@@ -55,18 +61,56 @@ public class NotificationManager {
         }
     }
 
-    private void playNotificationSound() {
-        if (!module.getConfig().getBoolean("notifications.sound.enabled", false)) return;
+    private void playNotificationSound(String overrideKey) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            playNotificationSound(overrideKey, player);
+        }
+    }
 
-        String soundName = module.getConfig().getString("notifications.sound.name", "BLOCK_NOTE_BLOCK_PLING");
-        float volume = (float) module.getConfig().getDouble("notifications.sound.volume", 1.0);
-        float pitch = (float) module.getConfig().getDouble("notifications.sound.pitch", 1.0);
+    private void playNotificationSound(String overrideKey, Player player) {
+        if (!getBoolean(overrideKey, "sound.enabled", false)) return;
 
-        XSound.matchXSound(soundName).ifPresent(xSound -> {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                xSound.play(player, volume, pitch);
-            }
-        });
+        String soundName = getString(overrideKey, "sound.name", "BLOCK_NOTE_BLOCK_PLING");
+        float volume = (float) getDouble(overrideKey, "sound.volume", 1.0);
+        float pitch = (float) getDouble(overrideKey, "sound.pitch", 1.0);
+
+        XSound.matchXSound(soundName).ifPresent(xSound -> xSound.play(player, volume, pitch));
+    }
+
+    private String overridePath(String overrideKey, String field) {
+        return "notifications." + overrideKey + "." + field;
+    }
+
+    private boolean getBoolean(String overrideKey, String field, boolean def) {
+        String path = overrideKey != null ? overridePath(overrideKey, field) : null;
+        if (path != null && module.getConfig().contains(path)) {
+            return module.getConfig().getBoolean(path);
+        }
+        return module.getConfig().getBoolean("notifications." + field, def);
+    }
+
+    private String getString(String overrideKey, String field, String def) {
+        String path = overrideKey != null ? overridePath(overrideKey, field) : null;
+        if (path != null && module.getConfig().contains(path)) {
+            return module.getConfig().getString(path, def);
+        }
+        return module.getConfig().getString("notifications." + field, def);
+    }
+
+    private double getDouble(String overrideKey, String field, double def) {
+        String path = overrideKey != null ? overridePath(overrideKey, field) : null;
+        if (path != null && module.getConfig().contains(path)) {
+            return module.getConfig().getDouble(path, def);
+        }
+        return module.getConfig().getDouble("notifications." + field, def);
+    }
+
+    private List<String> getStringList(String overrideKey, String field) {
+        String path = overrideKey != null ? overridePath(overrideKey, field) : null;
+        if (path != null && module.getConfig().contains(path)) {
+            return module.getConfig().getStringList(path);
+        }
+        return module.getConfig().getStringList("notifications." + field);
     }
 
     public void shutdown() {

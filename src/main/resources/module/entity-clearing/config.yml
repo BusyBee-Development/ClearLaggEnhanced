@@ -90,3 +90,15 @@ notifications:
     name: "BLOCK_NOTE_BLOCK_PLING"
     volume: 1.0
     pitch: 1.2
+
+  # Optional override for the clear-complete message only. Any field omitted
+  # here falls back to the values above.
+  clear-complete:
+    types:
+      - "CHAT"
+    console-notifications: false
+    sound:
+      enabled: true
+      name: "ENTITY_PLAYER_LEVELUP"
+      volume: 1.0
+      pitch: 1.0

@@ -85,6 +85,8 @@ public class MessageManager {
             return Component.empty();
         }
 
+        message = message.replace("{prefix}", messages.getString("prefix", ""));
+
         for (Map.Entry<String, String> entry : placeholders.entrySet()) {
             message = message.replace("{" + entry.getKey() + "}", entry.getValue());
         }

@@ -17,7 +17,7 @@ notifications:
   reload-failed: "<red>✗</red> <red>Reload failed:</red> <white>{reason}</white>"
 
   # --- Entity Clearing ---
-  clear-complete: "<green>✓</green> <green>Cleared <white>{count}</white> entities in <gray>{time}ms</gray></green>"
+  clear-complete: "{prefix} <green>✓</green> <green>Cleared <white>{count}</white> entities in <gray>{time}ms</gray></green>"
 
   # --- Mob Limiter ---
   limit-reached: "<yellow>⚠</yellow> <yellow>Mob limit reached in chunk <white>[{x}, {z}]</white></yellow>"
@@ -77,7 +77,7 @@ commands:
 
 # --- Entity Clearing ---
 warnings:
-  entity-clear: "<gold>⚠</gold> <yellow>Entities will be cleared in <white>{seconds}</white> seconds!</yellow>"
+  entity-clear: "{prefix} <gold>⚠</gold> <yellow>Entities will be cleared in <white>{seconds}</white> seconds!</yellow>"
   title: "<gold><bold>Entity Clear Warning</bold></gold>"
 
 next-clear:

@@ -6,6 +6,7 @@ import net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
 import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -42,6 +43,10 @@ public class ClearCommand implements SubCommand {
             ph.put("count", String.valueOf(cleared));
             ph.put("time", String.valueOf(duration));
             MessageUtils.sendMessage(sender, "notifications.clear-complete", ph);
+
+            if (sender instanceof Player player) {
+                module.getNotificationManager().playClearCompleteSound(player);
+            }
         });
 
         return true;
