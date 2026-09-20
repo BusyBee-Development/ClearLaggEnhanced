@@ -6,7 +6,7 @@
 
     <groupId>net.busybee.clearlaggenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>26.9.1</version>
+    <version>26.9.2</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
@@ -138,6 +138,12 @@
             <artifactId>bukkit</artifactId>
             <version>0.30.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>5.1.0</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -156,12 +162,6 @@
             <artifactId>junit-jupiter</artifactId>
             <version>1.20.4</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.comphenix.protocol</groupId>
-            <artifactId>ProtocolLib</artifactId>
-            <version>5.1.0</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -283,10 +283,30 @@
                                     </includes>
                                 </filter>
                                 <filter>
-                                    <artifact>dev.faststats.metrics:*</artifact>
+                                    <artifact>dev.faststats.metrics:bukkit</artifact>
                                     <includes>
                                         <include>**</include>
                                     </includes>
+                                </filter>
+                                <filter>
+                                    <!-- config/core ship the same META-INF/faststats.properties as bukkit;
+                                         drop it here so shade doesn't warn about the overlap. -->
+                                    <artifact>dev.faststats.metrics:config</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>META-INF/faststats.properties</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>dev.faststats.metrics:core</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>META-INF/faststats.properties</exclude>
+                                    </excludes>
                                 </filter>
                             </filters>
                             <transformers>
