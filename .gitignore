@@ -49,7 +49,6 @@ Thumbs.db
 .env
 .env.*
 .idea
-docs/
 test/
 ROADMAP.md
 
