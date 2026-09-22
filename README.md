@@ -1,110 +1,55 @@
 # ClearLaggEnhanced
 
-[![Version](https://img.shields.io/badge/version-2026.7.0-blue.svg)](https://github.com/BusyBee-Development/ClearLaggEnhanced/releases)
+[![Modrinth](https://img.shields.io/modrinth/v/clearlaggenhanced?label=Modrinth&color=00AF5C)](https://modrinth.com/plugin/clearlaggenhanced)
+[![Downloads](https://img.shields.io/modrinth/dt/clearlaggenhanced?label=Downloads&color=00AF5C)](https://modrinth.com/plugin/clearlaggenhanced)
 [![Servers](https://img.shields.io/bstats/servers/26743?label=Servers&color=blue)](https://bstats.org/plugin/bukkit/ClearLaggEnhanced/26743)
+[![Wiki](https://img.shields.io/badge/Wiki-busybeedev.net-F5B800)](https://busybeedev.net/docs/clearlaggenhanced/intro)
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/abdm29q7af)
 
-A modern, high-performance lag prevention plugin for Minecraft servers running Paper, Spigot, and Folia. Designed to help server owners maintain optimal server performance through intelligent entity management, advanced lag prevention systems, and real-time performance monitoring.
+A modern lag prevention plugin for Paper, Spigot, Purpur and Folia. It handles entity clearing, per-chunk limits and performance monitoring, and every module has an in-game admin GUI.
 
-**✨ Special Thanks:** To **bob7l**, the original developer of ClearLagg, whose pioneering work inspired this enhanced version.
+## Features
 
-## 📚 Documentation
+- Automatic entity clearing with smart protection and adaptive scheduling
+- Mob, spawner and misc entity limiters
+- Live TPS and memory monitoring
+- In-game admin GUI for every module
+- Native Folia support
+- PlaceholderAPI, stacker plugin and claim plugin integrations
 
-Full documentation is available in the [Wiki](https://busybeedev.net/docs/clearlaggenhanced/intro).
+## Requirements
 
-## ✨ Key Features
+- Minecraft 1.20+
+- Paper, Spigot, Purpur or Folia
+- Java 21+
 
-- **Automatic Entity Clearing** - Smart entity removal with comprehensive protection systems
-- **Advanced Lag Prevention** - Three specialized modules (Mob Limiter, Spawner Limiter, Misc Entity Limiter)
-- **Real-Time Monitoring** - Live TPS and memory tracking with color-coded indicators
-- **Interactive Admin GUI** - Graphical interface for easy configuration and monitoring
-- **Folia Support** - Full compatibility with Folia's regionized threading system
-- **Performance Database** - Optimized SQLite/MySQL storage with HikariCP connection pooling
-- **Smart Configuration** - Automatic updates while preserving your changes and comments
-- **Plugin Integrations** - Full support for ModernShowcase, RoseStacker, WildStacker, and GriefPrevention3D
-- **PlaceholderAPI** - Rich placeholder support for other plugins
+## Installation
 
-## 📦 Quick Start
+1. Download the latest release from [Modrinth](https://modrinth.com/plugin/clearlaggenhanced).
+2. Drop the jar into your `plugins` folder.
+3. Restart the server.
 
-### Requirements
+## Documentation
 
-- **Minecraft:** 1.20+
-- **Server:** Paper, Spigot, or Folia
-- **Java:** 21 or higher
+Everything else, including commands, permissions, configuration, modules and integrations, is on the **[wiki](https://busybeedev.net/docs/clearlaggenhanced/intro)**.
 
-### Installation
+- [Quick Start](https://busybeedev.net/docs/clearlaggenhanced/quick-start)
+- [Commands & Permissions](https://busybeedev.net/docs/clearlaggenhanced/commands-permissions)
+- [Configuration](https://busybeedev.net/docs/clearlaggenhanced/main-configuration)
+- [FAQ](https://busybeedev.net/docs/clearlaggenhanced/faq)
 
-1. Download from [Modrinth](https://modrinth.com/plugin/clearlaggenhanced)
-2. Place in your `plugins` folder
-3. Restart your server
-4. Configure in `plugins/ClearLaggEnhanced/config.yml`
-5. Reload with `/lagg reload`
-## 🎮 Basic Commands
+## Support
 
-| Command             | Description                                          | Permission        |
-|---------------------|------------------------------------------------------|-------------------|
-| `/lagg help`        | Display the help menu                                | `CLE.help`        |
-| `/lagg clear`       | Manually clear entities now                          | `CLE.clear`       |
-| `/lagg clearstatus` | View detailed entity clearing module status          | `CLE.clearstatus` |
-| `/lagg next`        | Show time until next automatic clear                 | `CLE.next`        |
-| `/lagg tps`         | Display current server TPS                           | `CLE.tps`         |
-| `/lagg ram`         | Display detailed server memory usage statistics      | `CLE.ram`         |
-| `/lagg chunkfinder` | Locate laggy chunks with high entity counts          | `CLE.chunkfinder` |
-| `/lagg admin`       | Open the admin GUI                                   | `CLE.admin`       |
-| `/lagg reload`      | Reload plugin configuration                          | `CLE.reload`      |
+- Bugs and feature requests: [GitHub Issues](https://github.com/BusyBee-Development/ClearLaggEnhanced/issues)
+- Questions and help: [Discord](https://discord.com/invite/abdm29q7af)
 
-**Aliases:** `/clearlagg`, `/clearlag`, `/cl`, `/cle`
+## Credits
 
-## 🔧 Modules
+- [bob7l](https://github.com/bob7l), original ClearLagg developer
+- [djtmk](https://github.com/djtmk1), developer and maintainer
+- [R00tB33rMan](https://github.com/R00tB33rMan), Folia support
+- [MrTroxy](https://github.com/MrTroxy), modular system
 
-### Entity Clearing Module
-Automatically clears entities at configurable intervals with smart protection for named, tamed, stacked, and custom-tagged entities.
-- **Intelligent Protection:** Support for peaceful mobs (Animals, Villagers, Golems, etc.) in claims, mobs in boats, bred mobs, plugin-managed entities, and scoreboard tags.
-- **Adaptive Scheduling:** Dynamically adjust clear intervals based on entity or player count.
-- **Performance Gates:** Defer clears while server MSPT is healthy (excludes Folia).
-- **Integration Support:** Built-in protection for GriefPrevention (standard & 3D), ModernShowcase, RoseStacker, and WildStacker.
+## License
 
-### Mob Limiter Module
-Controls entity spawning per chunk with global and per-type limits. Prevents excessive mob spawning that causes lag.
-
-### Spawner Limiter Module
-Controls spawner activation rates with configurable delay multipliers and mob cap integration.
-
-### Misc Entity Limiter Module
-Manages non-mob entities like armor stands, boats, item frames, and paintings with per-chunk limits and protection options.
-
-### Chunk Finder Module
-Locate laggy chunks with high entity counts. Helps identify problem areas quickly.
-
-### Performance Module
-Real-time TPS and memory monitoring with color-coded indicators and detailed statistics.
-
-## 📊 PlaceholderAPI Support
-
-If PlaceholderAPI is installed, use these placeholders in other plugins:
-
-- `%clearlaggenhanced_tps%` - Current server TPS
-- `%clearlaggenhanced_memory_used%` - Used memory in MB
-- `%clearlaggenhanced_memory_max%` - Maximum memory in MB
-- `%clearlaggenhanced_memory_percentage%` - Memory usage percentage
-- `%clearlaggenhanced_entities_total%` - Total entities on server
-- `%clearlaggenhanced_next_clear%` - Seconds until next clear
-- `%clearlaggenhanced_next_clear_formatted%` - Human-readable time until next clear (e.g., "5m 20s")
-
-## 🤝 Support
-
-- **GitHub Issues:** [Report bugs or request features](https://github.com/BusyBee-Development/ClearLaggEnhanced/issues)
-- **Documentation:** [Full documentation](https://busybeedev.net/docs/clearlaggenhanced/intro)
-- **Discord:** Join the community on [Discord](https://discord.com/invite/abdm29q7af) for support and to suggest new ideas.
-
-## 🙏 Credits
-
-- **[bob7l](https://github.com/bob7l)** - Original ClearLagg developer
-- **[djtmk](https://github.com/djtmk1)** - ClearLaggEnhanced developer and maintainer
-- **BusyBee Development** - Development team
-- **[R00tB33rMan](https://github.com/R00tB33rMan)** – Folia support and contributor
-- **[MrTroxy](https://github.com/MrTroxy)** – Help with modular support in version 2026.4.0
-- All contributors and community members
-
-## 📄 License
-
-ClearLaggEnhanced is licensed under the [BusyBee AAR License](LICENSE).
+Licensed under the [BusyBee AAR License](LICENSE).
