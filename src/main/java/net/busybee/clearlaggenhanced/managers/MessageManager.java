@@ -25,6 +25,9 @@ public class MessageManager {
     private final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.legacyAmpersand();
     private static final Pattern AMP_HEX = Pattern.compile("&#([A-Fa-f0-9]{6})");
     private static final Pattern LEGACY_X_HEX = Pattern.compile("(?i)&x(?:&([0-9A-F])){6}");
+    // Match existing MiniMessage tags first so their arguments (e.g. <gradient:#hex:#hex>) are left untouched
+    private static final Pattern TAG_OR_BARE_HEX = Pattern.compile("<[^<>]*>|#([A-Fa-f0-9]{6})");
+    private static final Pattern TAG_OR_LEGACY_CODE = Pattern.compile("(?i)<[^<>]*>|&([0-9a-fk-or])");
 
     private final boolean placeholderAPIEnabled;
     
@@ -114,7 +117,9 @@ public class MessageManager {
         String msg = input.replace('§', '&');
         msg = convertLegacyXHex(msg);
         msg = AMP_HEX.matcher(msg).replaceAll(mr -> "<#" + mr.group(1) + ">");
-        msg = msg.replaceAll("(?i)(?<!<)#([A-F0-9]{6})", "<#$1>");
+        msg = TAG_OR_BARE_HEX.matcher(msg).replaceAll(mr -> mr.group(1) == null
+                ? Matcher.quoteReplacement(mr.group())
+                : "<#" + mr.group(1) + ">");
         msg = convertLegacyCodesToMini(msg);
 
         return msg;
@@ -147,23 +152,9 @@ public class MessageManager {
     }
 
     private String convertLegacyCodesToMini(@NotNull String msg) {
-        StringBuilder out = new StringBuilder(msg.length() + 16);
-        for (int i = 0; i < msg.length(); i++) {
-            char c = msg.charAt(i);
-            if (c == '&' && i + 1 < msg.length()) {
-                char code = Character.toLowerCase(msg.charAt(i + 1));
-                String tag = mapLegacyToMiniTag(code);
-                if (tag != null) {
-                    out.append('<').append(tag).append('>');
-                    i++;
-                    continue;
-                }
-            }
-
-            out.append(c);
-        }
-
-        return out.toString();
+        return TAG_OR_LEGACY_CODE.matcher(msg).replaceAll(mr -> mr.group(1) == null
+                ? Matcher.quoteReplacement(mr.group())
+                : "<" + mapLegacyToMiniTag(Character.toLowerCase(mr.group(1).charAt(0))) + ">");
     }
 
     private String mapLegacyToMiniTag(char code) {

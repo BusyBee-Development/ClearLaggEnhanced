@@ -1,0 +1,53 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Detect Java version
+        id: jdk
+        run: |
+          # Highest Java target the root pom declares (1.8 -> 8), never below 21
+          v=$(grep -oE '<(java\.version|maven\.compiler\.(release|source|target)|release|source|target)>[0-9.]+<' pom.xml \
+            | sed -E 's/.*>([0-9.]+)<.*/\1/; s/^1\.//' | sort -n | tail -1)
+          if [ "${v:-0}" -lt 21 ]; then v=21; fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '${{ steps.jdk.outputs.version }}'
+          cache: maven
+      - name: Build and test
+        run: mvn --batch-mode clean verify
+      - name: Check artifact
+        run: |
+          mkdir -p ci-out
+          # Deployable jars only (skip sources/javadoc/original-* helper jars)
+          find . -path '*/target/*.jar' -not -path './ci-out/*' \
+            -not -name 'original-*' -not -name '*-sources.jar' -not -name '*-javadoc.jar' > ci-out/jars.txt
+          if [ ! -s ci-out/jars.txt ]; then echo "No jar produced"; exit 1; fi
+          # Server APIs and test libs must never end up inside a shipped jar
+          while read -r jar; do
+            jar tf "$jar" > ci-out/contents.tmp
+            if grep -Eq '^(org/bukkit|io/papermc|org/junit|org/mockito)/' ci-out/contents.tmp; then
+              echo "Unshaded server/test classes found in $jar"; exit 1
+            fi
+            cp "$jar" ci-out/
+          done < ci-out/jars.txt
+          rm -f ci-out/contents.tmp ci-out/jars.txt
+          (cd ci-out && sha256sum *.jar > SHA256SUMS)
+          find . -path '*/target/surefire-reports/*.xml' -exec cp --backup=numbered {} ci-out/ \; || true
+          find . -path '*/target/failsafe-reports/*.xml' -exec cp --backup=numbered {} ci-out/ \; || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ github.event.repository.name }}-java-${{ steps.jdk.outputs.version }}
+          path: ci-out/
