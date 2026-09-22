@@ -2,7 +2,6 @@ package net.busybee.clearlaggenhanced;
 
 import net.busybee.clearlaggenhanced.commands.LaggCommand;
 import net.busybee.clearlaggenhanced.core.updater.FoliaUpdateNotifier;
-import net.busybee.clearlaggenhanced.core.updater.UpdateWarn;
 import net.busybee.clearlaggenhanced.core.updater.VersionCheck;
 import net.busybee.clearlaggenhanced.database.DatabaseSettings;
 import net.busybee.clearlaggenhanced.gui.ModuleGUIRegistry;
@@ -83,8 +82,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         if (versionCheck != null) {
             new FoliaUpdateNotifier(this, versionCheck).check();
         }
-
-        UpdateWarn.sendWarning(this);
 
         getLogger().info("ClearLaggEnhanced is ready!");
     }

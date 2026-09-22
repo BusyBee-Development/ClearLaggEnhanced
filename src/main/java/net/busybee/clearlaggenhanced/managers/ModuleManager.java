@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class ModuleManager {
+    private static final Set<String> RETIRED_CONFIG_FOLDERS = Set.of("wildstacker", "rosestacker", "modernshowcase");
+
     private final ClearLaggEnhanced plugin;
     private final ConfigManager configManager;
     private final Map<String, Module> modules;
@@ -61,8 +63,12 @@ public class ModuleManager {
 
     private void loadModule(Module module) {
         File modFolder = new File(moduleFolder, module.getFolderName());
-        if (!modFolder.exists()) {
-            modFolder.mkdirs();
+        if (shipsBundledConfig(module)) {
+            if (!modFolder.exists()) {
+                modFolder.mkdirs();
+            }
+        } else {
+            removeUnusedModuleFolder(module, modFolder);
         }
 
         FileConfiguration config = loadModuleConfig(module, "config.yml");
@@ -82,6 +88,29 @@ public class ModuleManager {
                 plugin.getLogger().severe("Failed to enable module " + module.getName() + ": " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+    }
+
+    private boolean shipsBundledConfig(Module module) {
+        String prefix = "module/" + module.getFolderName() + "/";
+        return plugin.getResource(prefix + "config.yml") != null
+                || plugin.getResource(prefix + "inventory_gui.yml") != null;
+    }
+
+    private void removeUnusedModuleFolder(Module module, File modFolder) {
+        if (!modFolder.isDirectory()) {
+            return;
+        }
+
+        // Older versions shipped placeholder files for these modules; nothing reads them anymore
+        if (RETIRED_CONFIG_FOLDERS.contains(module.getFolderName().toLowerCase())) {
+            new File(modFolder, "config.yml").delete();
+            new File(modFolder, "inventory_gui.yml").delete();
+        }
+
+        String[] remaining = modFolder.list();
+        if (remaining != null && remaining.length == 0 && modFolder.delete()) {
+            plugin.getLogger().info("Removed unused folder module/" + module.getFolderName());
         }
     }
 
