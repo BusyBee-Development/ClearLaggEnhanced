@@ -2,6 +2,7 @@
 package net.busybee.clearlaggenhanced.modules.entityclearing.tasks;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.AdaptiveIntervalSettings;
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.EntityManager;
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.NotificationManager;
@@ -40,6 +41,7 @@ public class AutoClearTask {
     private volatile long thresholdBreachedSinceMillis = -1L;
     private volatile boolean averageTickTimeUnavailableLogged;
     private boolean isFolia;
+    private volatile int lastObservedTick = -1;
 
     public AutoClearTask(
             ClearLaggEnhanced plugin,
@@ -81,8 +83,16 @@ public class AutoClearTask {
         stop();
         remainingTime.set(resolveNextInterval(updatePerformanceGateStatus()).activeIntervalSeconds());
 
+        lastObservedTick = -1;
+
         task = ClearLaggEnhanced.scheduler().runTimerAsync(() -> {
             try {
+                // The timer runs on wall-clock time, so it keeps firing while the server is paused
+                // (vanilla pause-when-empty-seconds). Hold the countdown until ticking resumes.
+                if (isServerPaused()) {
+                    return;
+                }
+
                 PerformanceGateStatus performanceGateStatus = updatePerformanceGateStatus();
                 int timeLeft = remainingTime.updateAndGet(current -> current > 0 ? current - 1 : 0);
 
@@ -114,6 +124,23 @@ public class AutoClearTask {
             ClearLaggEnhanced.scheduler().cancelTask(task);
             task = null;
         }
+    }
+
+    private boolean isServerPaused() {
+        if (PluginScheduler.isFolia()) {
+            return false;
+        }
+
+        int currentTick;
+        try {
+            currentTick = Bukkit.getCurrentTick();
+        } catch (Throwable ignored) {
+            return false;
+        }
+
+        boolean paused = currentTick == lastObservedTick;
+        lastObservedTick = currentTick;
+        return paused;
     }
 
     private @NotNull StatusSnapshot resolveNextInterval(@NotNull PerformanceGateStatus performanceGateStatus) {
