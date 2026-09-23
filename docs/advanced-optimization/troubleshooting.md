@@ -40,8 +40,13 @@ Work through this order:
 
 1. Check whether it matches `whitelist` (entity type) or `item-whitelist` (dropped item material)
    in `module/entity-clearing/config.yml` — see [Entity Clearing](../features-modules/entity-clearing.md)
-   and [Materials](../materials.md) for exact naming.
-2. Check the relevant `protect-*` and `extra-protections.*` toggle is actually `true`.
+   and [Materials](../materials.md) for exact naming. Check the startup log for a warning listing
+   whitelist entries the plugin didn't recognise; a misspelled entry protects nothing.
+2. Check the relevant `protect-*` and `extra-protections.*` toggle is actually `true`. Ordinary
+   farm animals (sheep, pigs, chickens, etc.) are **not** protected by default unless they're
+   named, tamed, leashed, saddled, bred while the plugin was installed, or on the `whitelist`.
+   Turn on `protect-passive-mobs` to protect all friendly mobs at once. To protect one specific
+   entity, give it the `CLE_PROTECTED` scoreboard tag.
 3. If you're relying on `extra-protections.oraxen` / `.nexo` / `.items-adder`: these are
    **best-effort, unverified** detection against a guessed internal key for those plugins, and may
    simply not match your installed version. Most modern furniture from these plugins uses Display
@@ -50,7 +55,8 @@ Work through this order:
 4. If you're relying on `extra-protections.mythic-mobs` or `.infernal-mobs`: these ARE verified
    against those plugins' actual metadata conventions, so if protection isn't working, double-check
    the toggle is `true` and the mob was actually spawned by that plugin (not a vanilla mob that
-   happens to look similar).
+   happens to look similar). With the toggle `false`, name tags and the `whitelist` don't protect
+   those plugins' mobs; see [MythicMobs and InfernalMobs mobs](../features-modules/entity-clearing.md#mythicmobs-and-infernalmobs-mobs).
 5. `protect-stacked-entities` only works if a [stacker plugin integration](../integrations/stacker-plugins.md)
    is installed, enabled, and actually reports the entity as stacked (stack size > 1) at clear time.
 

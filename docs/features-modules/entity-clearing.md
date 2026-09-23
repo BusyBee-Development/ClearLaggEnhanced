@@ -19,6 +19,13 @@ interval: 300
 Default/fallback time in seconds between automatic clears. Overridden by adaptive scheduling below
 if enabled.
 
+:::info Paused servers
+On 1.21.2+ the vanilla `pause-when-empty-seconds` setting in `server.properties` pauses the server
+once nobody is online (Paper and forks such as Leaf keep it). While the server is paused the
+countdown holds, and it picks up where it left off when ticking resumes. No clears or warnings run
+while paused.
+:::
+
 ## Adaptive interval scheduling
 
 Re-evaluated at the start of each clearing cycle. The highest matching threshold wins; if none
@@ -71,6 +78,7 @@ protect-tamed-entities: true
 protect-armored-entities: false
 protect-stacked-entities: false
 whitelist-all-mobs: false
+protect-passive-mobs: false
 ```
 
 - `protect-named-entities` — skip any entity with a custom name (or a named dropped item).
@@ -81,12 +89,23 @@ whitelist-all-mobs: false
 - `protect-stacked-entities` — skip entities detected as stacked by a connected stacker plugin.
 - `whitelist-all-mobs` — nuclear option: protect every `LivingEntity`, clearing only items/other
   non-living entities.
+- `protect-passive-mobs` — protect every friendly mob (animals including happy ghasts, villagers
+  and wandering traders, golems, fish, squid, bats, allays) while still clearing hostile ones.
+  Hostile mobs that share a friendly type, such as hoglins and shulkers, are still cleared. The
+  [Mob Limiter](mob-limiter.md)'s spawn caps still apply to these mobs, so enabling this can't
+  let animal farms grow without limit. An easy alternative to listing every friendly type in
+  `whitelist`.
 
 ### Extra protections
 
 ```yaml
 extra-protections:
   mobs-in-boats: true
+  mobs-in-minecarts: true
+  leashed-mobs: true
+  saddled-mobs: true
+  ridden-mobs: true
+  bucket-mobs: true
   mobs-from-breeding: true
   modern-showcase: true
   player-heads: true
@@ -105,18 +124,41 @@ extra-protections:
 | Key | Protects |
 |---|---|
 | `mobs-in-boats` | Any entity currently riding a boat |
-| `mobs-from-breeding` | Entities marked as bred (tracked via a persistent data key set when breeding occurs) |
+| `mobs-in-minecarts` | Any entity currently riding a minecart |
+| `leashed-mobs` | Mobs on a lead (the fence knot itself is covered by `LEASH_KNOT` in the `whitelist`) |
+| `saddled-mobs` | Mobs wearing a saddle (horses, donkeys, mules, camels, pigs, striders) or a harness (happy ghasts) |
+| `ridden-mobs` | Any entity with a player riding it |
+| `bucket-mobs` | Fish and axolotls a player released from a bucket |
+| `mobs-from-breeding` | The baby **and both parents** whenever animals breed (tracked via a persistent data key). Only breeding that happens while the plugin is installed is tracked; older animals need another protection, e.g. `protect-passive-mobs` |
 | `modern-showcase` | Entities registered as showcase items by [ModernShowcase](../integrations/modernshowcase.md) |
 | `player-heads` | Dropped `PLAYER_HEAD` items |
 | `pets-module` | Entities carrying `Pet`, `isPet`, or `MyPet` metadata (generic pet-plugin compatibility) |
 | `citizens-support` | Entities carrying Citizens' `NPC` metadata |
 | `mythic-mobs` | Entities with MythicMobs' `MythicMob` metadata — verified against MythicMobs' actual compatibility convention |
 | `infernal-mobs` | Entities with InfernalMobs' `infernalMetadata` (plus legacy fallback keys) — verified against the plugin's source |
-| `grief-prevention-3d` | Peaceful mobs (animals, villagers, golems, water mobs, etc.) inside a claim, via [GriefPrevention3D](../integrations/griefprevention3d.md) |
+| `grief-prevention-3d` | Peaceful mobs (animals, villagers, golems, water mobs, etc., excluding hostile ones such as hoglins and shulkers) inside a claim, via [GriefPrevention3D](../integrations/griefprevention3d.md) |
 | `oraxen` / `nexo` / `items-adder` | Entities carrying a guessed PersistentDataContainer key from these plugins — **best-effort, not verified** against their current internal formats. Most modern furniture from these plugins uses Display entities anyway, which are already covered by the global `whitelist` below regardless of these toggles. |
-| `protected-entity-tags` | Any entity carrying one of these scoreboard tags, e.g. `["CLE_PROTECTED"]` |
+| `protected-entity-tags` | Any entity carrying one of these scoreboard tags. `CLE_PROTECTED` is always protected even if it isn't listed here |
 
 Standard (non-3D) GriefPrevention is not covered by a dedicated toggle here.
+
+### Protecting a single entity by hand
+
+Add the `CLE_PROTECTED` scoreboard tag to any entity to protect it from clearing, with no config
+change needed. The [Misc Entity Limiter](misc-entity-limiter.md) honours the same tag by default.
+
+```
+/tag @e[type=cow,limit=1,sort=nearest] add CLE_PROTECTED
+```
+
+### MythicMobs and InfernalMobs mobs
+
+When `mythic-mobs` or `infernal-mobs` is `false`, that plugin's mobs are cleared like normal mobs,
+with two differences. Their custom names don't count for `protect-named-entities`, because those
+plugins name their own mobs. Type-based rules (`whitelist`, `protect-passive-mobs`,
+`whitelist-all-mobs`) don't apply to them either. Protections that show a player owns the mob still
+apply: tamed, leashed, ridden, saddled, in a boat or minecart, bred, or tagged. So a player's
+tamed MythicMobs pet is kept even with `mythic-mobs: false`.
 
 ## Worlds, whitelist, item whitelist
 
@@ -144,6 +186,9 @@ item-whitelist:
   world names.
 - `whitelist` — entity type names (Bukkit `EntityType`) that are never cleared, regardless of any
   other setting. Villagers, golems, and all Display-entity types are protected by default.
+  Entries are matched against exact `EntityType` names, so the plugin logs a warning on startup
+  listing any entry it doesn't recognise (a typo such as `FURNANCE_MINECART`, or a mob that doesn't
+  exist on your server version). Those entries protect nothing until fixed.
 - `item-whitelist` — dropped-item `Material` names that are never cleared even if the `Item`
   entity itself would otherwise be eligible.
 

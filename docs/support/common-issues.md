@@ -39,6 +39,15 @@ optional override block (`notifications.clear-complete` in `module/entity-cleari
 that falls back to the top-level `notifications.*` settings for any field you don't override. See
 [Entity Clearing → Notifications](../features-modules/entity-clearing.md#notifications).
 
+## "Timed out while waiting for loaded chunks list from the main thread" every few minutes
+
+This appeared on older versions when the server used vanilla's `pause-when-empty-seconds`
+(1.21.2+, kept by Paper and forks such as Leaf). Once the server paused with nobody online, the
+clear countdown kept running, and each clear timed out waiting on the paused server. It was
+harmless but noisy. Current versions hold the countdown while the server is paused, so update the
+plugin. Setting `pause-when-empty-seconds=-1` in `server.properties` also stops it, but isn't
+needed after updating.
+
 ## Prefix isn't showing on a message
 
 The global `prefix` in `messages.yml` isn't auto-prepended to every message — it only appears
