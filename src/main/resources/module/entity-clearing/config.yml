@@ -3,6 +3,7 @@
 # ============================================================================ #
 # This module handles automated entity clearing based on configured intervals.
 # The module is enabled/disabled in the main config.yml.
+# Be sure to check out the materials list at: https://busybeedev.net/docs/clearlaggenhanced/materials
 
 # Default/fallback time in seconds between clears.
 interval: 300
@@ -39,9 +40,20 @@ protect-tamed-entities: true
 protect-armored-entities: false
 protect-stacked-entities: false
 whitelist-all-mobs: false
+# Protect all friendly mobs (animals, villagers, golems, fish, bats, etc.) while still
+# clearing hostile ones. Mob limiter spawn caps still apply to them.
+protect-passive-mobs: false
 
 extra-protections:
   mobs-in-boats: true
+  mobs-in-minecarts: true
+  leashed-mobs: true
+  # Mobs wearing a saddle (horses, pigs, striders, camels...) or a harness (happy ghast).
+  saddled-mobs: true
+  # Mobs with a player riding them.
+  ridden-mobs: true
+  # Fish and axolotls a player released from a bucket.
+  bucket-mobs: true
   mobs-from-breeding: true
   modern-showcase: true
   player-heads: true
@@ -59,6 +71,7 @@ extra-protections:
   items-adder: false
 
   # Protect entities that carry any of these scoreboard tags.
+  # CLE_PROTECTED is always protected, e.g. /tag @e[type=cow,limit=1,sort=nearest] add CLE_PROTECTED
   protected-entity-tags: []
 
 worlds: []

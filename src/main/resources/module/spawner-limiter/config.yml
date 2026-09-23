@@ -3,6 +3,7 @@
 # ============================================================================ #
 # This module limits mob spawning from spawners to prevent lag.
 # The module is enabled/disabled in the main config.yml.
+# Be sure to check out the materials list at: https://busybeedev.net/docs/clearlaggenhanced/materials
 
 spawn-delay-multiplier: 1.5
 

@@ -11,11 +11,15 @@ import net.busybee.clearlaggenhanced.modules.entityclearing.models.PerformanceGa
 import net.busybee.clearlaggenhanced.modules.entityclearing.tasks.AutoClearTask;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class EntityClearingModule extends Module {
@@ -43,6 +47,7 @@ public class EntityClearingModule extends Module {
         notificationManager = new NotificationManager(this);
         entityManager = new EntityManager(plugin, this);
         plugin.getEntityProtectionUtils().refreshSettingsCache();
+        warnUnknownWhitelistEntries();
 
         int clearInterval = getInt("interval", 300);
         if (clearInterval <= 0) {
@@ -85,6 +90,29 @@ public class EntityClearingModule extends Module {
         }
         if (breedingListener != null) {
             HandlerList.unregisterAll(breedingListener);
+        }
+    }
+
+    // Whitelist entries are matched against EntityType names, so a typo silently protects nothing.
+    private void warnUnknownWhitelistEntries() {
+        List<String> unknown = new ArrayList<>();
+        for (String entry : getStringList("whitelist")) {
+            String name = entry == null ? "" : entry.trim().toUpperCase(Locale.ROOT);
+            // Leash knot names are aliases for each other across versions (see EntityProtectionUtils).
+            if (name.isEmpty() || name.equals("LEASH_HITCH") || name.equals("LEASH_KNOT")) {
+                continue;
+            }
+
+            try {
+                EntityType.valueOf(name);
+            } catch (IllegalArgumentException e) {
+                unknown.add(entry);
+            }
+        }
+
+        if (!unknown.isEmpty()) {
+            plugin.getLogger().warning("Entity clearing whitelist has entries that are not entity types on this server version and will protect nothing: "
+                    + String.join(", ", unknown));
         }
     }
 

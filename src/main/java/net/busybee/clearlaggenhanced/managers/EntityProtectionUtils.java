@@ -10,16 +10,23 @@ import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.Grie
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.*;
+import io.papermc.paper.entity.Bucketable;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class EntityProtectionUtils {
     public static final NamespacedKey BRED_KEY = new NamespacedKey("clearlaggenhanced", "bred");
+    public static final String PROTECTED_TAG = "CLE_PROTECTED";
+    private static final List<EquipmentSlot> SADDLE_SLOTS = resolveSaddleSlots();
 
     private final ClearLaggEnhanced plugin;
     private final StackerManager stackerManager;
@@ -107,12 +114,18 @@ public class EntityProtectionUtils {
                 return true;
             }
 
+            // With their toggle off, plugin mobs still fall through so player-ownership checks
+            // (tamed, leashed, ridden, ...) apply; only the name and type-based checks are skipped,
+            // since these plugins give their mobs custom names of their own.
+            boolean unprotectedPluginMob = false;
             if (isMythicMob(entity)) {
-                return settings.mythicMobs();
+                if (settings.mythicMobs()) return true;
+                unprotectedPluginMob = true;
             }
 
             if (isInfernalMob(entity)) {
-                return settings.infernalMobs();
+                if (settings.infernalMobs()) return true;
+                unprotectedPluginMob = true;
             }
 
             if (settings.modernShowcase() && msHook != null) {
@@ -131,7 +144,19 @@ public class EntityProtectionUtils {
                 if (entity.getVehicle() instanceof Boat) return true;
             }
 
-            if (settings.protectNamed() && !isStacked) {
+            if (settings.mobsInMinecarts()) {
+                if (entity.getVehicle() instanceof Minecart) return true;
+            }
+
+            if (settings.leashedMobs() && entity instanceof LivingEntity living) {
+                if (living.isLeashed()) return true;
+            }
+
+            if (settings.riddenMobs() && hasPlayerPassenger(entity)) return true;
+            if (settings.saddledMobs() && entity instanceof LivingEntity living && hasSaddleOrHarness(living)) return true;
+            if (settings.bucketMobs() && entity instanceof Bucketable bucketable && bucketable.isFromBucket()) return true;
+
+            if (settings.protectNamed() && !isStacked && !unprotectedPluginMob) {
                 if (entity.customName() != null) {
                     if (!settings.protectPersistentNamedOnly() || entity.isPersistent()) {
                         return true;
@@ -168,9 +193,12 @@ public class EntityProtectionUtils {
                 if (hasArmor(living)) return true;
             }
 
-            if (checkWhitelist) {
+            if (checkWhitelist && !unprotectedPluginMob) {
                 String typeName = entity.getType().name();
                 if (settings.whitelist().contains(typeName)) return true;
+
+                // Type-based like the whitelist, so the mob limiter (checkWhitelist=false) still counts these.
+                if (settings.protectPassiveMobs() && isPeacefulMob(entity)) return true;
 
                 // Special handling for leash knots and hitching posts (compatibility)
                 if (typeName.equals("LEASH_KNOT") || typeName.equals("LEASH_HITCH")) {
@@ -184,7 +212,7 @@ public class EntityProtectionUtils {
                 if (settings.itemWhitelist().contains(item.getItemStack().getType().name())) return true;
             }
 
-            if (settings.whitelistAllMobs() && entity instanceof LivingEntity) return true;
+            if (settings.whitelistAllMobs() && entity instanceof LivingEntity && !unprotectedPluginMob) return true;
         } catch (Exception e) {
             // Safety fallback for Folia/multi-threaded ConcurrentModificationExceptions
             return true;
@@ -216,16 +244,61 @@ public class EntityProtectionUtils {
     }
 
     private boolean hasProtectedTag(@NotNull Entity entity, @NotNull Set<String> protectedEntityTags) {
-        if (protectedEntityTags.isEmpty()) return false;
         try {
             Set<String> tags = entity.getScoreboardTags();
             if (tags.isEmpty()) return false;
+
+            // CLE_PROTECTED is honoured regardless of config, matching the misc entity limiter's default.
+            if (tags.contains(PROTECTED_TAG)) return true;
 
             for (String tag : tags) {
                 if (protectedEntityTags.contains(tag)) return true;
             }
         } catch (Exception ignored) {}
         return false;
+    }
+
+    private boolean hasPlayerPassenger(@NotNull Entity entity) {
+        for (Entity passenger : entity.getPassengers()) {
+            if (passenger instanceof Player) return true;
+        }
+        return false;
+    }
+
+    private boolean hasSaddleOrHarness(@NotNull LivingEntity living) {
+        if (living instanceof Steerable steerable && steerable.hasSaddle()) return true;
+        if (living instanceof AbstractHorse horse) {
+            ItemStack saddle = horse.getInventory().getSaddle();
+            if (saddle != null && saddle.getType() == Material.SADDLE) return true;
+        }
+
+        EntityEquipment equipment = living.getEquipment();
+        if (equipment == null) return false;
+
+        // SADDLE (1.21.5+) and BODY (1.20.5+, where the happy ghast harness goes) are resolved by name
+        // because the API we compile against predates them.
+        for (EquipmentSlot slot : SADDLE_SLOTS) {
+            try {
+                ItemStack item = equipment.getItem(slot);
+                if (item == null) continue;
+
+                String type = item.getType().name();
+                if (type.equals("SADDLE") || type.endsWith("_HARNESS")) return true;
+            } catch (IllegalArgumentException | UnsupportedOperationException ignored) {
+                // Entity type does not support this slot.
+            }
+        }
+        return false;
+    }
+
+    private static @NotNull List<EquipmentSlot> resolveSaddleSlots() {
+        List<EquipmentSlot> slots = new ArrayList<>();
+        for (String name : new String[]{"SADDLE", "BODY"}) {
+            try {
+                slots.add(EquipmentSlot.valueOf(name));
+            } catch (IllegalArgumentException ignored) {}
+        }
+        return List.copyOf(slots);
     }
 
     private boolean hasArmor(@NotNull LivingEntity living) {
@@ -236,7 +309,9 @@ public class EntityProtectionUtils {
         return false;
     }
 
+    // Enemy excludes hostile types that share a peaceful supertype (Hoglin is Animals, Shulker is Golem).
     private boolean isPeacefulMob(@NotNull Entity entity) {
+        if (entity instanceof Enemy) return false;
         return entity instanceof Animals ||
                entity instanceof NPC ||
                entity instanceof Ambient ||

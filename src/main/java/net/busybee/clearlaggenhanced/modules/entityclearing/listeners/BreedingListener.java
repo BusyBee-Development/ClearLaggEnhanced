@@ -24,7 +24,15 @@ public class BreedingListener implements Listener {
             return;
         }
 
-        Entity offspring = event.getEntity();
-        offspring.getPersistentDataContainer().set(EntityProtectionUtils.BRED_KEY, PersistentDataType.BYTE, (byte) 1);
+        // Tag the parents too: they are the player's breeding stock and would otherwise be cleared.
+        markBred(event.getEntity());
+        markBred(event.getMother());
+        markBred(event.getFather());
+    }
+
+    private void markBred(Entity entity) {
+        if (entity != null) {
+            entity.getPersistentDataContainer().set(EntityProtectionUtils.BRED_KEY, PersistentDataType.BYTE, (byte) 1);
+        }
     }
 }
