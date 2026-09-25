@@ -41,7 +41,10 @@ public class AutoClearTask {
     private volatile long thresholdBreachedSinceMillis = -1L;
     private volatile boolean averageTickTimeUnavailableLogged;
     private boolean isFolia;
-    private volatile int lastObservedTick = -1;
+    private static final long HEARTBEAT_STALE_NANOS = TimeUnit.SECONDS.toNanos(3);
+
+    private ScheduledTask heartbeatTask;
+    private volatile long lastHeartbeatNanos = System.nanoTime();
 
     public AutoClearTask(
             ClearLaggEnhanced plugin,
@@ -83,7 +86,8 @@ public class AutoClearTask {
         stop();
         remainingTime.set(resolveNextInterval(updatePerformanceGateStatus()).activeIntervalSeconds());
 
-        lastObservedTick = -1;
+        lastHeartbeatNanos = System.nanoTime();
+        heartbeatTask = ClearLaggEnhanced.scheduler().runTimer(() -> lastHeartbeatNanos = System.nanoTime(), 1L, 1L);
 
         task = ClearLaggEnhanced.scheduler().runTimerAsync(() -> {
             try {
@@ -124,23 +128,16 @@ public class AutoClearTask {
             ClearLaggEnhanced.scheduler().cancelTask(task);
             task = null;
         }
+        if (heartbeatTask != null) {
+            PluginScheduler.cancelTask(heartbeatTask);
+            heartbeatTask = null;
+        }
     }
 
     private boolean isServerPaused() {
-        if (PluginScheduler.isFolia()) {
-            return false;
-        }
-
-        int currentTick;
-        try {
-            currentTick = Bukkit.getCurrentTick();
-        } catch (Throwable ignored) {
-            return false;
-        }
-
-        boolean paused = currentTick == lastObservedTick;
-        lastObservedTick = currentTick;
-        return paused;
+        // Bukkit.getCurrentTick() keeps advancing on Paper forks while paused, so it cannot be used here.
+        // The global region scheduler, however, stops ticking - and every clear depends on it.
+        return System.nanoTime() - lastHeartbeatNanos > HEARTBEAT_STALE_NANOS;
     }
 
     private @NotNull StatusSnapshot resolveNextInterval(@NotNull PerformanceGateStatus performanceGateStatus) {
