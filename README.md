@@ -15,7 +15,7 @@ A modern lag prevention plugin for Paper, Spigot, Purpur and Folia. It handles e
 - Live TPS and memory monitoring
 - In-game admin GUI for every module
 - Native Folia support
-- PlaceholderAPI, stacker plugin and claim plugin integrations
+- PlaceholderAPI and claim plugin integrations, plus RoseStacker and WildStacker support until built-in stacking replaces it
 
 ## Requirements
 
