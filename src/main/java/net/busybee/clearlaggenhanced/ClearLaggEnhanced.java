@@ -85,7 +85,27 @@ public class ClearLaggEnhanced extends JavaPlugin {
             new FoliaUpdateNotifier(this, versionCheck).check();
         }
 
+        announceStackerMigration();
+
         getLogger().info("ClearLaggEnhanced is ready!");
+    }
+
+    private void announceStackerMigration() {
+        // Checks presence rather than enabled state, since the stackers may enable after us.
+        boolean stackerInstalled = getServer().getPluginManager().getPlugin("RoseStacker") != null
+                || getServer().getPluginManager().getPlugin("WildStacker") != null;
+        Level level = stackerInstalled ? Level.WARNING : Level.INFO;
+
+        getLogger().log(level, "======================================================");
+        getLogger().log(level, "Heads up: ClearLaggEnhanced is moving to its own built-in");
+        getLogger().log(level, "entity stacking feature. The RoseStacker and WildStacker");
+        getLogger().log(level, "integrations will be removed in a future update.");
+        if (stackerInstalled) {
+            getLogger().log(level, "");
+            getLogger().log(level, "A supported stacker is installed on this server. It keeps");
+            getLogger().log(level, "working for now; plan to switch once built-in stacking ships.");
+        }
+        getLogger().log(level, "======================================================");
     }
 
     private void silenceLoggers() {
