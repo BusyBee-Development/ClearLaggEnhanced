@@ -32,6 +32,8 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClearLaggEnhanced extends JavaPlugin {
 
@@ -95,9 +97,9 @@ public class ClearLaggEnhanced extends JavaPlugin {
                 "com.zaxxer.hikari.pool.PoolBase"
         };
 
-        java.util.logging.Level julLevel = java.util.logging.Level.SEVERE;
+        Level julLevel = Level.SEVERE;
         for (String loggerName : loggers) {
-            java.util.logging.Logger.getLogger(loggerName).setLevel(julLevel);
+            Logger.getLogger(loggerName).setLevel(julLevel);
         }
 
         try {

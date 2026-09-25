@@ -5,6 +5,10 @@ import net.busybee.clearlaggenhanced.gui.ModuleGUIRegistry;
 import net.busybee.clearlaggenhanced.gui.base.InventoryGUI;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class Module {
@@ -37,10 +41,10 @@ public abstract class Module {
     public void saveConfig() {
         if (config == null || plugin == null) return;
         try {
-            java.io.File modFolder = new java.io.File(new java.io.File(plugin.getDataFolder(), "module"), folderName);
-            java.io.File configFile = new java.io.File(modFolder, "config.yml");
+            File modFolder = new File(new File(plugin.getDataFolder(), "module"), folderName);
+            File configFile = new File(modFolder, "config.yml");
             config.save(configFile);
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             plugin.getLogger().severe("Failed to save config for module " + name + ": " + e.getMessage());
         }
     }
@@ -100,11 +104,11 @@ public abstract class Module {
         return config != null ? config.getString(path, def) : def;
     }
 
-    protected java.util.List<String> getStringList(String path) {
-        return config != null ? config.getStringList(path) : java.util.Collections.emptyList();
+    protected List<String> getStringList(String path) {
+        return config != null ? config.getStringList(path) : Collections.emptyList();
     }
 
-    protected java.util.List<Integer> getIntegerList(String path) {
-        return config != null ? config.getIntegerList(path) : java.util.Collections.emptyList();
+    protected List<Integer> getIntegerList(String path) {
+        return config != null ? config.getIntegerList(path) : Collections.emptyList();
     }
 }

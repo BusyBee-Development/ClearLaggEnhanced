@@ -8,6 +8,7 @@ import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernS
 import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DHook;
 import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DIntegration;
 import net.busybee.clearlaggenhanced.models.ProtectionSettings;
+import net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule;
 import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -51,7 +53,7 @@ public class EntityManager {
             }
 
             final ProtectionSettings settings;
-            if (module instanceof net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule ecModule) {
+            if (module instanceof EntityClearingModule ecModule) {
                 settings = ProtectionSettings.fromConfig(ecModule.getConfig(), ecModule.getEntitiesConfig());
             } else {
                 settings = ProtectionSettings.fromConfig(module.getConfig());
@@ -94,10 +96,11 @@ public class EntityManager {
             });
 
             try {
-                if (!chunkLatch.await(10, java.util.concurrent.TimeUnit.SECONDS)) {
+                if (!chunkLatch.await(10, TimeUnit.SECONDS)) {
                     plugin.getLogger().warning("Timed out while waiting for loaded chunks list from the main thread.");
                 }
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
 
             if (allChunks.isEmpty()) {
@@ -152,10 +155,11 @@ public class EntityManager {
             }
 
             try {
-                if (!latch.await(30, java.util.concurrent.TimeUnit.SECONDS)) {
+                if (!latch.await(30, TimeUnit.SECONDS)) {
                     plugin.getLogger().warning("Timed out while waiting for chunk clearing tasks to complete. Some chunks may not have been cleared.");
                 }
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
 
             final long tookMs = (System.nanoTime() - startNanos) / 1_000_000L;

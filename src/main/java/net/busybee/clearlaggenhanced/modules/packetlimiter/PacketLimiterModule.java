@@ -118,7 +118,6 @@ public class PacketLimiterModule extends Module {
                 blockedPlayers.remove(player.getUniqueId());
             }
         } else {
-            // Gradually reduce violations if they are behaving
             if (data.violations > 0 && Math.random() < 0.1) {
                 data.violations--;
             }

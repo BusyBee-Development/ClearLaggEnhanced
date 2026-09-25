@@ -10,14 +10,21 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class PerformanceManager {
+
+    private static final long SNAPSHOT_COOLDOWN_MS = 300_000L;
 
     private final ClearLaggEnhanced plugin;
     private final PluginScheduler scheduler;
@@ -80,8 +87,7 @@ public class PerformanceManager {
 
     public void updateEntityCount() {
         this.cachedTotalEntities = entityRegistry.getGlobalEntityCount();
-        
-        // Trigger lag snapshot if TPS is low
+
         if (getTPS() < 17.0) {
             takeSnapshot();
         }
@@ -97,24 +103,23 @@ public class PerformanceManager {
 
     public void takeSnapshot() {
         long now = System.currentTimeMillis();
-        // Limit snapshots to once every 5 minutes
-        if (now - lastSnapshot < 300_000) return;
+        if (now - lastSnapshot < SNAPSHOT_COOLDOWN_MS) return;
         lastSnapshot = now;
 
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("tps", String.format("%.2f", getTPS()));
         MessageUtils.broadcastPermissionMessage("performance.snapshot-triggered", placeholders, "CLE.performance.snapshot", true);
 
-        java.io.File snapshotsDir = new java.io.File(plugin.getDataFolder(), "snapshots");
+        File snapshotsDir = new File(plugin.getDataFolder(), "snapshots");
         if (!snapshotsDir.exists()) snapshotsDir.mkdirs();
 
-        String filename = "snapshot-" + new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new java.util.Date()) + ".txt";
-        java.io.File file = new java.io.File(snapshotsDir, filename);
+        String filename = "snapshot-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".txt";
+        File file = new File(snapshotsDir, filename);
 
-        try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(file))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
             writer.println("ClearLaggEnhanced Lag Snapshot");
             writer.println("==============================");
-            writer.println("Time: " + new java.util.Date());
+            writer.println("Time: " + new Date());
             writer.println("TPS: " + String.format("%.2f", getTPS()));
             writer.println("Memory: " + getFormattedMemoryUsage() + " (" + String.format("%.2f", getMemoryUsagePercentage()) + "%)");
             writer.println("Total Entities: " + getTotalEntities());
@@ -140,7 +145,7 @@ public class PerformanceManager {
             writer.println();
             writer.println("Entity Breakdown (Approximate):");
             writer.println("------------------------------");
-            Map<org.bukkit.entity.EntityType, Integer> typeCounts = new java.util.HashMap<>();
+            Map<EntityType, Integer> typeCounts = new HashMap<>();
             for (World world : Bukkit.getWorlds()) {
                 for (Entity entity : world.getEntities()) {
                     typeCounts.put(entity.getType(), typeCounts.getOrDefault(entity.getType(), 0) + 1);
@@ -154,7 +159,7 @@ public class PerformanceManager {
             Map<String, String> successPh = new HashMap<>();
             successPh.put("filename", filename);
             MessageUtils.broadcastPermissionMessage("performance.snapshot-saved", successPh, "CLE.performance.snapshot", true);
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             plugin.getLogger().severe("Failed to save lag snapshot: " + e.getMessage());
         }
     }

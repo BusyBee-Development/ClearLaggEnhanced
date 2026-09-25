@@ -11,7 +11,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MobLimiterGUI extends InventoryGUI {
     private final ClearLaggEnhanced plugin;
@@ -35,7 +37,7 @@ public class MobLimiterGUI extends InventoryGUI {
         
         setItem(13, createInfoItem(maxMobs), event -> {
             Player clicker = (Player) event.getWhoClicked();
-            java.util.Map<String, String> placeholders = new java.util.HashMap<>();
+            Map<String, String> placeholders = new HashMap<>();
             placeholders.put("type", "Global Mob Limit");
             MessageUtils.sendMessage(clicker, "gui.enter-value", placeholders);
             clicker.closeInventory();
@@ -50,7 +52,7 @@ public class MobLimiterGUI extends InventoryGUI {
                             module.getConfig().set("max-mobs-per-chunk", newVal);
                             module.saveConfig();
                             module.onReload();
-                            java.util.Map<String, String> successPlaceholders = new java.util.HashMap<>();
+                            Map<String, String> successPlaceholders = new HashMap<>();
                             successPlaceholders.put("type", "Global Mob Limit");
                             successPlaceholders.put("value", input);
                             MessageUtils.sendMessage(clicker, "gui.value-set", successPlaceholders);

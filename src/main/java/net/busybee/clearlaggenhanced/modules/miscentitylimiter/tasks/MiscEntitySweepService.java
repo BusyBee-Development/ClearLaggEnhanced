@@ -1,6 +1,7 @@
 package net.busybee.clearlaggenhanced.modules.miscentitylimiter.tasks;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
+import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import net.busybee.clearlaggenhanced.core.Module;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.busybee.clearlaggenhanced.utils.ChunkUtils;
@@ -175,7 +176,7 @@ public class MiscEntitySweepService {
 
     public void shutdown() {
         if (sweepTask != null) {
-            ClearLaggEnhanced.scheduler().cancelTask(sweepTask);
+            PluginScheduler.cancelTask(sweepTask);
             sweepTask = null;
         }
     }

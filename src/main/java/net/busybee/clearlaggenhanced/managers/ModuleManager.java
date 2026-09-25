@@ -8,6 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,7 +51,7 @@ public class ModuleManager {
     public void loadAll() {
         int enabledCount = 0;
         int disabledCount = 0;
-        for (Module module : new java.util.HashSet<>(modules.values())) {
+        for (Module module : new HashSet<>(modules.values())) {
             loadModule(module);
             if (module.isEnabled()) {
                 enabledCount++;
@@ -131,7 +132,7 @@ public class ModuleManager {
     }
 
     public void enableAll() {
-        for (Module module : new java.util.HashSet<>(modules.values())) {
+        for (Module module : new HashSet<>(modules.values())) {
             if (module.isEnabled()) {
                 module.onEnable();
             }
@@ -139,7 +140,7 @@ public class ModuleManager {
     }
 
     public void disableAll() {
-        for (Module module : new java.util.HashSet<>(modules.values())) {
+        for (Module module : new HashSet<>(modules.values())) {
             if (module.isEnabled()) {
                 try {
                     module.onDisable();
@@ -151,7 +152,7 @@ public class ModuleManager {
     }
 
     public void reloadAll() {
-        for (Module module : new java.util.HashSet<>(modules.values())) {
+        for (Module module : new HashSet<>(modules.values())) {
             loadModule(module);
         }
     }
@@ -221,7 +222,7 @@ public class ModuleManager {
         File configFile = new File(modFolder, "config.yml");
         try {
             config.save(configFile);
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             plugin.getLogger().warning("Failed to save cleaned config for " + module.getName());
         }
     }

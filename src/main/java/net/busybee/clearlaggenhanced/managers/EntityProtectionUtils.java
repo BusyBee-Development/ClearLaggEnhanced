@@ -3,6 +3,7 @@ package net.busybee.clearlaggenhanced.managers;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.models.ProtectionSettings;
+import net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule;
 import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernShowcaseHook;
 import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernShowcaseIntegration;
 import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DHook;
@@ -72,7 +73,7 @@ public class EntityProtectionUtils {
         }
 
         Module module = moduleManager.getModule("entity-clearing");
-        if (!(module instanceof net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule ecModule)) {
+        if (!(module instanceof EntityClearingModule ecModule)) {
             cachedSettings = ProtectionSettings.DEFAULTS;
             return;
         }

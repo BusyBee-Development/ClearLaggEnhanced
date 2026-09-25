@@ -19,8 +19,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class EntityClearingGUI extends InventoryGUI {
     private final ClearLaggEnhanced plugin;
@@ -337,7 +339,7 @@ public class EntityClearingGUI extends InventoryGUI {
 
         String[] entries = input.split(",");
         List<AdaptiveIntervalSettings.Tier> tiers = new ArrayList<>();
-        java.util.Set<Integer> seenThresholds = new java.util.HashSet<>();
+        Set<Integer> seenThresholds = new HashSet<>();
 
         for (String entry : entries) {
             String trimmedEntry = entry.trim();
@@ -419,7 +421,7 @@ public class EntityClearingGUI extends InventoryGUI {
 
     private void stopRefreshTask() {
         if (refreshTask != null) {
-            scheduler.cancelTask(refreshTask);
+            PluginScheduler.cancelTask(refreshTask);
             refreshTask = null;
         }
     }

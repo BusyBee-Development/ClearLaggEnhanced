@@ -42,7 +42,6 @@ public class SpawnerLimiterListener implements Listener {
             return false;
         }
 
-        // If the Mob Limiter is configured to ignore spawners, we shouldn't block spawns here based on the mob cap
         if (mobLimiterModule.getConfig().getBoolean("ignore-spawners", false)) {
             return false;
         }

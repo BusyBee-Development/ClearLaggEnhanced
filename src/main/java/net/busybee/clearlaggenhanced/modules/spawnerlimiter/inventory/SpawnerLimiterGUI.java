@@ -11,7 +11,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SpawnerLimiterGUI extends InventoryGUI {
     private final ClearLaggEnhanced plugin;
@@ -35,7 +37,7 @@ public class SpawnerLimiterGUI extends InventoryGUI {
         
         setItem(13, createMultiplierItem(multiplier), event -> {
             Player clicker = (Player) event.getWhoClicked();
-            java.util.Map<String, String> placeholders = new java.util.HashMap<>();
+            Map<String, String> placeholders = new HashMap<>();
             placeholders.put("type", "Spawn Delay Multiplier");
             MessageUtils.sendMessage(clicker, "gui.enter-value", placeholders);
             clicker.closeInventory();
@@ -50,7 +52,7 @@ public class SpawnerLimiterGUI extends InventoryGUI {
                             module.getConfig().set("spawn-delay-multiplier", newVal);
                             module.saveConfig();
                             module.onReload();
-                            java.util.Map<String, String> successPlaceholders = new java.util.HashMap<>();
+                            Map<String, String> successPlaceholders = new HashMap<>();
                             successPlaceholders.put("type", "Spawn Delay Multiplier");
                             successPlaceholders.put("value", input);
                             MessageUtils.sendMessage(clicker, "gui.value-set", successPlaceholders);

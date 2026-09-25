@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class AutoClearTask {
 
+    private static final long HEARTBEAT_STALE_NANOS = TimeUnit.SECONDS.toNanos(3);
+
     private final ClearLaggEnhanced plugin;
     private final EntityManager entityManager;
     private final NotificationManager notificationManager;
@@ -40,9 +42,7 @@ public class AutoClearTask {
     private volatile StatusSnapshot statusSnapshot;
     private volatile long thresholdBreachedSinceMillis = -1L;
     private volatile boolean averageTickTimeUnavailableLogged;
-    private boolean isFolia;
-    private static final long HEARTBEAT_STALE_NANOS = TimeUnit.SECONDS.toNanos(3);
-
+    private final boolean isFolia = PluginScheduler.isFolia();
     private ScheduledTask heartbeatTask;
     private volatile long lastHeartbeatNanos = System.nanoTime();
 
@@ -125,7 +125,7 @@ public class AutoClearTask {
     
     public void stop() {
         if (task != null) {
-            ClearLaggEnhanced.scheduler().cancelTask(task);
+            PluginScheduler.cancelTask(task);
             task = null;
         }
         if (heartbeatTask != null) {
@@ -275,12 +275,10 @@ public class AutoClearTask {
     }
 
     private @Nullable Method resolveAverageTickTimeMethod() {
-        try {
-            // Detect Folia - global MSPT is not supported
-            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-            this.isFolia = true;
+        if (isFolia) {
+            // Folia has no global MSPT.
             return null;
-        } catch (ClassNotFoundException ignored) {}
+        }
 
         try {
             return Bukkit.getServer().getClass().getMethod("getAverageTickTime");
