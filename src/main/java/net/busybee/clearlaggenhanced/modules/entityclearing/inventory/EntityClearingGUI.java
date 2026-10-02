@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,8 +76,7 @@ public class EntityClearingGUI extends InventoryGUI {
                             if (newVal < 10) {
                                 MessageUtils.sendMessage(clicker, "gui.interval-min", "min", "10");
                             } else {
-                                module.getConfig().set("interval", newVal);
-                                module.saveConfig();
+                                module.setConfigValue("interval", newVal);
                                 module.onReload(); // This refreshes the auto-clear task
                                 MessageUtils.sendMessage(clicker, "gui.interval-set", "interval", input);
                             }
@@ -123,8 +123,7 @@ public class EntityClearingGUI extends InventoryGUI {
                 AdaptiveIntervalSettings.Metric nextMetric = adaptiveMetric == AdaptiveIntervalSettings.Metric.ENTITY_COUNT
                         ? AdaptiveIntervalSettings.Metric.PLAYER_COUNT
                         : AdaptiveIntervalSettings.Metric.ENTITY_COUNT;
-                module.getConfig().set("adaptive-interval.metric", nextMetric.name());
-                module.saveConfig();
+                module.setConfigValue("adaptive-interval.metric", nextMetric.name());
                 module.onReload();
                 MessageUtils.sendMessage(clicker, "gui.adaptive-metric-set", "metric", nextMetric.name());
                 scheduler.runAtEntity(clicker, task ->
@@ -133,8 +132,7 @@ public class EntityClearingGUI extends InventoryGUI {
                 return;
             }
 
-            module.getConfig().set("adaptive-interval.enabled", !adaptiveIntervalEnabled);
-            module.saveConfig();
+            module.setConfigValue("adaptive-interval.enabled", !adaptiveIntervalEnabled);
             module.onReload();
             MessageUtils.sendMessage(clicker, "gui.adaptive-enabled-set", "state", (!adaptiveIntervalEnabled) ? "enabled" : "disabled");
             scheduler.runAtEntity(clicker, task ->
@@ -144,8 +142,7 @@ public class EntityClearingGUI extends InventoryGUI {
 
         setItem(14, createProtectionItem("Named Entities", protectNamed), event -> {
             Player clicker = (Player) event.getWhoClicked();
-            module.getConfig().set("protect-named-entities", !protectNamed);
-            module.saveConfig();
+            module.setConfigValue("protect-named-entities", !protectNamed);
             plugin.getEntityProtectionUtils().refreshSettingsCache();
             scheduler.runAtEntity(clicker, task ->
                 new EntityClearingGUI(plugin, module).open(clicker)
@@ -154,8 +151,7 @@ public class EntityClearingGUI extends InventoryGUI {
 
         setItem(16, createProtectionItem("Tamed Entities", protectTamed), event -> {
             Player clicker = (Player) event.getWhoClicked();
-            module.getConfig().set("protect-tamed-entities", !protectTamed);
-            module.saveConfig();
+            module.setConfigValue("protect-tamed-entities", !protectTamed);
             plugin.getEntityProtectionUtils().refreshSettingsCache();
             scheduler.runAtEntity(clicker, task ->
                 new EntityClearingGUI(plugin, module).open(clicker)
@@ -164,8 +160,7 @@ public class EntityClearingGUI extends InventoryGUI {
 
         setItem(20, createProtectionItem("Stacked Entities", protectStacked), event -> {
             Player clicker = (Player) event.getWhoClicked();
-            module.getConfig().set("protect-stacked-entities", !protectStacked);
-            module.saveConfig();
+            module.setConfigValue("protect-stacked-entities", !protectStacked);
             plugin.getEntityProtectionUtils().refreshSettingsCache();
             scheduler.runAtEntity(clicker, task ->
                 new EntityClearingGUI(plugin, module).open(clicker)
@@ -387,13 +382,13 @@ public class EntityClearingGUI extends InventoryGUI {
     private void saveAdaptiveTiers(List<AdaptiveIntervalSettings.Tier> tiers) {
         List<Map<String, Object>> serializedTiers = new ArrayList<>();
         for (AdaptiveIntervalSettings.Tier tier : tiers) {
-            serializedTiers.add(Map.of(
-                    "threshold", tier.threshold(),
-                    "interval", tier.interval()
-            ));
+            // Insertion-ordered so the file keeps threshold before interval.
+            Map<String, Object> serializedTier = new LinkedHashMap<>();
+            serializedTier.put("threshold", tier.threshold());
+            serializedTier.put("interval", tier.interval());
+            serializedTiers.add(serializedTier);
         }
-        module.getConfig().set("adaptive-interval.tiers", serializedTiers);
-        module.saveConfig();
+        module.setConfigValue("adaptive-interval.tiers", serializedTiers);
     }
 
     private Integer parseInt(Object value) {

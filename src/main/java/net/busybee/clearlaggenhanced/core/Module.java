@@ -1,12 +1,12 @@
 package net.busybee.clearlaggenhanced.core;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
+import net.busybee.clearlaggenhanced.core.updater.ConfigFiles;
 import net.busybee.clearlaggenhanced.gui.ModuleGUIRegistry;
 import net.busybee.clearlaggenhanced.gui.base.InventoryGUI;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -18,6 +18,10 @@ public abstract class Module {
     private FileConfiguration config;
     private FileConfiguration guiConfig;
     private boolean enabled;
+    // False when neither config.yml nor a last working copy of it could be read; the module then holds packaged defaults.
+    private boolean configValid = true;
+    // True when config.yml has a mistake and the module holds its last working copy instead.
+    private boolean configOnWorkingCopy;
     private ModuleGUIRegistry guiRegistry;
 
     public Module(String name, String folderName) {
@@ -38,15 +42,13 @@ public abstract class Module {
         this.plugin = plugin;
     }
 
-    public void saveConfig() {
+    // Changes one setting and writes only that key to config.yml, leaving the rest of the owner's file as it is.
+    public void setConfigValue(String path, Object value) {
         if (config == null || plugin == null) return;
-        try {
-            File modFolder = new File(new File(plugin.getDataFolder(), "module"), folderName);
-            File configFile = new File(modFolder, "config.yml");
-            config.save(configFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("Failed to save config for module " + name + ": " + e.getMessage());
-        }
+        config.set(path, value);
+
+        File modFolder = new File(new File(plugin.getDataFolder(), "module"), folderName);
+        ConfigFiles.setValue(plugin, new File(modFolder, "config.yml"), path, value);
     }
 
     protected void registerGUI(String moduleId, String displayName, String iconMaterial, Supplier<InventoryGUI> guiSupplier) {
@@ -84,6 +86,24 @@ public abstract class Module {
     }
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+    public boolean isConfigValid() {
+        return configValid;
+    }
+    public void setConfigValid(boolean configValid) {
+        this.configValid = configValid;
+    }
+    public boolean isConfigOnWorkingCopy() {
+        return configOnWorkingCopy;
+    }
+    public void setConfigOnWorkingCopy(boolean configOnWorkingCopy) {
+        this.configOnWorkingCopy = configOnWorkingCopy;
+    }
+
+    // Whether the module may run on packaged defaults when the owner's settings cannot be read.
+    // Modules that remove existing entities say no: their defaults could take what the owner protects.
+    public boolean canRunOnDefaults() {
+        return true;
     }
 
     public boolean isAvailable() {

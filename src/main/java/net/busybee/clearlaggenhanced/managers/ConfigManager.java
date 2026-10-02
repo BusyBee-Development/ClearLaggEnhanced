@@ -1,14 +1,12 @@
 package net.busybee.clearlaggenhanced.managers;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
-import net.busybee.clearlaggenhanced.core.updater.ConfigMigrator;
+import net.busybee.clearlaggenhanced.core.updater.ConfigFiles;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.*;
 
 public class ConfigManager {
 
@@ -23,20 +21,11 @@ public class ConfigManager {
     }
 
     public void reload() {
-        try {
-            ConfigMigrator migrator = new ConfigMigrator(plugin);
-            config = migrator.migrate("config.yml");
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to migrate config.yml: " + e.getMessage());
-            e.printStackTrace();
-            config = null;
+        ConfigFiles.Loaded loaded = ConfigFiles.load(plugin, "config.yml", configFile);
+        if (!loaded.valid()) {
+            plugin.getLogger().severe("config.yml has no earlier working copy to fall back on, so the default module toggles and database settings are used until it is fixed.");
         }
-
-        if (config == null) {
-            plugin.saveDefaultConfig();
-            plugin.reloadConfig();
-            config = plugin.getConfig();
-        }
+        config = loaded.config();
     }
 
     public boolean getBoolean(@NotNull String path, boolean defaultValue) {
@@ -49,22 +38,12 @@ public class ConfigManager {
     public int getInt(@NotNull String path, int defaultValue) {
         return config.getInt(path, defaultValue);
     }
-    public void set(@NotNull String path, @NotNull Object value) {
+    // Changes one setting and writes only that key to config.yml, leaving the rest of the owner's file as it is.
+    public void setValue(@NotNull String path, @NotNull Object value) {
         config.set(path, value);
+        ConfigFiles.setValue(plugin, configFile, path, value);
     }
     public boolean contains(@NotNull String path) {
         return config != null && config.contains(path);
-    }
-
-    public void save() {
-        if (config == null) {
-            return;
-        }
-
-        try {
-            config.save(configFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("Failed to save config.yml: " + e.getMessage());
-        }
     }
 }

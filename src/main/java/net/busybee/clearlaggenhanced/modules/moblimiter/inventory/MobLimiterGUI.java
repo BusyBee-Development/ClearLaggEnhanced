@@ -49,8 +49,7 @@ public class MobLimiterGUI extends InventoryGUI {
                         if (newVal < 1) {
                             MessageUtils.sendMessage(clicker, "gui.invalid-number");
                         } else {
-                            module.getConfig().set("max-mobs-per-chunk", newVal);
-                            module.saveConfig();
+                            module.setConfigValue("max-mobs-per-chunk", newVal);
                             module.onReload();
                             Map<String, String> successPlaceholders = new HashMap<>();
                             successPlaceholders.put("type", "Global Mob Limit");

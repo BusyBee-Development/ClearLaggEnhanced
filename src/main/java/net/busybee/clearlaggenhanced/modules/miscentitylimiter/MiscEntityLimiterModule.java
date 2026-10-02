@@ -43,6 +43,11 @@ public class MiscEntityLimiterModule extends Module {
     }
 
     @Override
+    public boolean canRunOnDefaults() {
+        return false;
+    }
+
+    @Override
     public void onReload() {
         onDisable();
         onEnable();

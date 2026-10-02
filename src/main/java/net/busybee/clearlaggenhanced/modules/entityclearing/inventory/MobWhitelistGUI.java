@@ -105,8 +105,7 @@ public class MobWhitelistGUI extends InventoryGUI {
                         List<String> whitelist = module.getConfig().getStringList(configPath);
                         if (!whitelist.contains(technicalName)) {
                             whitelist.add(technicalName);
-                            module.getConfig().set(configPath, whitelist);
-                            module.saveConfig();
+                            module.setConfigValue(configPath, whitelist);
                             plugin.getEntityProtectionUtils().refreshSettingsCache();
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully added &f" + technicalName + " &ato the whitelist!"));
                         } else {
@@ -184,7 +183,6 @@ public class MobWhitelistGUI extends InventoryGUI {
             setItem(i - start, createItemIcon(name, isWhitelisted(name)), event -> {
                 boolean nowWhitelisted = toggleWhitelist(name);
                 XSound.BLOCK_NOTE_BLOCK_PLING.play(player, 1.0f, nowWhitelisted ? 2.0f : 0.5f);
-                module.saveConfig();
                 plugin.getEntityProtectionUtils().refreshSettingsCache();
                 decorate(player);
             });
@@ -206,7 +204,7 @@ public class MobWhitelistGUI extends InventoryGUI {
         if (!isWhitelisted(name)) {
             List<String> entries = module.getConfig().getStringList(primaryPath);
             entries.add(name);
-            module.getConfig().set(primaryPath, entries);
+            module.setConfigValue(primaryPath, entries);
             return true;
         }
 
@@ -221,8 +219,9 @@ public class MobWhitelistGUI extends InventoryGUI {
 
     private void removeEntries(String configPath, Set<String> names) {
         List<String> entries = module.getConfig().getStringList(configPath);
-        entries.removeIf(entry -> entry != null && names.contains(entry.trim().toUpperCase(Locale.ROOT)));
-        module.getConfig().set(configPath, entries);
+        if (entries.removeIf(entry -> entry != null && names.contains(entry.trim().toUpperCase(Locale.ROOT)))) {
+            module.setConfigValue(configPath, entries);
+        }
     }
 
     private ItemStack createItemIcon(String name, boolean whitelisted) {

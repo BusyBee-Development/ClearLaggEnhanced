@@ -34,6 +34,7 @@ public class MiscEntitySweepService {
     private final Set<String> protectedTags = new HashSet<>();
     private final List<ChunkRef> pendingChunks = new ArrayList<>();
     private int chunkCursor;
+    private boolean warnedSettingsOutOfDate;
 
     public MiscEntitySweepService(@NotNull ClearLaggEnhanced plugin, @NotNull Module module) {
         this.plugin = plugin;
@@ -66,7 +67,7 @@ public class MiscEntitySweepService {
     }
 
     private void runSweepTick() {
-        if (caps.isEmpty()) {
+        if (caps.isEmpty() || settingsOutOfDate()) {
             return;
         }
 
@@ -98,6 +99,31 @@ public class MiscEntitySweepService {
             pendingChunks.clear();
             chunkCursor = 0;
         }
+    }
+
+    // The sweep removes entities on its own, so it holds while the caps or the Entity Clearing
+    // whitelist it works from are not what the owner's files currently say.
+    private boolean settingsOutOfDate() {
+        String brokenFile = null;
+        if (module.isConfigOnWorkingCopy()) {
+            brokenFile = "module/" + module.getFolderName() + "/config.yml";
+        } else {
+            ModuleManager moduleManager = plugin.getModuleManager();
+            Module clearingModule = moduleManager == null ? null : moduleManager.getModule("entity-clearing");
+            if (clearingModule != null && (!clearingModule.isConfigValid() || clearingModule.isConfigOnWorkingCopy())) {
+                brokenFile = "module/entity-clearing/config.yml";
+            }
+        }
+
+        if (brokenFile == null) {
+            return false;
+        }
+
+        if (!warnedSettingsOutOfDate) {
+            warnedSettingsOutOfDate = true;
+            plugin.getLogger().severe("Misc Entity Limiter sweep is on hold until " + brokenFile + " is fixed and /lagg reload is run. Caps still block new placements.");
+        }
+        return true;
     }
 
     private void rebuildPendingChunks() {

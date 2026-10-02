@@ -70,7 +70,14 @@ public class EntityClearingModule extends Module {
                 performanceGateSettings,
                 getStringList("worlds")
         );
-        autoClearTask.start();
+
+        // The whitelist in memory is the last working copy, which lacks whatever the owner was
+        // adding when the mistake went in, so nothing is cleared without someone asking for it.
+        if (isConfigOnWorkingCopy()) {
+            plugin.getLogger().severe("Automatic entity clearing is on hold until module/entity-clearing/config.yml is fixed and /lagg reload is run. /lagg clear still works.");
+        } else {
+            autoClearTask.start();
+        }
 
         if (getBoolean("extra-protections.mobs-from-breeding", true)) {
             breedingListener = new BreedingListener(plugin);
@@ -144,6 +151,11 @@ public class EntityClearingModule extends Module {
     public void onReload() {
         onDisable();
         onEnable();
+    }
+
+    @Override
+    public boolean canRunOnDefaults() {
+        return false;
     }
     
     public long getTimeUntilNextClear() {

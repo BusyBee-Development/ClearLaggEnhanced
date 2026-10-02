@@ -1,6 +1,7 @@
 package net.busybee.clearlaggenhanced;
 
 import net.busybee.clearlaggenhanced.commands.LaggCommand;
+import net.busybee.clearlaggenhanced.core.updater.ConfigFiles;
 import net.busybee.clearlaggenhanced.core.updater.FoliaUpdateNotifier;
 import net.busybee.clearlaggenhanced.core.updater.VersionCheck;
 import net.busybee.clearlaggenhanced.database.DatabaseSettings;
@@ -26,6 +27,8 @@ import net.busybee.clearlaggenhanced.utils.MessageUtils;
 import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import net.busybee.clearlaggenhanced.libs.fastinv.FastInvManager;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.HandlerList;
@@ -244,7 +247,16 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
         if (sender != null) {
             MessageUtils.sendMessage(sender, "notifications.reload-complete");
+            warnAboutUnreadableFiles(sender);
         }
+    }
+
+    // Plain text on purpose: messages.yml may be one of the files that failed to load.
+    private void warnAboutUnreadableFiles(CommandSender sender) {
+        ConfigFiles.unreadableFiles().forEach((file, hasWorkingCopy) -> sender.sendMessage(Component.text(
+                file + " has a YAML mistake and was not loaded. "
+                        + (hasWorkingCopy ? "It is running on its last working copy" : "It has no working copy to fall back on")
+                        + "; see the console for the line to fix.", NamedTextColor.RED)));
     }
 
     private void registerCommands() {

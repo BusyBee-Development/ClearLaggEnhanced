@@ -3,12 +3,10 @@ package net.busybee.clearlaggenhanced.managers;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.gui.ModuleGUIRegistry;
-import net.busybee.clearlaggenhanced.core.updater.ConfigMigrator;
+import net.busybee.clearlaggenhanced.core.updater.ConfigFiles;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,14 +70,28 @@ public class ModuleManager {
             removeUnusedModuleFolder(module, modFolder);
         }
 
-        FileConfiguration config = loadModuleConfig(module, "config.yml");
-        FileConfiguration guiConfig = loadModuleConfig(module, "inventory_gui.yml");
+        ConfigFiles.Loaded config = loadModuleConfig(module, "config.yml");
+        ConfigFiles.Loaded guiConfig = loadModuleConfig(module, "inventory_gui.yml");
 
-        module.setConfig(config);
-        module.setGuiConfig(guiConfig);
-        warnIfLegacyEnabledKeyPresent(module, config);
+        module.setConfig(config.config());
+        module.setConfigValid(config.valid());
+        module.setConfigOnWorkingCopy(config.onWorkingCopy());
+        module.setGuiConfig(guiConfig.config());
+        warnIfLegacyEnabledKeyPresent(module, config.config());
 
         boolean enabled = resolveEnabledState(module);
+        if (enabled && !module.isConfigValid()) {
+            String configPath = "module/" + module.getFolderName() + "/config.yml";
+            if (module.canRunOnDefaults()) {
+                plugin.getLogger().severe("Module " + module.getName() + " runs on its default settings because "
+                        + configPath + " has no earlier working copy to fall back on. Fix the file and run /lagg reload.");
+            } else {
+                // Its defaults could remove things the owner's file protects.
+                plugin.getLogger().severe("Module " + module.getName() + " was NOT started because " + configPath
+                        + " has no earlier working copy to fall back on. Fix the file and run /lagg reload.");
+                enabled = false;
+            }
+        }
         module.setEnabled(enabled);
 
         if (enabled) {
@@ -115,20 +127,12 @@ public class ModuleManager {
         }
     }
 
-    private FileConfiguration loadModuleConfig(Module module, String fileName) {
+    private ConfigFiles.Loaded loadModuleConfig(Module module, String fileName) {
         File modFolder = new File(moduleFolder, module.getFolderName());
         File configFile = new File(modFolder, fileName);
         String resourcePath = "module/" + module.getFolderName() + "/" + fileName;
 
-        if (plugin.getResource(resourcePath) == null) {
-            if (configFile.exists()) {
-                return YamlConfiguration.loadConfiguration(configFile);
-            }
-            return new YamlConfiguration();
-        }
-
-        ConfigMigrator migrator = new ConfigMigrator(plugin);
-        return migrator.migrate(resourcePath, configFile);
+        return ConfigFiles.load(plugin, resourcePath, configFile);
     }
 
     public void enableAll() {
@@ -159,6 +163,12 @@ public class ModuleManager {
 
     public void setModuleEnabled(Module module, boolean enabled) {
         if (module == null) {
+            return;
+        }
+
+        if (enabled && !module.isConfigValid() && !module.canRunOnDefaults()) {
+            plugin.getLogger().warning("Module " + module.getName() + " cannot be enabled until module/"
+                    + module.getFolderName() + "/config.yml is fixed and /lagg reload is run.");
             return;
         }
 
@@ -196,8 +206,7 @@ public class ModuleManager {
     private void syncEnabledState(Module module, boolean enabled) {
         String togglePath = getModuleTogglePath(module);
         if (!configManager.contains(togglePath) || configManager.getBoolean(togglePath) != enabled) {
-            configManager.set(togglePath, enabled);
-            configManager.save();
+            configManager.setValue(togglePath, enabled);
         }
     }
 
@@ -206,7 +215,7 @@ public class ModuleManager {
     }
 
         private void warnIfLegacyEnabledKeyPresent(Module module, FileConfiguration config) {
-        if (config == null || !config.contains("enabled")) {
+        if (config == null || !module.isConfigValid() || !config.contains("enabled")) {
             return;
         }
 
@@ -217,12 +226,10 @@ public class ModuleManager {
 
         plugin.getLogger().info("Migrating legacy 'enabled' key in module/" + module.getFolderName() + "/config.yml to main config.yml...");
         config.set("enabled", null);
-        
+
         File modFolder = new File(moduleFolder, module.getFolderName());
         File configFile = new File(modFolder, "config.yml");
-        try {
-            config.save(configFile);
-        } catch (IOException e) {
+        if (!ConfigFiles.removeKey(plugin, configFile, "enabled")) {
             plugin.getLogger().warning("Failed to save cleaned config for " + module.getName());
         }
     }

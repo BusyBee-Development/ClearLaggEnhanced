@@ -49,8 +49,7 @@ public class SpawnerLimiterGUI extends InventoryGUI {
                         if (newVal < 0) {
                             MessageUtils.sendMessage(clicker, "gui.invalid-double");
                         } else {
-                            module.getConfig().set("spawn-delay-multiplier", newVal);
-                            module.saveConfig();
+                            module.setConfigValue("spawn-delay-multiplier", newVal);
                             module.onReload();
                             Map<String, String> successPlaceholders = new HashMap<>();
                             successPlaceholders.put("type", "Spawn Delay Multiplier");

@@ -24,6 +24,15 @@ stacker plugin for the stacker integrations, etc.) that isn't installed, the mod
 "on" in config but the Admin GUI will still show it as unavailable via the dependency-missing
 warning in its lore. Install the dependency first.
 
+## My config edit didn't take effect
+
+Check the console for `<file> is not valid YAML and was NOT loaded`, followed by the line and
+column of the mistake. Your file is left exactly as it is and the plugin keeps running on the last
+working copy of it, so nothing is switched off, but none of your edits since then apply. Fix the
+mistake (most often text that needs double quotes, or a line with the wrong indentation) and run
+`/lagg reload`. See
+[Installation → If a file has a YAML mistake](../getting-started/installation.md#if-a-file-has-a-yaml-mistake).
+
 ## Config values reverted after an update
 
 They shouldn't — the migrator preserves every value you've set and only adds genuinely new keys.

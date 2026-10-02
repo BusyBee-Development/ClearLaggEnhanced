@@ -1,14 +1,13 @@
 package net.busybee.clearlaggenhanced.managers;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
-import net.busybee.clearlaggenhanced.core.updater.ConfigMigrator;
+import net.busybee.clearlaggenhanced.core.updater.ConfigFiles;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,22 +37,11 @@ public class MessageManager {
     }
 
     private void loadMessages() {
-        try {
-            ConfigMigrator migrator = new ConfigMigrator(plugin);
-            messages = migrator.migrate("messages.yml");
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to migrate messages.yml: " + e.getMessage());
-            e.printStackTrace();
-            messages = null;
+        ConfigFiles.Loaded loaded = ConfigFiles.load(plugin, "messages.yml", new File(plugin.getDataFolder(), "messages.yml"));
+        if (!loaded.valid()) {
+            plugin.getLogger().warning("The default messages are used until messages.yml is fixed.");
         }
-
-        if (messages == null) {
-            File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
-            if (!messagesFile.exists()) {
-                plugin.saveResource("messages.yml", false);
-            }
-            messages = YamlConfiguration.loadConfiguration(messagesFile);
-        }
+        messages = loaded.config();
     }
 
     public FileConfiguration getConfig() {
