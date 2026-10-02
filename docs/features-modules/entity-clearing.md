@@ -155,10 +155,14 @@ change needed. The [Misc Entity Limiter](misc-entity-limiter.md) honours the sam
 
 When `mythic-mobs` or `infernal-mobs` is `false`, that plugin's mobs are cleared like normal mobs,
 with two differences. Their custom names don't count for `protect-named-entities`, because those
-plugins name their own mobs. Type-based rules (`whitelist`, `protect-passive-mobs`,
-`whitelist-all-mobs`) don't apply to them either. Protections that show a player owns the mob still
-apply: tamed, leashed, ridden, saddled, in a boat or minecart, bred, or tagged. So a player's
-tamed MythicMobs pet is kept even with `mythic-mobs: false`.
+plugins name their own mobs. The broad toggles (`protect-passive-mobs`, `whitelist-all-mobs`) don't
+apply to them either. Protections that show a player owns the mob still apply: tamed, leashed,
+ridden, saddled, in a boat or minecart, bred, or tagged. So a player's tamed MythicMobs pet is kept
+even with `mythic-mobs: false`.
+
+The `whitelist` always applies. A MythicMobs or InfernalMobs mob whose entity type is on the
+`whitelist` is kept whatever these toggles say, so take a type off the whitelist if you want that
+plugin's mobs of that type cleared.
 
 ## Worlds, whitelist, item whitelist
 
@@ -186,11 +190,19 @@ item-whitelist:
   world names.
 - `whitelist` — entity type names (Bukkit `EntityType`) that are never cleared, regardless of any
   other setting. Villagers, golems, and all Display-entity types are protected by default.
-  Entries are matched against exact `EntityType` names, so the plugin logs a warning on startup
-  listing any entry it doesn't recognise (a typo such as `FURNANCE_MINECART`, or a mob that doesn't
-  exist on your server version). Those entries protect nothing until fixed.
+  Names from older server versions are accepted too (`MINECART_CHEST` for `CHEST_MINECART`,
+  `MUSHROOM_COW` for `MOOSHROOM`, `BOAT` for every boat type, and so on).
 - `item-whitelist` — dropped-item `Material` names that are never cleared even if the `Item`
   entity itself would otherwise be eligible.
+
+Some things exist both as a placed entity and as an item: armor stands, item frames, paintings,
+minecarts, boats, end crystals, tridents. Whitelisting one of those in either list keeps both the
+placed entity and the dropped item. This does not extend to mobs: `COD` on the `whitelist` protects
+the fish, not dropped raw cod, and `COD` on the `item-whitelist` protects only the item.
+
+The plugin logs a warning on startup listing any entry in either list that is neither an entity
+type nor a material on your server version (a typo such as `FURNANCE_MINECART`). Those entries
+protect nothing until fixed.
 
 See [Materials](../materials.md) for help finding the right enum names.
 

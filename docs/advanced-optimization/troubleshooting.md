@@ -55,8 +55,8 @@ Work through this order:
 4. If you're relying on `extra-protections.mythic-mobs` or `.infernal-mobs`: these ARE verified
    against those plugins' actual metadata conventions, so if protection isn't working, double-check
    the toggle is `true` and the mob was actually spawned by that plugin (not a vanilla mob that
-   happens to look similar). With the toggle `false`, name tags and the `whitelist` don't protect
-   those plugins' mobs; see [MythicMobs and InfernalMobs mobs](../features-modules/entity-clearing.md#mythicmobs-and-infernalmobs-mobs).
+   happens to look similar). With the toggle `false`, name tags don't protect those plugins' mobs,
+   though the `whitelist` still does; see [MythicMobs and InfernalMobs mobs](../features-modules/entity-clearing.md#mythicmobs-and-infernalmobs-mobs).
 5. `protect-stacked-entities` only works if a [stacker plugin integration](../integrations/stacker-plugins.md)
    is installed, enabled, and actually reports the entity as stacked (stack size > 1) at clear time.
 

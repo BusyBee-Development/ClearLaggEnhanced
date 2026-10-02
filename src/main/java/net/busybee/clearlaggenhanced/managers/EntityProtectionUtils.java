@@ -116,8 +116,9 @@ public class EntityProtectionUtils {
             }
 
             // With their toggle off, plugin mobs still fall through so player-ownership checks
-            // (tamed, leashed, ridden, ...) apply; only the name and type-based checks are skipped,
-            // since these plugins give their mobs custom names of their own.
+            // (tamed, leashed, ridden, ...) and the explicit whitelist apply; only the name check and
+            // the broad passive/all-mobs toggles are skipped, since these plugins give their mobs
+            // custom names of their own.
             boolean unprotectedPluginMob = false;
             if (isMythicMob(entity)) {
                 if (settings.mythicMobs()) return true;
@@ -194,19 +195,13 @@ public class EntityProtectionUtils {
                 if (hasArmor(living)) return true;
             }
 
-            if (checkWhitelist && !unprotectedPluginMob) {
-                String typeName = entity.getType().name();
-                if (settings.whitelist().contains(typeName)) return true;
+            if (checkWhitelist) {
+                // An explicit whitelist entry always wins, plugin mobs included. The set already
+                // holds each entry under every name it has across versions (LEASH_HITCH/LEASH_KNOT, ...).
+                if (settings.whitelist().contains(entity.getType().name())) return true;
 
                 // Type-based like the whitelist, so the mob limiter (checkWhitelist=false) still counts these.
-                if (settings.protectPassiveMobs() && isPeacefulMob(entity)) return true;
-
-                // Special handling for leash knots and hitching posts (compatibility)
-                if (typeName.equals("LEASH_KNOT") || typeName.equals("LEASH_HITCH")) {
-                    if (settings.whitelist().contains("LEASH_KNOT") || settings.whitelist().contains("LEASH_HITCH")) {
-                        return true;
-                    }
-                }
+                if (!unprotectedPluginMob && settings.protectPassiveMobs() && isPeacefulMob(entity)) return true;
             }
 
             if (entity instanceof Item item) {

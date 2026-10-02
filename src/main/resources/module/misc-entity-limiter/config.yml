@@ -15,6 +15,8 @@ limits-per-chunk:
   LEASH_HITCH: -1
   PAINTING: 5
 
+# While the Entity Clearing module is enabled, the sweep also skips everything that module
+# protects (its whitelist, tamed, leashed, bred, claimed mobs, ...). Caps still block new placements.
 protect:
   named: true
   citizens: true

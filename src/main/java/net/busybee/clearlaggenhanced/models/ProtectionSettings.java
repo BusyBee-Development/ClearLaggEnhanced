@@ -1,6 +1,9 @@
 package net.busybee.clearlaggenhanced.models;
 
+import net.busybee.clearlaggenhanced.utils.EntityTypeNames;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -68,6 +71,9 @@ public record ProtectionSettings(
     );
 
     public static @NotNull ProtectionSettings fromConfig(@NotNull ConfigurationSection mainConfig, @NotNull ConfigurationSection entitiesConfig) {
+        Set<String> entityEntries = normalizeExactValues(mainConfig.getStringList("whitelist"), true);
+        Set<String> itemEntries = normalizeExactValues(mainConfig.getStringList("item-whitelist"), true);
+
         return new ProtectionSettings(
             mainConfig.getBoolean("protect-named-entities", true),
             mainConfig.getBoolean("protect-persistent-named-only", false),
@@ -94,9 +100,47 @@ public record ProtectionSettings(
             mainConfig.getBoolean("extra-protections.nexo", true),
             mainConfig.getBoolean("extra-protections.items-adder", true),
             normalizeExactValues(mainConfig.getStringList("extra-protections.protected-entity-tags"), false),
-            normalizeExactValues(mainConfig.getStringList("whitelist"), true),
-            normalizeExactValues(mainConfig.getStringList("item-whitelist"), true)
+            resolveEntityWhitelist(entityEntries, itemEntries),
+            resolveItemWhitelist(entityEntries, itemEntries)
         );
+    }
+
+    // Entity type names to protect: every whitelist entry under all the names it has across server
+    // versions, plus item-whitelist entries that can only mean an entity (not a material, or a
+    // non-mob entity such as ARMOR_STAND that shares its name with its item).
+    private static @NotNull Set<String> resolveEntityWhitelist(@NotNull Set<String> entityEntries, @NotNull Set<String> itemEntries) {
+        Set<String> resolved = new HashSet<>();
+        for (String entry : entityEntries) {
+            resolved.addAll(EntityTypeNames.expand(entry));
+        }
+
+        for (String entry : itemEntries) {
+            EntityType type = EntityTypeNames.resolve(entry);
+            if (type != null && (!EntityTypeNames.isMob(type) || Material.getMaterial(entry) == null)) {
+                resolved.addAll(EntityTypeNames.expand(entry));
+            }
+        }
+
+        return Set.copyOf(resolved);
+    }
+
+    // Material names to protect as dropped items: the item-whitelist, plus whitelist entries that
+    // name a material and no mob (TRIDENT, ARMOR_STAND, MINECART, ...), so whitelisting one of those
+    // in either list keeps both the placed entity and its dropped item.
+    private static @NotNull Set<String> resolveItemWhitelist(@NotNull Set<String> entityEntries, @NotNull Set<String> itemEntries) {
+        Set<String> resolved = new HashSet<>(itemEntries);
+        for (String entry : entityEntries) {
+            if (Material.getMaterial(entry) == null) {
+                continue;
+            }
+
+            EntityType type = EntityTypeNames.resolve(entry);
+            if (type == null || !EntityTypeNames.isMob(type)) {
+                resolved.add(entry);
+            }
+        }
+
+        return Set.copyOf(resolved);
     }
 
     public static @NotNull ProtectionSettings fromConfig(@NotNull ConfigurationSection config) {

@@ -4,7 +4,9 @@ import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.gui.base.InventoryGUI;
+import net.busybee.clearlaggenhanced.models.ProtectionSettings;
 import net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule;
+import net.busybee.clearlaggenhanced.utils.EntityTypeNames;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -86,13 +88,10 @@ public class MobWhitelistGUI extends InventoryGUI {
                     boolean isValid = false;
                     String configPath = "";
 
-                    try {
-                        EntityType type = EntityType.valueOf(technicalName);
-                        if (type != EntityType.UNKNOWN) {
-                            isValid = true;
-                            configPath = "whitelist";
-                        }
-                    } catch (Exception ignored) {}
+                    if (EntityTypeNames.resolve(technicalName) != null) {
+                        isValid = true;
+                        configPath = "whitelist";
+                    }
 
                     if (!isValid) {
                         Material mat = Material.matchMaterial(technicalName);
@@ -179,36 +178,51 @@ public class MobWhitelistGUI extends InventoryGUI {
     }
 
     private void decorateEntries(Player player, int start, int end) {
-        List<String> entityWhitelist = module.getConfig().getStringList("whitelist");
-        List<String> itemWhitelist = module.getConfig().getStringList("item-whitelist");
-
         for (int i = start; i < end; i++) {
             String name = allItems.get(i);
-            
-            boolean isEntity = false;
-            try { 
-                EntityType type = EntityType.valueOf(name); 
-                if (type != EntityType.UNKNOWN) isEntity = true;
-            } catch (Exception ignored) {}
-            
-            String configPath = isEntity ? "whitelist" : "item-whitelist";
-            boolean isWhitelisted = (isEntity ? entityWhitelist : itemWhitelist).contains(name);
-            
-            setItem(i - start, createItemIcon(name, isWhitelisted), event -> {
-                List<String> currentWhitelist = module.getConfig().getStringList(configPath);
-                if (currentWhitelist.contains(name)) {
-                    currentWhitelist.remove(name);
-                    XSound.BLOCK_NOTE_BLOCK_PLING.play(player, 1.0f, 0.5f);
-                } else {
-                    currentWhitelist.add(name);
-                    XSound.BLOCK_NOTE_BLOCK_PLING.play(player, 1.0f, 2.0f);
-                }
-                module.getConfig().set(configPath, currentWhitelist);
+
+            setItem(i - start, createItemIcon(name, isWhitelisted(name)), event -> {
+                boolean nowWhitelisted = toggleWhitelist(name);
+                XSound.BLOCK_NOTE_BLOCK_PLING.play(player, 1.0f, nowWhitelisted ? 2.0f : 0.5f);
                 module.saveConfig();
                 plugin.getEntityProtectionUtils().refreshSettingsCache();
                 decorate(player);
             });
         }
+    }
+
+    // Asks the same resolved lists the clear uses, so the menu never shows an entry as whitelisted
+    // when it would be cleared (or the other way round).
+    private boolean isWhitelisted(String name) {
+        ProtectionSettings settings = ProtectionSettings.fromConfig(module.getConfig(), module.getEntitiesConfig());
+        EntityType type = EntityTypeNames.resolve(name);
+        return type != null ? settings.whitelist().contains(type.name()) : settings.itemWhitelist().contains(name);
+    }
+
+    private boolean toggleWhitelist(String name) {
+        boolean entity = EntityTypeNames.resolve(name) != null;
+        String primaryPath = entity ? "whitelist" : "item-whitelist";
+
+        if (!isWhitelisted(name)) {
+            List<String> entries = module.getConfig().getStringList(primaryPath);
+            entries.add(name);
+            module.getConfig().set(primaryPath, entries);
+            return true;
+        }
+
+        Set<String> names = EntityTypeNames.expand(name);
+        removeEntries(primaryPath, names);
+        // The entry can sit in the other list instead, where it protects the same thing.
+        if (isWhitelisted(name)) {
+            removeEntries(entity ? "item-whitelist" : "whitelist", names);
+        }
+        return false;
+    }
+
+    private void removeEntries(String configPath, Set<String> names) {
+        List<String> entries = module.getConfig().getStringList(configPath);
+        entries.removeIf(entry -> entry != null && names.contains(entry.trim().toUpperCase(Locale.ROOT)));
+        module.getConfig().set(configPath, entries);
     }
 
     private ItemStack createItemIcon(String name, boolean whitelisted) {

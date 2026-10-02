@@ -3,6 +3,8 @@ package net.busybee.clearlaggenhanced.modules.miscentitylimiter.tasks;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import net.busybee.clearlaggenhanced.core.Module;
+import net.busybee.clearlaggenhanced.managers.EntityProtectionUtils;
+import net.busybee.clearlaggenhanced.managers.ModuleManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.busybee.clearlaggenhanced.utils.ChunkUtils;
 import org.bukkit.Bukkit;
@@ -117,9 +119,10 @@ public class MiscEntitySweepService {
         if (caps.isEmpty()) return;
 
         Entity[] entities = chunk.getEntities();
+        EntityProtectionUtils.ProtectionContext clearingProtections = resolveClearingProtections();
         Map<EntityType, Integer> countsByType = new EnumMap<>(EntityType.class);
         for (Entity entity : entities) {
-            if (caps.containsKey(entity.getType()) && !isExempt(entity)) {
+            if (caps.containsKey(entity.getType()) && !isExempt(entity, clearingProtections)) {
                 countsByType.merge(entity.getType(), 1, Integer::sum);
             }
         }
@@ -141,7 +144,7 @@ public class MiscEntitySweepService {
         for (Entity entity : entities) {
             EntityType type = entity.getType();
             Integer remaining = removalsByType.get(type);
-            if (remaining == null || remaining <= 0 || isExempt(entity)) {
+            if (remaining == null || remaining <= 0 || isExempt(entity, clearingProtections)) {
                 continue;
             }
 
@@ -155,7 +158,22 @@ public class MiscEntitySweepService {
         }
     }
 
-    private boolean isExempt(Entity entity) {
+    // The sweep removes entities that already exist, so anything Entity Clearing would keep
+    // (whitelist included) is kept here too. Only applies while that module is enabled.
+    private @Nullable EntityProtectionUtils.ProtectionContext resolveClearingProtections() {
+        ModuleManager moduleManager = plugin.getModuleManager();
+        if (moduleManager == null) return null;
+
+        Module clearingModule = moduleManager.getModule("entity-clearing");
+        if (clearingModule == null || !clearingModule.isEnabled()) return null;
+
+        return plugin.getEntityProtectionUtils().createProtectionContext();
+    }
+
+    private boolean isExempt(Entity entity, @Nullable EntityProtectionUtils.ProtectionContext clearingProtections) {
+        if (clearingProtections != null && plugin.getEntityProtectionUtils().isProtected(entity, clearingProtections)) {
+            return true;
+        }
         if (protectNamed) {
             if (entity.customName() != null) return true;
             if (entity instanceof Item item) {

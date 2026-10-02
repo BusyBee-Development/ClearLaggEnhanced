@@ -9,9 +9,10 @@ import net.busybee.clearlaggenhanced.modules.entityclearing.models.EntityManager
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.NotificationManager;
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.PerformanceGateSettings;
 import net.busybee.clearlaggenhanced.modules.entityclearing.tasks.AutoClearTask;
+import net.busybee.clearlaggenhanced.utils.EntityTypeNames;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.EntityType;
+import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -93,25 +94,28 @@ public class EntityClearingModule extends Module {
         }
     }
 
-    // Whitelist entries are matched against EntityType names, so a typo silently protects nothing.
+    // Entries are matched by name, so one that is neither an entity type nor a material silently protects nothing.
     private void warnUnknownWhitelistEntries() {
+        warnUnknownEntries("whitelist");
+        warnUnknownEntries("item-whitelist");
+    }
+
+    private void warnUnknownEntries(String path) {
         List<String> unknown = new ArrayList<>();
-        for (String entry : getStringList("whitelist")) {
+        for (String entry : getStringList(path)) {
             String name = entry == null ? "" : entry.trim().toUpperCase(Locale.ROOT);
-            // Leash knot names are aliases for each other across versions (see EntityProtectionUtils).
-            if (name.isEmpty() || name.equals("LEASH_HITCH") || name.equals("LEASH_KNOT")) {
+            if (name.isEmpty()) {
                 continue;
             }
 
-            try {
-                EntityType.valueOf(name);
-            } catch (IllegalArgumentException e) {
+            // Either list accepts both kinds of name (see ProtectionSettings).
+            if (EntityTypeNames.resolve(name) == null && Material.getMaterial(name) == null) {
                 unknown.add(entry);
             }
         }
 
         if (!unknown.isEmpty()) {
-            plugin.getLogger().warning("Entity clearing whitelist has entries that are not entity types on this server version and will protect nothing: "
+            plugin.getLogger().warning("Entity clearing " + path + " has entries that are not entity types or materials on this server version and will protect nothing: "
                     + String.join(", ", unknown));
         }
     }

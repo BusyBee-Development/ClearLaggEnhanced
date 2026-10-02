@@ -53,3 +53,14 @@ worlds: []
 - `notify.throttle-seconds` — minimum gap between admin notifications, to avoid spamming ops during
   a busy sweep.
 - `worlds` — empty means all worlds; populate to scope the limiter to specific world names.
+
+## Entity Clearing protections
+
+While the [Entity Clearing](entity-clearing.md) module is enabled, the sweep never removes an entity
+that module would keep: anything on its `whitelist` or `item-whitelist`, plus named, tamed, leashed,
+bred, claimed and otherwise protected entities. Protected entities are not counted towards the cap
+either, so they never cause an unprotected neighbour to be removed.
+
+This only affects the sweep, which removes entities that already exist. A cap still blocks new
+entities of that type from being placed or spawned once the chunk is at the limit. If you want the
+sweep to trim a type back down to its cap, keep that type off the Entity Clearing whitelist.
