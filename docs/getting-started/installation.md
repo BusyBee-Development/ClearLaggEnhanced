@@ -4,8 +4,6 @@ title: Installation
 sidebar_position: 2
 ---
 
-# Installation
-
 1. Check the [Requirements](requirements.md) — Java 21+, Paper/Spigot/Purpur/Folia 1.20+.
 2. Download the latest jar from [Modrinth](https://modrinth.com/plugin/clearlaggenhanced).
 3. Drop the jar into your server's `plugins/` folder.

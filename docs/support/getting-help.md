@@ -4,8 +4,6 @@ title: Getting Help
 sidebar_position: 3
 ---
 
-# Getting Help
-
 - **Bug reports & feature requests:** [GitHub Issues](https://github.com/BusyBee-Development/ClearLaggEnhanced/issues) —
   please include your server type/version, the plugin version, and the relevant config section
   when reporting a bug.

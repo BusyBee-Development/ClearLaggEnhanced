@@ -4,8 +4,6 @@ title: PlaceholderAPI
 sidebar_position: 1
 ---
 
-# PlaceholderAPI
-
 If [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) is installed,
 ClearLaggEnhanced registers the `clearlaggenhanced` expansion automatically — no config toggle
 needed, it just activates when PlaceholderAPI is present.

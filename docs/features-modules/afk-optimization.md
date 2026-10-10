@@ -4,8 +4,6 @@ title: AFK Optimization
 sidebar_position: 8
 ---
 
-# AFK Optimization
-
 Reduces a player's **simulation distance** while they're AFK, cutting the CPU cost of simulating
 chunks around an inactive player. **Disabled by default.** Requires Paper or Folia (simulation
 distance is a Paper API concept, not available on vanilla Spigot). Config file: `module/afk/config.yml`.

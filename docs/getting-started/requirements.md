@@ -4,8 +4,6 @@ title: Requirements
 sidebar_position: 3
 ---
 
-# Requirements
-
 | | Requirement |
 |---|---|
 | **Minecraft version** | 1.20 – 1.21.11 (also tested on the 26.1–26.2 line) |

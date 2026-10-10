@@ -4,8 +4,6 @@ title: Misc Entity Limiter
 sidebar_position: 4
 ---
 
-# Misc Entity Limiter
-
 Caps non-mob entities per chunk — armor stands, boats, minecarts, item frames, paintings, leash
 hitches — the kind of clutter that piles up around builds and farms without being a "mob" at all.
 Enabled by default. Config file: `module/misc-entity-limiter/config.yml`.

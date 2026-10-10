@@ -4,8 +4,6 @@ title: Folia Support
 sidebar_position: 2
 ---
 
-# Folia Support
-
 ClearLaggEnhanced runs natively on [Folia](https://github.com/PaperMC/Folia) — this isn't a
 compatibility shim bolted on top of a Bukkit-scheduler plugin. All internal scheduling goes through
 Paper's native region-based scheduler API

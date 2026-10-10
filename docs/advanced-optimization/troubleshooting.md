@@ -4,8 +4,6 @@ title: Troubleshooting
 sidebar_position: 4
 ---
 
-# Troubleshooting
-
 ## "Modules and the database are inactive" after startup
 
 If console logs `Failed to initialize core services` followed by a note that modules/database are

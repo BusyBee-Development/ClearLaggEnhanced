@@ -4,8 +4,6 @@ title: Chunk Finder
 sidebar_position: 5
 ---
 
-# Chunk Finder
-
 Scans loaded chunks and reports which ones have unusually high entity counts, so you can find the
 source of lag (a runaway farm, an item-drop pile, an unattended mob grinder) instead of guessing.
 Enabled by default. Config file: `module/chunk-finder/config.yml`.

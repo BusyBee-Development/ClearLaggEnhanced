@@ -4,8 +4,6 @@ title: Module Configuration
 sidebar_position: 2
 ---
 
-# Module Configuration
-
 Each module has its own config file under `plugins/ClearLaggEnhanced/module/<module-name>/config.yml`:
 
 | Module | Path |

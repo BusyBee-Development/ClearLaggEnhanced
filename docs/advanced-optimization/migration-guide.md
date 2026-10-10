@@ -4,8 +4,6 @@ title: Migration Guide
 sidebar_position: 3
 ---
 
-# Migration Guide
-
 ClearLaggEnhanced is a from-scratch rewrite inspired by the original **ClearLagg** by
 [bob7l](https://github.com/bob7l) — it does not read or auto-migrate config files from ClearLagg,
 its forks, or any other lag-prevention plugin. There's no automatic converter; treat this as a

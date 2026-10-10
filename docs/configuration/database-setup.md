@@ -4,8 +4,6 @@ title: Database Setup
 sidebar_position: 4
 ---
 
-# Database Setup
-
 ClearLaggEnhanced persists state via SQLite (default, zero setup) or MySQL, connected through
 [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pooling either way. Configured
 entirely in the root `config.yml`.

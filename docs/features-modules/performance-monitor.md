@@ -4,8 +4,6 @@ title: Performance Monitor
 sidebar_position: 6
 ---
 
-# Performance Monitor
-
 Tracks live TPS and memory usage and powers the `/lagg tps`, `/lagg ram`, and the PlaceholderAPI
 performance placeholders. Enabled by default. Config file: `module/performance/config.yml`.
 

@@ -4,8 +4,6 @@ title: FAQ
 sidebar_position: 1
 ---
 
-# FAQ
-
 **Does this work on Spigot, or only Paper?**
 Paper, Spigot, Purpur, and Folia are all supported. See [Requirements](../getting-started/requirements.md).
 

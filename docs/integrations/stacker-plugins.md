@@ -4,8 +4,6 @@ title: Stacker Plugins
 sidebar_position: 2
 ---
 
-# Stacker Plugins (WildStacker / RoseStacker)
-
 ClearLaggEnhanced doesn't include its own entity-stacking feature — instead it hooks into
 [WildStacker](https://www.spigotmc.org/resources/wildstacker.62789/) or
 [RoseStacker](https://www.spigotmc.org/resources/rosestacker.94170/) if either is installed, so

@@ -4,8 +4,6 @@ title: Packet Limiter
 sidebar_position: 7
 ---
 
-# Packet Limiter
-
 Protects the server from packet spam and crasher clients by rate-limiting how many packets a
 player can send per second. **Disabled by default** and **requires [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/)** —
 enabling it without ProtocolLib installed won't do anything (the Admin GUI will flag it with a

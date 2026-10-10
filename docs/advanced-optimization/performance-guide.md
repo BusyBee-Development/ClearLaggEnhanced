@@ -4,8 +4,6 @@ title: Performance Guide
 sidebar_position: 1
 ---
 
-# Performance Guide
-
 Practical tuning starting points. None of this is a substitute for watching your own server's
 `/lagg tps` and `/lagg ram` output after changing anything — these are starting points, not rules.
 

@@ -4,8 +4,6 @@ title: Entity Clearing
 sidebar_position: 1
 ---
 
-# Entity Clearing
-
 The core module: periodically removes entities from the world to keep entity counts under
 control, with extensive protection rules so you don't accidentally wipe out things players care
 about. Config file: `module/entity-clearing/config.yml`.

@@ -4,8 +4,6 @@ title: Main Configuration
 sidebar_position: 1
 ---
 
-# Main Configuration
-
 `plugins/ClearLaggEnhanced/config.yml` controls two things: the database connection, and which
 modules are active. Everything else lives in per-module config files — see
 [Module Configuration](module-configuration.md).

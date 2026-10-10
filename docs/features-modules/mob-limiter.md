@@ -4,8 +4,6 @@ title: Mob Limiter
 sidebar_position: 2
 ---
 
-# Mob Limiter
-
 Caps how many mobs can exist in a single chunk, preventing runaway spawning (farms, spawners, or
 natural spawning in unloaded-then-reloaded areas) from tanking performance. Enabled by default.
 Config file: `module/mob-limiter/config.yml`.

@@ -4,8 +4,6 @@ title: Spawner Limiter
 sidebar_position: 3
 ---
 
-# Spawner Limiter
-
 Slows down mob spawner activation rates to reduce the entity-spawn load spawner farms put on a
 server. Enabled by default. Config file: `module/spawner-limiter/config.yml`.
 

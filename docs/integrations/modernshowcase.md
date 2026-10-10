@@ -4,8 +4,6 @@ title: ModernShowcase
 sidebar_position: 3
 ---
 
-# ModernShowcase
-
 If [ModernShowcase](https://modrinth.com/plugin/modernshowcase) is installed and the
 `modernshowcase` module is enabled in `config.yml`, ClearLaggEnhanced protects its showcase
 entities from being swept up by [Entity Clearing](../features-modules/entity-clearing.md).

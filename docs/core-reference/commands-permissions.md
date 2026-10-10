@@ -4,8 +4,6 @@ title: Commands & Permissions
 sidebar_position: 1
 ---
 
-# Commands & Permissions
-
 Everything runs under a single root command, `/lagg`, with subcommands. No separate commands are
 registered per module.
 

@@ -4,8 +4,6 @@ title: Admin GUI
 sidebar_position: 2
 ---
 
-# Admin GUI
-
 `/lagg admin` (permission `CLE.admin`, default: op) opens an in-game inventory menu listing every
 registered module. The menu size grows automatically to fit however many modules you have enabled
 — it's not a fixed layout.

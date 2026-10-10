@@ -4,8 +4,6 @@ title: Message Customization
 sidebar_position: 3
 ---
 
-# Message Customization
-
 Every player-facing message lives in `plugins/ClearLaggEnhanced/messages.yml`, formatted with
 [MiniMessage](https://docs.advntr.dev/minimessage/format.html) (`<green>`, `<bold>`, `<#hexcode>`,
 etc.). Legacy `&`-color codes and `&#hex`/`&x&h&e&x` sequences are also accepted and automatically

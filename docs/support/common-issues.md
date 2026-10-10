@@ -4,8 +4,6 @@ title: Common Issues
 sidebar_position: 2
 ---
 
-# Common Issues
-
 This page covers issues distinct from step-by-step debugging — for a diagnostic walkthrough, see
 [Troubleshooting](../advanced-optimization/troubleshooting.md).
 

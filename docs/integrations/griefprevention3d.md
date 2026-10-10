@@ -4,8 +4,6 @@ title: GriefPrevention3D
 sidebar_position: 4
 ---
 
-# GriefPrevention3D
-
 Protects peaceful mobs standing inside a player's claim from
 [Entity Clearing](../features-modules/entity-clearing.md). Off by default
 (`modules.griefprevention3d` in `config.yml`).
