@@ -6,7 +6,7 @@
 
     <groupId>net.busybee.clearlaggenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
-    <version>26.10.0</version>
+    <version>26.10.1</version>
     <packaging>jar</packaging>
 
     <name>ClearLaggEnhanced</name>
@@ -139,6 +139,18 @@
             <artifactId>ProtocolLib</artifactId>
             <version>5.1.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.LoneDev6</groupId>
+            <artifactId>API-ItemsAdder</artifactId>
+            <version>3.6.1</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
