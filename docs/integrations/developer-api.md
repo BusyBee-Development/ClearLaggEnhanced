@@ -21,7 +21,7 @@ Compile against the plugin jar and do not shade it. With Maven:
 ```xml
 <repository>
     <id>busybee</id>
-    <url>https://repo.busybeedev.net/releases</url>
+    <url>https://repo.busybeedev.net/public-releases</url>
 </repository>
 
 <dependency>
@@ -42,7 +42,7 @@ With Gradle:
 
 ```kotlin
 repositories {
-    maven("https://repo.busybeedev.net/releases")
+    maven("https://repo.busybeedev.net/public-releases")
 }
 
 dependencies {
@@ -51,7 +51,7 @@ dependencies {
 ```
 
 Replace `VERSION` with a version listed in the
-[BusyBee repository](https://repo.busybeedev.net/#/releases/net/busybee/clearlaggenhanced/ClearLaggEnhanced)
+[BusyBee repository](https://repo.busybeedev.net/#/public-releases/net/busybee/clearlaggenhanced/ClearLaggEnhanced)
 (26.10.1 and later).
 
 Get the API from `onEnable` or later:

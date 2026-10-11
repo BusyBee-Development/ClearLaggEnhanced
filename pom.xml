@@ -336,11 +336,11 @@
     <distributionManagement>
         <repository>
             <id>busybee</id>
-            <url>https://repo.busybeedev.net/releases</url>
+            <url>https://repo.busybeedev.net/public-releases</url>
         </repository>
         <snapshotRepository>
             <id>busybee</id>
-            <url>https://repo.busybeedev.net/snapshots</url>
+            <url>https://repo.busybeedev.net/public-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
