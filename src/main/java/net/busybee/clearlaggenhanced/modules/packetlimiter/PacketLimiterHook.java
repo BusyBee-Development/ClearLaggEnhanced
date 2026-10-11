@@ -44,6 +44,9 @@ public class PacketLimiterHook {
         protocolManager.addPacketListener(new PacketAdapter(plugin, ListenerPriority.NORMAL, types) {
             @Override
             public void onPacketReceiving(PacketEvent event) {
+                // Geyser sends play packets before the join finishes; ProtocolLib's stand-in player throws on most calls
+                if (event.isPlayerTemporary()) return;
+
                 Player player = event.getPlayer();
                 if (player == null) return;
 
