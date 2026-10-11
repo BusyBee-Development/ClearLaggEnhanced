@@ -4,6 +4,7 @@ import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.models.ProtectionSettings;
 import net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule;
+import net.busybee.clearlaggenhanced.modules.integrations.itemsadder.ItemsAdderHook;
 import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernShowcaseHook;
 import net.busybee.clearlaggenhanced.modules.integrations.modernshowcase.ModernShowcaseIntegration;
 import net.busybee.clearlaggenhanced.modules.integrations.griefprevention3d.GriefPrevention3DHook;
@@ -31,11 +32,13 @@ public class EntityProtectionUtils {
 
     private final ClearLaggEnhanced plugin;
     private final StackerManager stackerManager;
+    private final ItemsAdderHook itemsAdderHook;
     private ProtectionSettings cachedSettings = ProtectionSettings.DEFAULTS;
 
     public EntityProtectionUtils(ClearLaggEnhanced plugin, StackerManager stackerManager) {
         this.plugin = plugin;
         this.stackerManager = stackerManager;
+        this.itemsAdderHook = new ItemsAdderHook(plugin.getLogger());
     }
 
     public ProtectionContext createProtectionContext() {
@@ -144,7 +147,7 @@ public class EntityProtectionUtils {
 
             if (settings.oraxen() && isOraxen(entity)) return true;
             if (settings.nexo() && isNexo(entity)) return true;
-            if (settings.itemsAdder() && isItemsAdder(entity)) return true;
+            if (settings.itemsAdder() && itemsAdderHook.isItemsAdderEntity(entity)) return true;
 
             if (settings.mobsInBoats()) {
                 if (entity.getVehicle() instanceof Boat) return true;
@@ -322,8 +325,9 @@ public class EntityProtectionUtils {
     }
 
     // Best-effort PDC key guesses, unverified against current plugin internals — not a confirmed
-    // API convention like isMythicMob/isInfernalMob. Most Oraxen/Nexo/ItemsAdder furniture now
-    // uses Display entities anyway, which are already protected globally via the whitelist.
+    // API convention like isMythicMob/isInfernalMob. Most Oraxen/Nexo furniture now uses Display
+    // entities anyway, which are already protected globally via the whitelist. ItemsAdder is asked
+    // through its own API instead (see ItemsAdderHook).
     private boolean isOraxen(@NotNull Entity entity) {
         try {
             return entity.getPersistentDataContainer().has(new NamespacedKey("oraxen", "id"), PersistentDataType.STRING);
@@ -334,13 +338,6 @@ public class EntityProtectionUtils {
     private boolean isNexo(@NotNull Entity entity) {
         try {
             return entity.getPersistentDataContainer().has(new NamespacedKey("nexo", "id"), PersistentDataType.STRING);
-        } catch (Exception ignored) {}
-        return false;
-    }
-
-    private boolean isItemsAdder(@NotNull Entity entity) {
-        try {
-            return entity.getPersistentDataContainer().has(new NamespacedKey("itemsadder", "id"), PersistentDataType.STRING);
         } catch (Exception ignored) {}
         return false;
     }

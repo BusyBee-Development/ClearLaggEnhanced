@@ -62,12 +62,13 @@ extra-protections:
   mythic-mobs: false
   infernal-mobs: false
   grief-prevention-3d: false
-  # Oraxen/Nexo/ItemsAdder detection is best-effort (checks a guessed PersistentDataContainer
+  # Oraxen/Nexo detection is best-effort (checks a guessed PersistentDataContainer
   # key on the entity) and not verified against those plugins' current internal formats.
   # Most modern furniture from these plugins uses Display entities, which are already
   # protected globally via the whitelist above regardless of these toggles.
   oraxen: false
   nexo: false
+  # Keeps ItemsAdder furniture and custom entities, asked through ItemsAdder's own API.
   items-adder: false
 
   # Protect entities that carry any of these scoreboard tags.

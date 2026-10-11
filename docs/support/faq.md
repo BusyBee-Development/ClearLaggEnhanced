@@ -23,10 +23,11 @@ behavior.
 No automatic migration exists. See [Migration Guide](../advanced-optimization/migration-guide.md)
 for a manual checklist.
 
-**Why isn't Oraxen/Nexo/ItemsAdder protection working reliably?**
-Those three specifically are best-effort/unverified detection — see the note in
+**Why isn't Oraxen/Nexo protection working reliably?**
+Those two specifically are best-effort/unverified detection — see the note in
 [Entity Clearing](../features-modules/entity-clearing.md#extra-protections) and
 [Troubleshooting](../advanced-optimization/troubleshooting.md#an-entity-i-expected-to-be-protected-got-cleared-anyway).
+ItemsAdder is checked through its own API instead — see [ItemsAdder](../integrations/itemsadder.md).
 
 **Does the performance gate work on Folia?**
 No — see [Folia Support](../advanced-optimization/folia-support.md). Use `adaptive-interval`

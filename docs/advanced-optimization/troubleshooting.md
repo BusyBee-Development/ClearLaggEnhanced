@@ -45,11 +45,12 @@ Work through this order:
    named, tamed, leashed, saddled, bred while the plugin was installed, or on the `whitelist`.
    Turn on `protect-passive-mobs` to protect all friendly mobs at once. To protect one specific
    entity, give it the `CLE_PROTECTED` scoreboard tag.
-3. If you're relying on `extra-protections.oraxen` / `.nexo` / `.items-adder`: these are
+3. If you're relying on `extra-protections.oraxen` / `.nexo`: these are
    **best-effort, unverified** detection against a guessed internal key for those plugins, and may
    simply not match your installed version. Most modern furniture from these plugins uses Display
    entities anyway, which are already covered by the global `whitelist`, independent of these
-   toggles — check whether the entity is a Display entity first.
+   toggles — check whether the entity is a Display entity first. `extra-protections.items-adder`
+   is different: it asks ItemsAdder itself, see [ItemsAdder](../integrations/itemsadder.md).
 4. If you're relying on `extra-protections.mythic-mobs` or `.infernal-mobs`: these ARE verified
    against those plugins' actual metadata conventions, so if protection isn't working, double-check
    the toggle is `true` and the mob was actually spawned by that plugin (not a vanilla mob that

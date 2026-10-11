@@ -135,7 +135,8 @@ extra-protections:
 | `mythic-mobs` | Entities with MythicMobs' `MythicMob` metadata — verified against MythicMobs' actual compatibility convention |
 | `infernal-mobs` | Entities with InfernalMobs' `infernalMetadata` (plus legacy fallback keys) — verified against the plugin's source |
 | `grief-prevention-3d` | Peaceful mobs (animals, villagers, golems, water mobs, etc., excluding hostile ones such as hoglins and shulkers) inside a claim, via [GriefPrevention3D](../integrations/griefprevention3d.md) |
-| `oraxen` / `nexo` / `items-adder` | Entities carrying a guessed PersistentDataContainer key from these plugins — **best-effort, not verified** against their current internal formats. Most modern furniture from these plugins uses Display entities anyway, which are already covered by the global `whitelist` below regardless of these toggles. |
+| `oraxen` / `nexo` | Entities carrying a guessed PersistentDataContainer key from these plugins — **best-effort, not verified** against their current internal formats. Most modern furniture from these plugins uses Display entities anyway, which are already covered by the global `whitelist` below regardless of these toggles. |
+| `items-adder` | Furniture and custom entities from ItemsAdder, checked through ItemsAdder's own API — see [ItemsAdder](../integrations/itemsadder.md) |
 | `protected-entity-tags` | Any entity carrying one of these scoreboard tags. `CLE_PROTECTED` is always protected even if it isn't listed here |
 
 Standard (non-3D) GriefPrevention is not covered by a dedicated toggle here.

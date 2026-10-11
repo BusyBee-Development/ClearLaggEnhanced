@@ -1,7 +1,7 @@
 ---
 id: developer-api
 title: Developer API
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 Other plugins can hook into ClearLaggEnhanced to keep their own entities out of a clear, react to
