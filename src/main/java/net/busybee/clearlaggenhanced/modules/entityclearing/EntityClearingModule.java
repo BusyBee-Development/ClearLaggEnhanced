@@ -1,5 +1,7 @@
 package net.busybee.clearlaggenhanced.modules.entityclearing;
 
+import net.busybee.clearlaggenhanced.api.ClearCause;
+import net.busybee.clearlaggenhanced.api.ClearResult;
 import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
 import net.busybee.clearlaggenhanced.modules.entityclearing.inventory.EntityClearingGUI;
@@ -188,11 +190,11 @@ public class EntityClearingModule extends Module {
         return sb.toString().trim();
     }
     
-    public int clearEntities() {
+    public ClearResult clearEntities(ClearCause cause) {
         if (entityManager != null) {
-            return entityManager.clearEntities();
+            return entityManager.clearEntities(cause);
         }
-        return 0;
+        return ClearResult.of(ClearResult.Status.UNAVAILABLE);
     }
 
     public AutoClearTask.StatusSnapshot getStatusSnapshot() {

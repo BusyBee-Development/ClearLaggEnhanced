@@ -1,6 +1,8 @@
 package net.busybee.clearlaggenhanced;
 
+import net.busybee.clearlaggenhanced.api.ClearLaggEnhancedAPI;
 import net.busybee.clearlaggenhanced.commands.LaggCommand;
+import net.busybee.clearlaggenhanced.core.api.ClearLaggEnhancedApiImpl;
 import net.busybee.clearlaggenhanced.core.updater.ConfigFiles;
 import net.busybee.clearlaggenhanced.core.updater.FoliaUpdateNotifier;
 import net.busybee.clearlaggenhanced.core.updater.VersionCheck;
@@ -32,6 +34,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
@@ -57,6 +60,8 @@ public class ClearLaggEnhanced extends JavaPlugin {
     @Getter private BStatsManager bStatsManager;
     @Getter private FastStatsManager fastStatsManager;
     private ClearLaggEnhancedExpansion placeholderExpansion;
+    // Created once per enable so other plugins' registrations survive /lagg reload.
+    @Getter private ClearLaggEnhancedApiImpl api;
 
     public static PluginScheduler scheduler() {
         return scheduler;
@@ -69,6 +74,10 @@ public class ClearLaggEnhanced extends JavaPlugin {
         silenceLoggers();
 
         scheduler = new PluginScheduler(this);
+
+        api = new ClearLaggEnhancedApiImpl(this);
+        getServer().getServicesManager().register(ClearLaggEnhancedAPI.class, api, this, ServicePriority.Normal);
+        getServer().getPluginManager().registerEvents(api, this);
 
         saveDefaultConfig();
         FastInvManager.register(this);
@@ -176,6 +185,11 @@ public class ClearLaggEnhanced extends JavaPlugin {
         }
 
         shutdownCore();
+
+        getServer().getServicesManager().unregisterAll(this);
+        if (api != null) {
+            api.getProtections().clear();
+        }
 
         getLogger().info("ClearLaggEnhanced has been disabled!");
     }

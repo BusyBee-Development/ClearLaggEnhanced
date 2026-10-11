@@ -2,6 +2,8 @@
 package net.busybee.clearlaggenhanced.modules.entityclearing.tasks;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
+import net.busybee.clearlaggenhanced.api.ClearCause;
+import net.busybee.clearlaggenhanced.api.ClearResult;
 import net.busybee.clearlaggenhanced.core.scheduler.PluginScheduler;
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.AdaptiveIntervalSettings;
 import net.busybee.clearlaggenhanced.modules.entityclearing.models.EntityManager;
@@ -107,9 +109,9 @@ public class AutoClearTask {
                     }
 
                     long clearStart = System.currentTimeMillis();
-                    int cleared = entityManager.clearEntities();
-                    if (cleared != -1) {
-                        notificationManager.sendClearComplete(cleared, System.currentTimeMillis() - clearStart);
+                    ClearResult result = entityManager.clearEntities(ClearCause.AUTOMATIC);
+                    if (result.completed()) {
+                        notificationManager.sendClearComplete(result.cleared(), System.currentTimeMillis() - clearStart);
                     }
                     remainingTime.set(resolveNextInterval(performanceGateStatus).activeIntervalSeconds());
                 } else {

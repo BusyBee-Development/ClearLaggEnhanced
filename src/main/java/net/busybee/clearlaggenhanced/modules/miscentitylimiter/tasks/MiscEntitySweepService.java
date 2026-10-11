@@ -200,6 +200,10 @@ public class MiscEntitySweepService {
         if (clearingProtections != null && plugin.getEntityProtectionUtils().isProtected(entity, clearingProtections)) {
             return true;
         }
+        // Checked on its own because the clearing protections above only apply while Entity Clearing is on.
+        if (plugin.getApi().getProtections().isProtected(entity)) {
+            return true;
+        }
         if (protectNamed) {
             if (entity.customName() != null) return true;
             if (entity instanceof Item item) {

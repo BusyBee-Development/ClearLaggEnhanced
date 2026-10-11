@@ -1,6 +1,8 @@
 package net.busybee.clearlaggenhanced.modules.entityclearing.commands;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
+import net.busybee.clearlaggenhanced.api.ClearCause;
+import net.busybee.clearlaggenhanced.api.ClearResult;
 import net.busybee.clearlaggenhanced.commands.SubCommand;
 import net.busybee.clearlaggenhanced.modules.entityclearing.EntityClearingModule;
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
@@ -30,17 +32,22 @@ public class ClearCommand implements SubCommand {
 
         scheduler.runAsync(task -> {
             long startTime = System.currentTimeMillis();
-            int cleared = module.clearEntities();
-            
-            if (cleared == -1) {
+            ClearResult result = module.clearEntities(ClearCause.COMMAND);
+
+            if (result.status() == ClearResult.Status.CANCELLED) {
+                MessageUtils.sendMessage(sender, "commands.clear.cancelled");
+                return;
+            }
+
+            if (!result.completed()) {
                 MessageUtils.sendMessage(sender, "commands.clear.already-in-progress");
                 return;
             }
-            
+
             long duration = System.currentTimeMillis() - startTime;
 
             Map<String, String> ph = new ConcurrentHashMap<>();
-            ph.put("count", String.valueOf(cleared));
+            ph.put("count", String.valueOf(result.cleared()));
             ph.put("time", String.valueOf(duration));
             MessageUtils.sendMessage(sender, "notifications.clear-complete", ph);
 

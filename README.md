@@ -37,6 +37,7 @@ Everything else, including commands, permissions, configuration, modules and int
 - [Commands & Permissions](https://busybeedev.net/docs/clearlaggenhanced/commands-permissions)
 - [Configuration](https://busybeedev.net/docs/clearlaggenhanced/main-configuration)
 - [FAQ](https://busybeedev.net/docs/clearlaggenhanced/faq)
+- [Developer API](https://busybeedev.net/docs/clearlaggenhanced/developer-api)
 
 ## Support
 

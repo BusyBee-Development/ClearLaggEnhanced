@@ -106,6 +106,10 @@ public class EntityProtectionUtils {
         if (entity instanceof Player) return true;
 
         try {
+            if (plugin.getApi().getProtections().isProtected(entity)) {
+                return true;
+            }
+
             boolean isStacked = stackerManager.isStacked(entity);
             if (isStacked && settings.protectStacked()) {
                 return true;

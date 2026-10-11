@@ -60,6 +60,7 @@ commands:
   clear:
     starting: "<gold>▶</gold> <yellow>Starting manual entity clear...</yellow>"
     already-in-progress: "<red>✗</red> <red>An entity clearing cycle is already in progress!</red>"
+    cancelled: "<red>✗</red> <red>Another plugin cancelled this entity clear.</red>"
   clearstatus:
     header: "<gold><bold>═══ Entity Clear Status ═══</bold></gold>"
     mode: "<yellow>▪</yellow> <yellow>Mode:</yellow> <white>{mode}</white> <gray>(metric: {metric})</gray>"
