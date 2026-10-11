@@ -16,16 +16,16 @@ Add ClearLaggEnhanced to your `plugin.yml` so it loads first:
 softdepend: [ClearLaggEnhanced]
 ```
 
-Compile against the plugin jar and do not shade it. With Maven through JitPack:
+Compile against the plugin jar and do not shade it. With Maven:
 
 ```xml
 <repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
+    <id>busybee</id>
+    <url>https://repo.busybeedev.net/releases</url>
 </repository>
 
 <dependency>
-    <groupId>com.github.BusyBee-Development</groupId>
+    <groupId>net.busybee.clearlaggenhanced</groupId>
     <artifactId>ClearLaggEnhanced</artifactId>
     <version>VERSION</version>
     <scope>provided</scope>
@@ -38,8 +38,21 @@ Compile against the plugin jar and do not shade it. With Maven through JitPack:
 </dependency>
 ```
 
-Replace `VERSION` with a release tag from
-[GitHub](https://github.com/BusyBee-Development/ClearLaggEnhanced/releases).
+With Gradle:
+
+```kotlin
+repositories {
+    maven("https://repo.busybeedev.net/releases")
+}
+
+dependencies {
+    compileOnly("net.busybee.clearlaggenhanced:ClearLaggEnhanced:VERSION") { isTransitive = false }
+}
+```
+
+Replace `VERSION` with a version listed in the
+[BusyBee repository](https://repo.busybeedev.net/#/releases/net/busybee/clearlaggenhanced/ClearLaggEnhanced)
+(26.10.1 and later).
 
 Get the API from `onEnable` or later:
 

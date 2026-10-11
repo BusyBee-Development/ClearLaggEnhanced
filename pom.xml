@@ -332,5 +332,16 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>busybee</id>
+            <url>https://repo.busybeedev.net/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>busybee</id>
+            <url>https://repo.busybeedev.net/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
 
