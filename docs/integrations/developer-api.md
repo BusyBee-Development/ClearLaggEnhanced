@@ -77,12 +77,16 @@ ClearLaggEnhancedAPI.get().registerProtection(this, entity ->
 
 A protected entity is kept by [Entity Clearing](../features-modules/entity-clearing.md) (automatic
 clears and `/lagg clear`) and by the
-[Misc Entity Limiter](../features-modules/misc-entity-limiter.md) sweep. Like every other protected
-entity, it also stops counting towards the [Mob Limiter](../features-modules/mob-limiter.md).
+[Misc Entity Limiter](../features-modules/misc-entity-limiter.md), whose per-chunk caps neither
+remove nor count it. Like every other protected entity, it also stops counting towards the
+[Mob Limiter](../features-modules/mob-limiter.md).
 
 - The check runs for every candidate entity on the thread that owns it (on Folia, its region
   thread). Keep it cheap, never block, and only touch the entity you are given.
 - If the check throws, the entity is kept and one warning is logged.
+- The Misc Entity Limiter asks the moment an entity is created. Mark yours before it spawns (the
+  `Consumer` argument of `World#spawn`), or one created in a chunk that is at its cap is removed
+  before your mark is there.
 - Registrations are removed when your plugin is disabled. `unregisterProtection` and
   `unregisterProtections(plugin)` remove them earlier.
 

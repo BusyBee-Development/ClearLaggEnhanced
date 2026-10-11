@@ -30,9 +30,11 @@ public interface ClearLaggEnhancedAPI {
     }
 
     /**
-     * Adds a check that keeps entities from being removed by entity clearing and the misc entity
-     * limiter sweep. Protected entities also stop counting towards the mob limiter, like every
-     * other protected entity.
+     * Adds a check that keeps entities from being removed by entity clearing and by the misc entity
+     * limiter, whose per-chunk caps neither remove nor count them. Protected entities also stop
+     * counting towards the mob limiter, like every other protected entity.
+     *
+     * <p>The misc entity limiter asks when an entity is created, so mark yours before it spawns.
      *
      * <p>Registrations are dropped when {@code owner} is disabled. Registering the same instance twice does nothing.
      */

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MiscEntityLimiterListener implements Listener {
 
+    private final ClearLaggEnhanced plugin;
     private final PluginScheduler scheduler;
     private final Map<EntityType, Integer> caps;
     private final Set<String> worldFilter;
@@ -32,6 +33,7 @@ public class MiscEntityLimiterListener implements Listener {
     private final MiscEntitySweepService notifier;
 
     public MiscEntityLimiterListener(ClearLaggEnhanced plugin, MiscEntitySweepService notifier, Module module) {
+        this.plugin = plugin;
         this.scheduler = ClearLaggEnhanced.scheduler();
         this.notifier = notifier;
 
@@ -63,6 +65,9 @@ public class MiscEntityLimiterListener implements Listener {
     }
 
     private boolean exempt(@NotNull Entity entity) {
+        if (isApiProtected(entity)) {
+            return true;
+        }
         if (protectNamed) {
             if (entity.customName() != null) return true;
 
@@ -84,6 +89,11 @@ public class MiscEntityLimiterListener implements Listener {
         return false;
     }
 
+    // Only sees what the entity already carries when it is created, so the owning plugin has to mark it before spawning it.
+    private boolean isApiProtected(@NotNull Entity entity) {
+        return plugin.getApi().getProtections().isProtected(entity);
+    }
+
     private boolean overCapIfAdded(@NotNull Chunk chunk, @NotNull EntityType type) {
         Integer cap = caps.get(type);
         if (cap == null || cap < 0) {
@@ -92,7 +102,8 @@ public class MiscEntityLimiterListener implements Listener {
 
         AtomicInteger count = new AtomicInteger(0);
         for (Entity entity : chunk.getEntities()) {
-            if (entity.getType() == type) {
+            // Another plugin's protected entities do not use up the players' cap.
+            if (entity.getType() == type && !isApiProtected(entity)) {
                 count.incrementAndGet();
             }
         }
@@ -135,6 +146,10 @@ public class MiscEntityLimiterListener implements Listener {
             return;
         }
 
+        if (exempt(hanging)) {
+            return;
+        }
+
         Chunk chunk = ChunkUtils.getChunkAtIfLoaded(hanging.getLocation());
         if (chunk != null && overCapIfAdded(chunk, hanging.getType())) {
             event.setCancelled(true);
@@ -152,6 +167,10 @@ public class MiscEntityLimiterListener implements Listener {
         }
 
         if (!isWorldAllowed(entity.getWorld())) {
+            return;
+        }
+
+        if (exempt(entity)) {
             return;
         }
 

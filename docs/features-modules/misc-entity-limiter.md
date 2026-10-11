@@ -62,3 +62,9 @@ either, so they never cause an unprotected neighbour to be removed.
 This only affects the sweep, which removes entities that already exist. A cap still blocks new
 entities of that type from being placed or spawned once the chunk is at the limit. If you want the
 sweep to trim a type back down to its cap, keep that type off the Entity Clearing whitelist.
+
+## Entities protected by other plugins
+
+An entity that another plugin protects through the [Developer API](../integrations/developer-api.md)
+is left alone by both the sweep and the cap: it is never removed, it can be spawned in a chunk that
+is already at the limit, and it does not count towards the limit for anything else.
