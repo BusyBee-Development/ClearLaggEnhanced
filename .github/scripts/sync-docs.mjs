@@ -4,21 +4,27 @@
 //
 // Env vars (all required):
 //   DOCS_SYNC_URL      e.g. https://busybeedev.net/api/admin/docs/sync
-//   DOCS_SYNC_API_KEY  bearer token, must match the site's DOCS_SYNC_API_KEY
+//   DOCS_SYNC_API_KEY  bearer token, must match the site's DOCS_SYNC_KEY_<PROJECT_SLUG>
+//                      (slug upper-cased, non-alphanumerics as underscores)
 //
-// Zero npm dependencies on purpose — this repo is a Java plugin, not a Node
-// project, and GitHub Actions runners already ship a recent Node. Frontmatter
-// parsing below is intentionally minimal: it only needs to handle the exact
-// `---\nkey: value\n...\n---` shape every file in docs/ was written with.
+// Run with `--dry-run` to print the payload instead of posting it (no env vars needed).
+//
+// Master copy: 01 - Directives/workflow-templates/sync-docs.mjs. Repo copies differ only in the
+// per-repo settings block below; change everything else in the master and re-copy.
+//
+// Zero npm dependencies on purpose: GitHub Actions runners already ship a recent Node, so this
+// never needs an install step. Frontmatter parsing is intentionally minimal: it only handles the
+// `---\nkey: value\n...\n---` shape every file in docs/ is written with.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative, basename } from 'node:path';
+import { join, basename, dirname, relative, resolve, sep } from 'node:path';
 
-const DOCS_ROOT = join(import.meta.dirname, '..', '..', 'docs');
+// ---- Per-repo settings (the only part that differs between copies) ----
+
+// The project's slug on busybeedev.net, exactly as stored (the site matches it case-sensitively).
 const PROJECT_SLUG = 'clearlaggenhanced';
 
 // Folder name -> { title shown in the sidebar, fixed sort position }.
-// Must match docs/_sidebar-reference.md — update both together.
 const SECTION_MAP = {
     'getting-started': { title: 'Getting Started', sortOrder: 1 },
     'core-reference': { title: 'Core Reference', sortOrder: 2 },
@@ -29,11 +35,22 @@ const SECTION_MAP = {
     support: { title: 'Support', sortOrder: 7 },
 };
 
-// Root-level files that are meta/not real doc pages, or (materials.md)
-// intentionally excluded because the live site ignores Doc.content for that
-// slug and renders a separate MaterialReference table instead — syncing it
-// would just write content nothing ever displays.
-const EXCLUDED_ROOT_FILES = new Set(['README.md', '_sidebar-reference.md', 'materials.md']);
+// Root-level files that are not doc pages.
+const EXCLUDED_ROOT_FILES = new Set(['README.md', 'materials.md']);
+
+// true: pages and sections missing from docs/ are deleted from the site too. Leave false when the
+// site holds pages that don't come from docs/ (e.g. ClearLaggEnhanced's materials table).
+const PRUNE = false;
+
+// ---- End of per-repo settings ----
+
+const DOCS_ROOT = join(import.meta.dirname, '..', '..', 'docs');
+const DRY_RUN = process.argv.includes('--dry-run');
+
+function warn(message) {
+    // `::warning::` shows up as an annotation on the GitHub Actions run.
+    console.warn(process.env.GITHUB_ACTIONS ? `::warning::${message}` : `WARNING: ${message}`);
+}
 
 function parseFrontmatter(raw) {
     const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
@@ -44,9 +61,22 @@ function parseFrontmatter(raw) {
     const fm = {};
     for (const line of fmBlock.split(/\r?\n/)) {
         const kv = line.match(/^(\w[\w-]*):\s*(.*)$/);
-        if (kv) fm[kv[1]] = kv[2].trim();
+        if (kv) fm[kv[1]] = kv[2].trim().replace(/^(['"])(.*)\1$/, '$2');
     }
     return { frontmatter: fm, content: body.trim() };
+}
+
+function toKey(filePath) {
+    return relative(DOCS_ROOT, filePath).split(sep).join('/');
+}
+
+// The site already shows the frontmatter title as the page heading, so a `# Heading` at the top
+// of the body would show the title twice. Drop it.
+function stripLeadingH1(content, key) {
+    const match = content.match(/^#\s+(.+)\r?\n?/);
+    if (!match) return content;
+    warn(`${key}: removed leading "# ${match[1].trim()}" (the page title already comes from frontmatter)`);
+    return content.slice(match[0].length).trim();
 }
 
 function loadDoc(filePath, fallbackSortOrder) {
@@ -57,7 +87,28 @@ function loadDoc(filePath, fallbackSortOrder) {
     const sortOrder = frontmatter.sidebar_position
         ? Number.parseInt(frontmatter.sidebar_position, 10)
         : fallbackSortOrder;
-    return { slug, title, content, sortOrder };
+    return { slug, title, content: stripLeadingH1(content, toKey(filePath)), sortOrder, filePath };
+}
+
+// Pages are written with repo-relative links (`../support/faq.md#anchor`) so they work on GitHub,
+// but the site serves every page at /docs/<project>/<id>. Rewrite each relative .md link to the
+// target page's URL. Fenced code blocks are left alone.
+function rewriteLinks(doc, slugByPath) {
+    const parts = doc.content.split(/(^```[\s\S]*?^```)/m);
+    return parts
+        .map((part, i) => {
+            if (i % 2 === 1) return part;
+            return part.replace(/\]\(<?([^)\s>]+?\.md)(#[^)\s>]*)?>?\)/g, (match, target, anchor = '') => {
+                if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('/')) return match;
+                const slug = slugByPath.get(toKey(resolve(dirname(doc.filePath), target)));
+                if (!slug) {
+                    warn(`${toKey(doc.filePath)}: link to ${target} doesn't point at a synced page`);
+                    return match;
+                }
+                return `](/docs/${PROJECT_SLUG}/${slug}${anchor})`;
+            });
+        })
+        .join('');
 }
 
 function buildPayload() {
@@ -78,7 +129,7 @@ function buildPayload() {
         if (entry.isDirectory()) {
             const sectionMeta = SECTION_MAP[entry.name];
             if (!sectionMeta) {
-                console.warn(`Skipping unknown docs/ subfolder (not in SECTION_MAP): ${entry.name}`);
+                warn(`Skipping docs/${entry.name}/: folder not in SECTION_MAP`);
                 continue;
             }
 
@@ -98,21 +149,41 @@ function buildPayload() {
     }
 
     const sections = [...sectionsByFolder.values()].sort((a, b) => a.sortOrder - b.sortOrder);
+    const allDocs = [...unsectioned, ...sections.flatMap((section) => section.docs)];
 
-    return { projectSlug: PROJECT_SLUG, unsectioned, sections };
+    const seen = new Map();
+    for (const doc of allDocs) {
+        if (seen.has(doc.slug)) {
+            throw new Error(`Duplicate page id "${doc.slug}" in ${toKey(seen.get(doc.slug))} and ${toKey(doc.filePath)}`);
+        }
+        seen.set(doc.slug, doc.filePath);
+    }
+
+    const slugByPath = new Map(allDocs.map((doc) => [toKey(doc.filePath), doc.slug]));
+    for (const doc of allDocs) {
+        doc.content = rewriteLinks(doc, slugByPath);
+        delete doc.filePath;
+    }
+
+    return { projectSlug: PROJECT_SLUG, prune: PRUNE, unsectioned, sections };
 }
 
 async function main() {
+    const payload = buildPayload();
+    const docCount = payload.unsectioned.length + payload.sections.reduce((n, s) => n + s.docs.length, 0);
+
+    if (DRY_RUN) {
+        console.log(JSON.stringify(payload, null, 2));
+        return;
+    }
+
     const url = process.env.DOCS_SYNC_URL;
     const apiKey = process.env.DOCS_SYNC_API_KEY;
-
     if (!url || !apiKey) {
         console.error('DOCS_SYNC_URL and DOCS_SYNC_API_KEY must both be set.');
         process.exit(1);
     }
 
-    const payload = buildPayload();
-    const docCount = payload.unsectioned.length + payload.sections.reduce((n, s) => n + s.docs.length, 0);
     console.log(
         `Syncing ${docCount} doc(s) across ${payload.sections.length} section(s) ` +
             `(+ ${payload.unsectioned.length} unsectioned) for project "${payload.projectSlug}"...`,
@@ -129,6 +200,9 @@ async function main() {
 
     const text = await res.text();
     if (!res.ok) {
+        if (res.status === 404) {
+            console.error(`No project with slug "${PROJECT_SLUG}" on the site. Create it there first.`);
+        }
         console.error(`Sync failed: HTTP ${res.status}\n${text}`);
         process.exit(1);
     }

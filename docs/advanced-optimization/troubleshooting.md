@@ -38,7 +38,7 @@ Work through this order:
 
 1. Check whether it matches `whitelist` (entity type) or `item-whitelist` (dropped item material)
    in `module/entity-clearing/config.yml` — see [Entity Clearing](../features-modules/entity-clearing.md)
-   and [Materials](../materials.md) for exact naming. Check the startup log for a warning listing
+   and [Materials](https://busybeedev.net/docs/clearlaggenhanced/materials) for exact naming. Check the startup log for a warning listing
    whitelist entries the plugin didn't recognise; a misspelled entry protects nothing.
 2. Check the relevant `protect-*` and `extra-protections.*` toggle is actually `true`. Ordinary
    farm animals (sheep, pigs, chickens, etc.) are **not** protected by default unless they're

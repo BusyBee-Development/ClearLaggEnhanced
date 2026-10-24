@@ -203,7 +203,7 @@ The plugin logs a warning on startup listing any entry in either list that is ne
 type nor a material on your server version (a typo such as `FURNANCE_MINECART`). Those entries
 protect nothing until fixed.
 
-See [Materials](../materials.md) for help finding the right enum names.
+See [Materials](https://busybeedev.net/docs/clearlaggenhanced/materials) for help finding the right enum names.
 
 ## Notifications
 

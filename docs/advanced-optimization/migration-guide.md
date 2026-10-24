@@ -14,7 +14,7 @@ fresh install and rebuild your settings intentionally rather than expecting a dr
 1. **Note your current whitelist/protection rules.** Whatever entities/items your old plugin
    protects from clearing, translate them into ClearLaggEnhanced's `whitelist` and `item-whitelist`
    in `module/entity-clearing/config.yml` — see [Entity Clearing](../features-modules/entity-clearing.md)
-   and [Materials](../materials.md) for exact naming.
+   and [Materials](https://busybeedev.net/docs/clearlaggenhanced/materials) for exact naming.
 2. **Note your clear interval and any time-of-day rules.** ClearLaggEnhanced supports a fixed
    `interval` and count-based `adaptive-interval` tiers (entity count or player count) — it does
    not have day/night or event-based interval rules. If your old setup relied on those, the closest

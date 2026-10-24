@@ -21,7 +21,7 @@ inspired this enhanced version.
 - **[Integrations](integrations/placeholderapi.md)** — PlaceholderAPI, the stacker plugins, ModernShowcase, GriefPrevention3D.
 - **[Advanced Optimization](advanced-optimization/performance-guide.md)** — tuning tips, Folia specifics, migrating from other ClearLagg forks, and troubleshooting.
 - **[Support](support/faq.md)** — FAQ, common issues, and how to get help.
-- **[Materials](materials.md)** — how to find the right Bukkit material/entity names for whitelist entries.
+- **[Materials](https://busybeedev.net/docs/clearlaggenhanced/materials)** — how to find the right Bukkit material/entity names for whitelist entries.
 
 ## Key features
 
