@@ -82,6 +82,16 @@ public class ClearLaggEnhanced extends JavaPlugin {
         saveDefaultConfig();
         FastInvManager.register(this);
 
+        // Created once per enable, not per reload: each FastStats context registers an exception
+        // listener that shutdown() never removes, so rebuilding it on reload stacks duplicates.
+        try {
+            fastStatsManager = new FastStatsManager(this);
+            fastStatsManager.onEnable();
+        } catch (RuntimeException exception) {
+            fastStatsManager = null;
+            getLogger().warning("FastStats could not start: " + exception.getMessage());
+        }
+
         try {
             initializeCore();
         } catch (RuntimeException exception) {
@@ -182,6 +192,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
 
         if (fastStatsManager != null) {
             fastStatsManager.onDisable();
+            fastStatsManager = null;
         }
 
         shutdownCore();
@@ -311,10 +322,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
     private void shutdownCore() {
         closeQuietlyDatabase();
 
-        if (fastStatsManager != null) {
-            fastStatsManager.onDisable();
-        }
-
         chatInputManager = null;
         entityProtectionUtils = null;
         stackerManager = null;
@@ -324,7 +331,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         guiRegistry = null;
         versionCheck = null;
         bStatsManager = null;
-        fastStatsManager = null;
     }
 
     private CoreServices buildCoreServices() {
@@ -339,7 +345,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         ModuleManager newModuleManager = new ModuleManager(this, newConfigManager, newGuiRegistry);
         VersionCheck newVersionCheck = new VersionCheck(this);
         BStatsManager newBStatsManager = new BStatsManager(this);
-        FastStatsManager newFastStatsManager = new FastStatsManager(this, newModuleManager);
 
         registerModules(newModuleManager);
 
@@ -355,8 +360,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
                 newGuiRegistry,
                 newModuleManager,
                 newVersionCheck,
-                newBStatsManager,
-                newFastStatsManager
+                newBStatsManager
         );
     }
 
@@ -372,11 +376,6 @@ public class ClearLaggEnhanced extends JavaPlugin {
         moduleManager = coreServices.moduleManager();
         versionCheck = coreServices.versionCheck();
         bStatsManager = coreServices.bStatsManager();
-        fastStatsManager = coreServices.fastStatsManager();
-
-        if (fastStatsManager != null) {
-            fastStatsManager.onEnable();
-        }
 
         if (moduleManager != null) {
             moduleManager.loadAll();
@@ -408,8 +407,7 @@ public class ClearLaggEnhanced extends JavaPlugin {
             ModuleGUIRegistry guiRegistry,
             ModuleManager moduleManager,
             VersionCheck versionCheck,
-            BStatsManager bStatsManager,
-            FastStatsManager fastStatsManager
+            BStatsManager bStatsManager
     ) {
     }
 }
