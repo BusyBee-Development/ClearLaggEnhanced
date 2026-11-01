@@ -53,8 +53,20 @@ public class ProtectionRegistry {
     }
 
     public boolean isProtected(@NotNull Entity entity) {
+        return check(entity, false);
+    }
+
+    /** Whether a registration that does not count towards the mob limits protects this entity. */
+    public boolean isExemptFromMobLimits(@NotNull Entity entity) {
+        return check(entity, true);
+    }
+
+    private boolean check(@NotNull Entity entity, boolean skipCounted) {
         for (Registration registration : registrations) {
             try {
+                if (skipCounted && registration.protection().countsTowardsMobLimits()) {
+                    continue;
+                }
                 if (registration.protection().isProtected(entity)) {
                     return true;
                 }

@@ -118,4 +118,34 @@ class ProtectionRegistryTest {
         assertTrue(registry.isProtected(entity));
         assertEquals(1, warnings.get());
     }
+
+    private static EntityProtection counted(boolean result) {
+        return new EntityProtection() {
+            @Override
+            public boolean isProtected(Entity e) {
+                return result;
+            }
+
+            @Override
+            public boolean countsTowardsMobLimits() {
+                return true;
+            }
+        };
+    }
+
+    @Test
+    void protectionsAreExemptFromMobLimitsByDefault() {
+        registry.register(owner, e -> true);
+        assertTrue(registry.isExemptFromMobLimits(entity));
+    }
+
+    @Test
+    void protectionsThatCountAreKeptButNotExemptFromMobLimits() {
+        registry.register(owner, counted(true));
+        assertTrue(registry.isProtected(entity));
+        assertFalse(registry.isExemptFromMobLimits(entity));
+
+        registry.register(owner, e -> true);
+        assertTrue(registry.isExemptFromMobLimits(entity));
+    }
 }

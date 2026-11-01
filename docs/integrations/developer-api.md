@@ -78,8 +78,27 @@ ClearLaggEnhancedAPI.get().registerProtection(this, entity ->
 A protected entity is kept by [Entity Clearing](../features-modules/entity-clearing.md) (automatic
 clears and `/lagg clear`) and by the
 [Misc Entity Limiter](../features-modules/misc-entity-limiter.md), whose per-chunk caps neither
-remove nor count it. Like every other protected entity, it also stops counting towards the
-[Mob Limiter](../features-modules/mob-limiter.md).
+remove nor count it. By default it also stops counting towards the
+[Mob Limiter](../features-modules/mob-limiter.md), and is never blocked from spawning by it. That
+suits entities your plugin controls, such as NPCs or custom mobs.
+
+If you only want ordinary mobs kept through clears, such as animals on a player's land, override
+`countsTowardsMobLimits()` to return `true`. They are still never removed, but they count towards
+the Mob Limiter's caps, so breeding and spawning there stay limited like everywhere else:
+
+```java
+ClearLaggEnhancedAPI.get().registerProtection(this, new EntityProtection() {
+    @Override
+    public boolean isProtected(Entity entity) {
+        return entity instanceof Animals && isOnPlayerLand(entity.getLocation());
+    }
+
+    @Override
+    public boolean countsTowardsMobLimits() {
+        return true;
+    }
+});
+```
 
 - The check runs for every candidate entity on the thread that owns it (on Folia, its region
   thread). Keep it cheap, never block, and only touch the entity you are given.

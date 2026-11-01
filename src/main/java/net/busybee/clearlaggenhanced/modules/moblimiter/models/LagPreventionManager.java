@@ -30,7 +30,7 @@ public class LagPreventionManager {
 
         for (Entity entity : chunk.getEntities()) {
             if (entity instanceof LivingEntity
-                    && (protectionContext == null || !plugin.getEntityProtectionUtils().isProtected(entity, protectionContext))) {
+                    && (protectionContext == null || !plugin.getEntityProtectionUtils().isExemptFromMobLimits(entity, protectionContext))) {
                 count.incrementAndGet();
             }
         }

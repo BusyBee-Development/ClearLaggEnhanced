@@ -153,7 +153,7 @@ public class EntityManager {
                                 continue;
                             }
 
-                            if (plugin.getEntityProtectionUtils().isProtected(entity, settings, msHook, gp3dHook, true)) {
+                            if (plugin.getEntityProtectionUtils().isProtected(entity, settings, msHook, gp3dHook)) {
                                 skipped.incrementAndGet();
                                 continue;
                             }

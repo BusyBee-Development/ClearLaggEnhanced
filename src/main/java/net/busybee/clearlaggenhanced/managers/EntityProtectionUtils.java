@@ -90,22 +90,10 @@ public class EntityProtectionUtils {
     }
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionContext context) {
-        return isProtected(entity, context.settings(), context.modernShowcaseHook(), context.griefPrevention3DHook(), true);
+        return isProtected(entity, context.settings(), context.modernShowcaseHook(), context.griefPrevention3DHook());
     }
 
-    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionContext context, boolean checkWhitelist) {
-        return isProtected(entity, context.settings(), context.modernShowcaseHook(), context.griefPrevention3DHook(), checkWhitelist);
-    }
-
-    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook) {
-        return isProtected(entity, settings, msHook, null, true);
-    }
-
-    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook, boolean checkWhitelist) {
-        return isProtected(entity, settings, msHook, null, checkWhitelist);
-    }
-
-    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook, @Nullable GriefPrevention3DHook gp3dHook, boolean checkWhitelist) {
+    public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionSettings settings, @Nullable ModernShowcaseHook msHook, @Nullable GriefPrevention3DHook gp3dHook) {
         if (entity instanceof Player) return true;
 
         try {
@@ -202,14 +190,11 @@ public class EntityProtectionUtils {
                 if (hasArmor(living)) return true;
             }
 
-            if (checkWhitelist) {
-                // An explicit whitelist entry always wins, plugin mobs included. The set already
-                // holds each entry under every name it has across versions (LEASH_HITCH/LEASH_KNOT, ...).
-                if (settings.whitelist().contains(entity.getType().name())) return true;
+            // An explicit whitelist entry always wins, plugin mobs included. The set already
+            // holds each entry under every name it has across versions (LEASH_HITCH/LEASH_KNOT, ...).
+            if (settings.whitelist().contains(entity.getType().name())) return true;
 
-                // Type-based like the whitelist, so the mob limiter (checkWhitelist=false) still counts these.
-                if (!unprotectedPluginMob && settings.protectPassiveMobs() && isPeacefulMob(entity)) return true;
-            }
+            if (!unprotectedPluginMob && settings.protectPassiveMobs() && isPeacefulMob(entity)) return true;
 
             if (entity instanceof Item item) {
                 if (settings.itemWhitelist().contains(item.getItemStack().getType().name())) return true;
@@ -221,6 +206,38 @@ public class EntityProtectionUtils {
             return true;
         }
 
+        return false;
+    }
+
+    /**
+     * Whether the mob limiter leaves this entity out of its per-chunk counts (and lets it spawn).
+     * Only entities other plugins control are left out: players, registered protections that don't
+     * count, protection tags, stacks and plugin mobs, NPCs and pets. Mobs that clears only keep for
+     * a player (bred, tamed, named, leashed, whitelisted, passive...) still count, so breeding and
+     * spawning stay capped.
+     */
+    public boolean isExemptFromMobLimits(@NotNull Entity entity, @NotNull ProtectionContext context) {
+        if (entity instanceof Player) return true;
+        ProtectionSettings settings = context.settings();
+
+        try {
+            if (plugin.getApi().getProtections().isExemptFromMobLimits(entity)) return true;
+            if (settings.protectStacked() && stackerManager.isStacked(entity)) return true;
+            if (hasProtectedTag(entity, settings.protectedEntityTags())) return true;
+            if (settings.mythicMobs() && isMythicMob(entity)) return true;
+            if (settings.infernalMobs() && isInfernalMob(entity)) return true;
+            if (settings.citizensSupport() && entity.hasMetadata("NPC")) return true;
+            if (settings.petsModule()
+                    && (entity.hasMetadata("Pet") || entity.hasMetadata("isPet") || entity.hasMetadata("MyPet"))) return true;
+            if (settings.modernShowcase() && context.modernShowcaseHook() != null
+                    && context.modernShowcaseHook().isShowcaseEntity(entity)) return true;
+            if (settings.itemsAdder() && itemsAdderHook.isItemsAdderEntity(entity)) return true;
+            if (settings.oraxen() && isOraxen(entity)) return true;
+            if (settings.nexo() && isNexo(entity)) return true;
+        } catch (Exception e) {
+            // Same Folia safety fallback as isProtected: when unsure, don't count it.
+            return true;
+        }
         return false;
     }
 

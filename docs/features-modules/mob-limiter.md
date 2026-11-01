@@ -38,4 +38,20 @@ per-type-limits:
   of the global limit. Any `EntityType` name not listed here isn't individually capped (only the
   global `max-mobs-per-chunk` applies to it).
 
+## What counts
+
+Every living mob counts, including ones [Entity Clearing](entity-clearing.md) keeps for players:
+bred, tamed, named, leashed, ridden, whitelisted and passive mobs. Clears leave them alone, but
+breeding, spawn eggs and natural spawns are still capped. A newborn over the cap isn't born.
+
+Left out of the counts, and never blocked from spawning:
+
+- players,
+- entities with a protection tag (`CLE_PROTECTED` or `protected-entity-tags`),
+- stacked entities, when `protect-stacked-entities` is on,
+- MythicMobs and InfernalMobs mobs, Citizens NPCs and plugin pets, when their protection is on,
+- ModernShowcase, ItemsAdder, Oraxen and Nexo entities, when their protection is on,
+- entities another plugin protects through the [Developer API](../integrations/developer-api.md),
+  unless that plugin asks for them to count.
+
 Configurable in-game via the Mob Limiter panel in the [Admin GUI](../core-reference/admin-gui.md).
