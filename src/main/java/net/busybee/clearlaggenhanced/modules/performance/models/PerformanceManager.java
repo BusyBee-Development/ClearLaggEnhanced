@@ -28,33 +28,20 @@ public class PerformanceManager {
 
     private final ClearLaggEnhanced plugin;
     private final PluginScheduler scheduler;
-    private final boolean isPaperServer;
     private GlobalEntityRegistry entityRegistry;
 
     public PerformanceManager(@NotNull ClearLaggEnhanced plugin) {
         this.plugin = plugin;
         this.scheduler = ClearLaggEnhanced.scheduler();
-        this.isPaperServer = checkPaperServer();
         this.entityRegistry = new GlobalEntityRegistry(plugin);
     }
 
-    private boolean checkPaperServer() {
-        try {
-            Class.forName("com.destroystokyo.paper.PaperConfig");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
+    // Paper and Folia both have getTPS (Folia answers for the calling region); the plugin needs Paper
+    // anyway, so the old PaperConfig class check, which Paper 1.19 removed, only ever hid the real value.
     public double getTPS() {
-        if (isPaperServer) {
-            try {
-                return Bukkit.getServer().getTPS()[0];
-            } catch (Exception e) {
-                return 20.0;
-            }
-        } else {
+        try {
+            return Math.min(20.0, Bukkit.getServer().getTPS()[0]);
+        } catch (Throwable e) {
             return 20.0;
         }
     }
@@ -169,6 +156,7 @@ public class PerformanceManager {
             updateTask.cancel();
             updateTask = null;
         }
+        entityRegistry.shutdown();
     }
 
     public void findLaggyChunksAsync(@NotNull Player player) {
@@ -186,21 +174,34 @@ public class PerformanceManager {
         int playerX = loc.getBlockX() >> 4;
         int playerZ = loc.getBlockZ() >> 4;
 
-        List<ChunkInfo> laggyChunks = new ArrayList<>();
+        List<ChunkInfo> laggyChunks = Collections.synchronizedList(new ArrayList<>());
+        int side = radius * 2 + 1;
+        java.util.concurrent.atomic.AtomicInteger remaining = new java.util.concurrent.atomic.AtomicInteger(side * side);
 
+        // Each chunk is counted on the thread that owns it (its region on Folia), then the results
+        // are sent once the last one is in.
         for (int x = playerX - radius; x <= playerX + radius; x++) {
             for (int z = playerZ - radius; z <= playerZ + radius; z++) {
-                if (world.isChunkLoaded(x, z)) {
-                    int count = entityRegistry.getEntityCount(world.getName(), x, z);
-                    if (count >= entityThreshold) {
-                        int distance = Math.max(Math.abs(x - playerX), Math.abs(z - playerZ));
-                        laggyChunks.add(new ChunkInfo(x, z, count, distance));
+                final int chunkX = x;
+                final int chunkZ = z;
+                Location chunkCenter = new Location(world, (chunkX << 4) + 8, 64, (chunkZ << 4) + 8);
+                scheduler.runAtLocation(chunkCenter, task -> {
+                    try {
+                        if (world.isChunkLoaded(chunkX, chunkZ)) {
+                            int count = world.getChunkAt(chunkX, chunkZ).getEntities().length;
+                            if (count >= entityThreshold) {
+                                int distance = Math.max(Math.abs(chunkX - playerX), Math.abs(chunkZ - playerZ));
+                                laggyChunks.add(new ChunkInfo(chunkX, chunkZ, count, distance));
+                            }
+                        }
+                    } finally {
+                        if (remaining.decrementAndGet() == 0) {
+                            sendChunkFinderResults(player, new ArrayList<>(laggyChunks), radius);
+                        }
                     }
-                }
+                });
             }
         }
-
-        sendChunkFinderResults(player, laggyChunks, radius);
     }
 
     private void sendChunkFinderResults(@NotNull Player player, @NotNull List<ChunkInfo> laggyChunks, int radius) {

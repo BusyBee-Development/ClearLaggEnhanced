@@ -5,6 +5,11 @@ import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +18,13 @@ public class PacketLimiterModule extends Module {
     private PacketLimiterHook hook;
     private final Map<UUID, PlayerPacketData> playerData = new ConcurrentHashMap<>();
     private final Map<UUID, Long> blockedPlayers = new ConcurrentHashMap<>();
+    private Listener quitListener;
+
+    // The clearlag.* names are what older versions checked; they keep working for existing setups.
+    static final String BYPASS_PERMISSION = "CLE.packetlimit.bypass";
+    static final String NOTIFY_PERMISSION = "CLE.packetlimit.notify";
+    private static final String LEGACY_BYPASS_PERMISSION = "clearlag.packetlimit.bypass";
+    private static final String LEGACY_NOTIFY_PERMISSION = "clearlag.admin";
 
     public PacketLimiterModule(ClearLaggEnhanced plugin) {
         super("Packet Limiter", "packet-limiter");
@@ -34,6 +46,17 @@ public class PacketLimiterModule extends Module {
 
         this.hook = new PacketLimiterHook(this, plugin);
         this.hook.register(getStringList("monitored-packets"));
+
+        // Without this every player who ever joined stayed in memory until the next reload.
+        quitListener = new Listener() {
+            @EventHandler(priority = EventPriority.MONITOR)
+            public void onQuit(PlayerQuitEvent event) {
+                UUID uuid = event.getPlayer().getUniqueId();
+                playerData.remove(uuid);
+                blockedPlayers.remove(uuid);
+            }
+        };
+        Bukkit.getPluginManager().registerEvents(quitListener, plugin);
     }
 
     @Override
@@ -41,6 +64,10 @@ public class PacketLimiterModule extends Module {
         if (hook != null) {
             hook.unregister();
             hook = null;
+        }
+        if (quitListener != null) {
+            HandlerList.unregisterAll(quitListener);
+            quitListener = null;
         }
         playerData.clear();
         blockedPlayers.clear();
@@ -53,7 +80,7 @@ public class PacketLimiterModule extends Module {
     }
 
     public boolean shouldCancelPacket(Player player) {
-        if (player.hasPermission("clearlag.packetlimit.bypass")) return false;
+        if (player.hasPermission(BYPASS_PERMISSION) || player.hasPermission(LEGACY_BYPASS_PERMISSION)) return false;
 
         UUID uuid = player.getUniqueId();
 
@@ -95,7 +122,7 @@ public class PacketLimiterModule extends Module {
                 placeholders.put("violations", String.valueOf(data.violations));
                 
                 Bukkit.getOnlinePlayers().stream()
-                        .filter(p -> p.hasPermission("clearlag.admin"))
+                        .filter(p -> p.hasPermission(NOTIFY_PERMISSION) || p.hasPermission(LEGACY_NOTIFY_PERMISSION))
                         .forEach(p -> MessageUtils.sendMessage(p, "notifications.packet-limiter.admin-notify", placeholders));
             }
 

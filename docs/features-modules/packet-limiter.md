@@ -19,7 +19,7 @@ kick-threshold: 10
 # Duration in seconds to block a player from sending packets after a minor violation.
 block-duration: 5
 
-# Should admins with 'clearlag.admin' permission be notified of violations?
+# Should admins with the 'CLE.packetlimit.notify' permission be notified of violations?
 notify-admins: true
 
 # Should the player be notified when they are being throttled?
@@ -56,12 +56,11 @@ monitored-packets:
 - `monitored-packets` — the ~18 packet categories being rate-counted. Leave this alone unless you
   specifically understand which packet types you want to exempt or add.
 
-## ⚠️ Permission nodes
+## Permission nodes
 
-Unlike every other module, Packet Limiter does **not** use the `CLE.*` permission namespace:
+- `CLE.packetlimit.notify`: receives violation notifications.
+- `CLE.packetlimit.bypass`: exempts a player from rate limiting entirely.
 
-- `clearlag.admin` — required to receive violation notifications (independent of `CLE.admin`).
-- `clearlag.packetlimit.bypass` — exempts a player from rate limiting entirely.
-
-Grant these explicitly if you use this module — see the callout in
+Both default to op and are part of `CLE.*`. The old names `clearlag.admin` and
+`clearlag.packetlimit.bypass` still work. See
 [Commands & Permissions](../core-reference/commands-permissions.md).

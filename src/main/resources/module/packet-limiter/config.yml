@@ -13,7 +13,7 @@ kick-threshold: 10
 # Duration in seconds to block a player from sending packets after a minor violation.
 block-duration: 5
 
-# Should admins with 'clearlag.admin' permission be notified of violations?
+# Should admins with the 'CLE.packetlimit.notify' permission be notified of violations?
 notify-admins: true
 
 # Should the player be notified when they are being throttled?

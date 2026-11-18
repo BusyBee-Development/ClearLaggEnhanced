@@ -58,6 +58,15 @@ public class ModuleManager {
             }
         }
         plugin.getLogger().info("Modules: " + enabledCount + " enabled, " + disabledCount + " disabled.");
+        refreshProtectionSettings();
+    }
+
+    // Entity clearing's protection toggles are shared with the limiters, so they are read once every
+    // module's config is loaded, including when entity clearing itself is off.
+    private void refreshProtectionSettings() {
+        if (plugin.getEntityProtectionUtils() != null) {
+            plugin.getEntityProtectionUtils().refreshSettingsCache();
+        }
     }
 
     private void loadModule(Module module) {
@@ -159,6 +168,7 @@ public class ModuleManager {
         for (Module module : new HashSet<>(modules.values())) {
             loadModule(module);
         }
+        refreshProtectionSettings();
     }
 
     public void setModuleEnabled(Module module, boolean enabled) {

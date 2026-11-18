@@ -10,6 +10,15 @@ max-mobs-per-chunk: 50
 # If set to true, mobs spawned from spawners will not be counted towards the chunk limit.
 ignore-spawners: false
 
+# Whether mobs that entity clearing keeps for a player count towards the limits: named, tamed,
+# bred, leashed, ridden, saddled or armored mobs, mobs in boats or minecarts, and mobs from buckets.
+# Each follows its own toggle in module/entity-clearing/config.yml.
+# true:  they count, so breeding pens and farms stay capped like everywhere else.
+# false: they are left out of the count and can always spawn or be bred (the rule before 26.10.2).
+# Whitelisted and passive mobs always count. Entities other plugins control (NPCs, pets, stacks,
+# MythicMobs, protected tags...) never count either way.
+count-kept-mobs: true
+
 per-type-limits:
   enabled: true
   limits:

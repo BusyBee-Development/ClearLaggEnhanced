@@ -3,7 +3,10 @@ package net.busybee.clearlaggenhanced.modules.integrations.itemsadder;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,25 +30,44 @@ public class ItemsAdderHook {
     }
 
     public boolean isItemsAdderEntity(@NotNull Entity entity) {
+        return isItemsAdderEntity(entity, true);
+    }
+
+    /**
+     * @param keepOnFailure what to answer when ItemsAdder cannot check the entity: true for clears,
+     *                      which keep what they cannot check, false for the mob limiter, which counts
+     *                      it so a failing check can never switch the limit off
+     */
+    public boolean isItemsAdderEntity(@NotNull Entity entity, boolean keepOnFailure) {
         if (incompatible || !isItemsAdderEnabled()) {
             return false;
         }
 
         try {
-            return CustomFurniture.byAlreadySpawned(entity) != null || CustomEntity.isCustomEntity(entity);
+            // ItemsAdder throws for any entity that cannot carry furniture, so only those are asked.
+            if (canBeFurniture(entity) && CustomFurniture.byAlreadySpawned(entity) != null) {
+                return true;
+            }
+            return CustomEntity.isCustomEntity(entity);
         } catch (LinkageError e) {
             // This ItemsAdder build does not have the API we compiled against; asking again cannot work.
             incompatible = true;
             logger.log(Level.WARNING, "ItemsAdder protection is off: this ItemsAdder version is not compatible with the hook.", e);
             return false;
         } catch (Exception e) {
-            // ItemsAdder could not answer for this entity, so it is kept rather than risked.
+            // ItemsAdder could not answer for this entity: clears keep it, the mob limiter counts it.
             if (!warnedFailure) {
                 warnedFailure = true;
-                logger.log(Level.WARNING, "ItemsAdder could not check an entity; entities it cannot check are kept. Further failures are not logged.", e);
+                logger.log(Level.WARNING, "ItemsAdder could not check an entity (" + entity.getType()
+                        + "); clears keep entities it cannot check and the mob limiter counts them. Further failures are not logged.", e);
             }
-            return true;
+            return keepOnFailure;
         }
+    }
+
+    // ItemsAdder furniture is always one of these; byAlreadySpawned throws for every other entity type.
+    static boolean canBeFurniture(@NotNull Entity entity) {
+        return entity instanceof ArmorStand || entity instanceof ItemFrame || entity instanceof ItemDisplay;
     }
 
     // Runs once per entity during a clear, so a missing ItemsAdder is only looked up again every few seconds.

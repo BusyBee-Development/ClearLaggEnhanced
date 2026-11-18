@@ -149,6 +149,27 @@ class ConfigMigratorTest {
     }
 
     @Test
+    void mobLimiterFromBeforeCountKeptMobsGetsItOn() throws Exception {
+        // A 26.10.2 file: everything but the new setting and its comment block.
+        String path = "module/mob-limiter/config.yml";
+        String owner = resource(path).lines()
+                .filter(line -> !line.startsWith("count-kept-mobs:") && !(line.startsWith("#") && isCountKeptMobsComment(line)))
+                .reduce("", (joined, line) -> joined + line + "\n");
+        File file = write(path, owner);
+
+        assertTrue(migrator.migrate(path, file));
+
+        YamlConfiguration result = YamlConfiguration.loadConfiguration(file);
+        assertTrue(result.contains("count-kept-mobs"));
+        assertTrue(result.getBoolean("count-kept-mobs"));
+    }
+
+    private static boolean isCountKeptMobsComment(String line) {
+        return line.contains("kept") || line.contains("true:") || line.contains("false:")
+                || line.contains("Each follows") || line.contains("Whitelisted") || line.contains("MythicMobs");
+    }
+
+    @Test
     void addsNothingInsideAnOptionalOverride() throws Exception {
         // Fields omitted from notifications.clear-complete fall back to the main notification settings.
         assertLeftAlone("module/entity-clearing/config.yml", "name: \"ENTITY_PLAYER_LEVELUP\"");

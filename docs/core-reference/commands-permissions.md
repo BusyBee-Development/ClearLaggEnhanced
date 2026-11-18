@@ -61,14 +61,11 @@ permissions:
 | `CLE.admin` | `/lagg admin`, opening the Admin GUI |
 | `CLE.reload` | `/lagg reload` |
 | `CLE.performance.snapshot` | Receive notifications when a performance snapshot is triggered and saved |
+| `CLE.packetlimit.notify` | Receive [Packet Limiter](../features-modules/packet-limiter.md) violation notifications |
+| `CLE.packetlimit.bypass` | Exempt from the Packet Limiter's rate limit |
 
-## ⚠️ Packet Limiter uses different permission nodes
-
-The Packet Limiter module (see [Packet Limiter](../features-modules/packet-limiter.md)) checks
-`clearlag.admin` (for violation notifications) and `clearlag.packetlimit.bypass` (to exempt a
-player from rate limiting) — **not** `CLE.admin` or any other `CLE.*` node. This is a known
-inconsistency in the current permission scheme; if you rely on Packet Limiter, grant
-`clearlag.admin`/`clearlag.packetlimit.bypass` explicitly rather than assuming `CLE.*` covers it.
+The Packet Limiter's old node names, `clearlag.admin` (notifications) and
+`clearlag.packetlimit.bypass` (bypass), still work, so existing permission setups keep working.
 
 ## Misc Entity Limiter admin notifications
 

@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
@@ -22,22 +23,27 @@ public class GlobalEntityRegistry implements Listener {
     private final ClearLaggEnhanced plugin;
     private final Map<ChunkKey, AtomicInteger> chunkEntityCounts = new ConcurrentHashMap<>();
     private final AtomicInteger globalEntityCount = new AtomicInteger(0);
+    private Listener removeListener;
+    private boolean registered;
 
     public GlobalEntityRegistry(ClearLaggEnhanced plugin) {
         this.plugin = plugin;
     }
 
     public void init() {
+        if (registered) return;
+        registered = true;
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
         try {
             Class.forName("com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent");
-            Bukkit.getPluginManager().registerEvents(new Listener() {
+            removeListener = new Listener() {
                 @EventHandler(priority = EventPriority.MONITOR)
                 public void onEntityRemove(com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent event) {
                     handleEntityRemoval(event.getEntity());
                 }
-            }, plugin);
+            };
+            Bukkit.getPluginManager().registerEvents(removeListener, plugin);
         } catch (ClassNotFoundException ignored) {}
 
         for (World world : Bukkit.getWorlds()) {
@@ -47,6 +53,19 @@ public class GlobalEntityRegistry implements Listener {
                 globalEntityCount.addAndGet(count);
             }
         }
+    }
+
+    // Without this every /lagg reload left the old listeners registered, counting each entity again.
+    public void shutdown() {
+        if (!registered) return;
+        registered = false;
+        HandlerList.unregisterAll(this);
+        if (removeListener != null) {
+            HandlerList.unregisterAll(removeListener);
+            removeListener = null;
+        }
+        chunkEntityCounts.clear();
+        globalEntityCount.set(0);
     }
 
     public int getGlobalEntityCount() {

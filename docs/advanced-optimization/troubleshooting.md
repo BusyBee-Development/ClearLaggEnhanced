@@ -28,8 +28,8 @@ Limiter is a hard requirement for it, not optional. Also confirm `modules.packet
 
 ## An admin isn't getting Packet Limiter violation notifications
 
-Packet Limiter uses its own `clearlag.admin` permission node, **not** `CLE.admin` — this is a known
-inconsistency in the current permission scheme. Grant `clearlag.admin` explicitly. See
+Notifications need `CLE.packetlimit.notify` (or the old `clearlag.admin`); `CLE.admin` alone is not
+enough. Also check `notify-admins: true` in `module/packet-limiter/config.yml`. See
 [Commands & Permissions](../core-reference/commands-permissions.md).
 
 ## An entity I expected to be protected got cleared anyway

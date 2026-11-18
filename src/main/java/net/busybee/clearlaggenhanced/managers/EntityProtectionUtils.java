@@ -81,12 +81,14 @@ public class EntityProtectionUtils {
             return;
         }
 
-        if (ecModule.getConfig() == null || ecModule.getEntitiesConfig() == null) {
+        // The module's config.yml is loaded whether or not the module is enabled, and the mob and misc
+        // limiters read these toggles too, so the owner's settings apply with entity clearing off.
+        if (ecModule.getConfig() == null) {
             cachedSettings = ProtectionSettings.DEFAULTS;
             return;
         }
 
-        cachedSettings = ProtectionSettings.fromConfig(ecModule.getConfig(), ecModule.getEntitiesConfig());
+        cachedSettings = ProtectionSettings.fromConfig(ecModule.getConfig());
     }
 
     public boolean isProtected(@NotNull Entity entity, @NotNull ProtectionContext context) {
@@ -137,41 +139,11 @@ public class EntityProtectionUtils {
             if (settings.nexo() && isNexo(entity)) return true;
             if (settings.itemsAdder() && itemsAdderHook.isItemsAdderEntity(entity)) return true;
 
-            if (settings.mobsInBoats()) {
-                if (entity.getVehicle() instanceof Boat) return true;
-            }
+            if (isKeptByPlayer(entity, settings, isStacked, unprotectedPluginMob)) return true;
 
-            if (settings.mobsInMinecarts()) {
-                if (entity.getVehicle() instanceof Minecart) return true;
-            }
-
-            if (settings.leashedMobs() && entity instanceof LivingEntity living) {
-                if (living.isLeashed()) return true;
-            }
-
-            if (settings.riddenMobs() && hasPlayerPassenger(entity)) return true;
-            if (settings.saddledMobs() && entity instanceof LivingEntity living && hasSaddleOrHarness(living)) return true;
-            if (settings.bucketMobs() && entity instanceof Bucketable bucketable && bucketable.isFromBucket()) return true;
-
-            if (settings.protectNamed() && !isStacked && !unprotectedPluginMob) {
-                if (entity.customName() != null) {
-                    if (!settings.protectPersistentNamedOnly() || entity.isPersistent()) {
-                        return true;
-                    }
-                }
-
-                if (entity instanceof Item item) {
-                    ItemStack stack = item.getItemStack();
-                    if (stack.hasItemMeta() && stack.getItemMeta().hasDisplayName()) return true;
-                }
-            }
-
-            if (settings.protectTamed() && entity instanceof Tameable tameable) {
-                if (tameable.isTamed()) return true;
-            }
-
-            if (settings.mobsFromBreeding()) {
-                if (entity.getPersistentDataContainer().has(BRED_KEY, PersistentDataType.BYTE)) return true;
+            if (settings.protectNamed() && !isStacked && !unprotectedPluginMob && entity instanceof Item item) {
+                ItemStack stack = item.getItemStack();
+                if (stack.hasItemMeta() && stack.getItemMeta().hasDisplayName()) return true;
             }
 
             if (settings.petsModule()) {
@@ -184,10 +156,6 @@ public class EntityProtectionUtils {
 
             if (settings.playerHeads() && entity instanceof Item item) {
                 if (item.getItemStack().getType() == Material.PLAYER_HEAD) return true;
-            }
-
-            if (settings.protectArmored() && entity instanceof LivingEntity living) {
-                if (hasArmor(living)) return true;
             }
 
             // An explicit whitelist entry always wins, plugin mobs included. The set already
@@ -210,33 +178,67 @@ public class EntityProtectionUtils {
     }
 
     /**
-     * Whether the mob limiter leaves this entity out of its per-chunk counts (and lets it spawn).
-     * Only entities other plugins control are left out: players, registered protections that don't
-     * count, protection tags, stacks and plugin mobs, NPCs and pets. Mobs that clears only keep for
-     * a player (bred, tamed, named, leashed, whitelisted, passive...) still count, so breeding and
-     * spawning stay capped.
+     * Mobs clears keep because a player owns or uses them: riders of boats and minecarts, leashed,
+     * ridden, saddled, bucket, named, tamed, bred and armored mobs. The whitelist and the passive or
+     * all-mobs toggles are not part of this; they protect by type, not by what a player did.
      */
+    private boolean isKeptByPlayer(@NotNull Entity entity, @NotNull ProtectionSettings settings,
+                                   boolean isStacked, boolean unprotectedPluginMob) {
+        if (settings.mobsInBoats() && entity.getVehicle() instanceof Boat) return true;
+        if (settings.mobsInMinecarts() && entity.getVehicle() instanceof Minecart) return true;
+        if (settings.leashedMobs() && entity instanceof LivingEntity living && living.isLeashed()) return true;
+        if (settings.riddenMobs() && hasPlayerPassenger(entity)) return true;
+        if (settings.saddledMobs() && entity instanceof LivingEntity living && hasSaddleOrHarness(living)) return true;
+        if (settings.bucketMobs() && entity instanceof Bucketable bucketable && bucketable.isFromBucket()) return true;
+
+        // Plugin mobs and stacks carry names of their own, so a name only means "kept" on ordinary mobs.
+        if (settings.protectNamed() && !isStacked && !unprotectedPluginMob && entity.customName() != null
+                && (!settings.protectPersistentNamedOnly() || entity.isPersistent())) return true;
+
+        if (settings.protectTamed() && entity instanceof Tameable tameable && tameable.isTamed()) return true;
+        if (settings.mobsFromBreeding() && entity.getPersistentDataContainer().has(BRED_KEY, PersistentDataType.BYTE)) return true;
+        return settings.protectArmored() && entity instanceof LivingEntity living && hasArmor(living);
+    }
+
     public boolean isExemptFromMobLimits(@NotNull Entity entity, @NotNull ProtectionContext context) {
+        return isExemptFromMobLimits(entity, context, true);
+    }
+
+    /**
+     * Whether the mob limiter leaves this entity out of its per-chunk counts (and lets it spawn).
+     * Entities other plugins control are always left out: players, registered protections that don't
+     * count, protection tags, stacks and plugin mobs, NPCs and pets. With {@code countKeptMobs} (the
+     * default) mobs that clears only keep for a player (bred, tamed, named, leashed...) still count,
+     * so breeding and spawning stay capped; without it they are left out too, as before 26.10.2.
+     * Whitelisted and passive mobs always count. A check that fails counts the entity, so an error can
+     * never switch the limit off.
+     */
+    public boolean isExemptFromMobLimits(@NotNull Entity entity, @NotNull ProtectionContext context, boolean countKeptMobs) {
         if (entity instanceof Player) return true;
         ProtectionSettings settings = context.settings();
 
         try {
             if (plugin.getApi().getProtections().isExemptFromMobLimits(entity)) return true;
-            if (settings.protectStacked() && stackerManager.isStacked(entity)) return true;
+            boolean isStacked = stackerManager.isStacked(entity);
+            if (settings.protectStacked() && isStacked) return true;
             if (hasProtectedTag(entity, settings.protectedEntityTags())) return true;
-            if (settings.mythicMobs() && isMythicMob(entity)) return true;
-            if (settings.infernalMobs() && isInfernalMob(entity)) return true;
+            boolean mythic = isMythicMob(entity);
+            if (settings.mythicMobs() && mythic) return true;
+            boolean infernal = isInfernalMob(entity);
+            if (settings.infernalMobs() && infernal) return true;
             if (settings.citizensSupport() && entity.hasMetadata("NPC")) return true;
             if (settings.petsModule()
                     && (entity.hasMetadata("Pet") || entity.hasMetadata("isPet") || entity.hasMetadata("MyPet"))) return true;
             if (settings.modernShowcase() && context.modernShowcaseHook() != null
                     && context.modernShowcaseHook().isShowcaseEntity(entity)) return true;
-            if (settings.itemsAdder() && itemsAdderHook.isItemsAdderEntity(entity)) return true;
+            if (settings.itemsAdder() && itemsAdderHook.isItemsAdderEntity(entity, false)) return true;
             if (settings.oraxen() && isOraxen(entity)) return true;
             if (settings.nexo() && isNexo(entity)) return true;
+            if (!countKeptMobs && isKeptByPlayer(entity, settings, isStacked, mythic || infernal)) return true;
         } catch (Exception e) {
-            // Same Folia safety fallback as isProtected: when unsure, don't count it.
-            return true;
+            // Unlike clears, which keep what they cannot check, the limiter counts it: an error
+            // that exempted every mob would switch the limit off.
+            return false;
         }
         return false;
     }

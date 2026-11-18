@@ -1,6 +1,7 @@
 package net.busybee.clearlaggenhanced.modules.entityclearing.listeners;
 
 import net.busybee.clearlaggenhanced.ClearLaggEnhanced;
+import net.busybee.clearlaggenhanced.core.Module;
 import net.busybee.clearlaggenhanced.managers.EntityProtectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
@@ -20,7 +21,10 @@ public class BreedingListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityBreed(EntityBreedEvent event) {
-        if (!plugin.getConfigManager().getBoolean("entity-clearing.extra-protections.mobs-from-breeding", true)) {
+        // The toggle lives in module/entity-clearing/config.yml and can be flipped from the GUI without a reload.
+        Module module = plugin.getModuleManager() != null ? plugin.getModuleManager().getModule("entity-clearing") : null;
+        if (module != null && module.getConfig() != null
+                && !module.getConfig().getBoolean("extra-protections.mobs-from-breeding", true)) {
             return;
         }
 

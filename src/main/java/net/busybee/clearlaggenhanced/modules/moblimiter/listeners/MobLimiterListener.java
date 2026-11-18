@@ -8,18 +8,16 @@ import net.busybee.clearlaggenhanced.utils.ChunkUtils;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MobLimiterListener implements Listener {
 
@@ -56,25 +54,7 @@ public class MobLimiterListener implements Listener {
         if (ignoreSpawners && event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) {
             return;
         }
-
-        LivingEntity entity = event.getEntity();
-        EntityProtectionUtils.ProtectionContext protectionContext = plugin.getEntityProtectionUtils().createProtectionContext();
-        if (!isCountable(entity, protectionContext)) {
-            return;
-        }
-
-        Chunk chunk = ChunkUtils.getChunkAtIfLoaded(entity.getLocation());
-        if (chunk == null) return;
-        
-        EntityType entityType = entity.getType();
-
-        boolean globalLimitReached = limiter.isMobLimitReached(chunk, protectionContext);
-
-        boolean typeLimitReached = isTypeLimitReached(chunk, entityType, protectionContext);
-
-        if (globalLimitReached || typeLimitReached) {
-            event.setCancelled(true);
-        }
+        checkLimits(event.getEntity(), event);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -82,59 +62,25 @@ public class MobLimiterListener implements Listener {
         if (ignoreSpawners) {
             return;
         }
+        checkLimits(event.getEntity(), event);
+    }
 
-        Entity entity = event.getEntity();
+    private void checkLimits(@NotNull Entity entity, @NotNull Cancellable event) {
         EntityProtectionUtils.ProtectionContext protectionContext = plugin.getEntityProtectionUtils().createProtectionContext();
-        if (!isCountable(entity, protectionContext)) {
+        if (!limiter.isCountable(entity, protectionContext)) {
             return;
         }
 
         Chunk chunk = ChunkUtils.getChunkAtIfLoaded(entity.getLocation());
         if (chunk == null) return;
-        
+
         EntityType entityType = entity.getType();
+        Integer typeLimit = enablePerTypeLimits ? perTypeLimits.get(entityType) : null;
 
-        boolean globalLimitReached = limiter.isMobLimitReached(chunk, protectionContext);
-
-        boolean typeLimitReached = isTypeLimitReached(chunk, entityType, protectionContext);
-
-        if (globalLimitReached || typeLimitReached) {
+        // One pass over the chunk gives both the total and the count of this type.
+        LagPreventionManager.ChunkCount count = limiter.countMobs(chunk, protectionContext, typeLimit != null ? entityType : null);
+        if (count.total() >= limiter.getMaxMobsPerChunk() || (typeLimit != null && count.ofType() >= typeLimit)) {
             event.setCancelled(true);
         }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onCreatureSpawnMonitor(@NotNull CreatureSpawnEvent event) {
-        final Chunk chunk = ChunkUtils.getChunkAtIfLoaded(event.getEntity().getLocation());
-        if (chunk != null) {
-            limiter.optimizeChunk(chunk);
-        }
-    }
-
-    private boolean isCountable(@NotNull Entity entity, @Nullable EntityProtectionUtils.ProtectionContext protectionContext) {
-        return entity instanceof LivingEntity && (protectionContext == null || !plugin.getEntityProtectionUtils().isExemptFromMobLimits(entity, protectionContext));
-    }
-
-    private boolean isTypeLimitReached(@NotNull Chunk chunk, @NotNull EntityType entityType, @Nullable EntityProtectionUtils.ProtectionContext protectionContext) {
-        if (!enablePerTypeLimits) {
-            return false;
-        }
-
-        Integer limit = perTypeLimits.get(entityType);
-        if (limit == null || limit <= 0) {
-            return false;
-        }
-
-        AtomicInteger count = new AtomicInteger(0);
-
-        for (Entity entity : chunk.getEntities()) {
-            if (entity.getType() == entityType
-                    && entity instanceof LivingEntity
-                    && (protectionContext == null || !plugin.getEntityProtectionUtils().isExemptFromMobLimits(entity, protectionContext))) {
-                count.incrementAndGet();
-            }
-        }
-
-        return count.get() >= limit;
     }
 }
