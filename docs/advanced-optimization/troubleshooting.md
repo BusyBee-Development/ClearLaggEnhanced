@@ -62,7 +62,7 @@ Work through this order:
 ## The MSPT performance gate isn't blocking clears
 
 If you're on Folia, this is expected — see [Folia Support](folia-support.md#the-one-thing-that-doesnt-work-on-folia).
-On regular Paper/Spigot/Purpur, check `/lagg clearstatus` for the gate's live MSPT reading against
+On regular Paper or Purpur, check `/lagg clearstatus` for the gate's live MSPT reading against
 your configured threshold and sustained-window progress.
 
 ## Still stuck

@@ -6,21 +6,21 @@
 [![Wiki](https://img.shields.io/badge/Wiki-busybeedev.net-F5B800)](https://busybeedev.net/docs/clearlaggenhanced/intro)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/abdm29q7af)
 
-A modern lag prevention plugin for Paper, Spigot, Purpur and Folia. It handles entity clearing, per-chunk limits and performance monitoring, and every module has an in-game admin GUI.
+A lag prevention plugin for Minecraft Paper, Purpur and Folia servers. It clears entities, caps mobs and spawners per chunk, finds laggy chunks and monitors TPS, with an in-game admin GUI for every module.
 
 ## Features
 
 - Automatic entity clearing with smart protection and adaptive scheduling
-- Mob, spawner and misc entity limiters
-- Live TPS and memory monitoring
+- Per-chunk mob, spawner and misc entity limiters
+- Live TPS and memory monitoring, plus a laggy chunk finder
 - In-game admin GUI for every module
 - Native Folia support
-- PlaceholderAPI and claim plugin integrations, plus RoseStacker and WildStacker support until built-in stacking replaces it
+- PlaceholderAPI, claim plugin, ItemsAdder and RoseStacker/WildStacker integrations
 
 ## Requirements
 
 - Minecraft 1.20+
-- Paper, Spigot, Purpur or Folia
+- Paper, Purpur or Folia
 - Java 21+
 
 ## Installation
@@ -49,7 +49,7 @@ Everything else, including commands, permissions, configuration, modules and int
 - [bob7l](https://github.com/bob7l), original ClearLagg developer
 - [djtmk](https://github.com/djtmk1), developer and maintainer
 - [R00tB33rMan](https://github.com/R00tB33rMan), Folia support
-- [MrTroxy](https://github.com/MrTroxy), modular system
+- [MrTroxy](https://github.com/MrTroxyOfficial), modular system
 
 ## License
 

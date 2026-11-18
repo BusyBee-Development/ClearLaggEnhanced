@@ -5,7 +5,7 @@ sidebar_position: 1
 ---
 
 The definitive ClearLagg successor for 1.20+. ClearLaggEnhanced is a modern, high-performance lag
-prevention plugin for servers running **Paper**, **Spigot**, **Purpur**, or **Folia** — built
+prevention plugin for servers running **Paper**, **Purpur**, or **Folia** — built
 around intelligent entity management, granular per-chunk limiters, real-time performance
 monitoring, and an in-game Admin GUI for every module.
 

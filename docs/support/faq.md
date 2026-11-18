@@ -5,7 +5,8 @@ sidebar_position: 1
 ---
 
 **Does this work on Spigot, or only Paper?**
-Paper, Spigot, Purpur, and Folia are all supported. See [Requirements](../getting-started/requirements.md).
+Paper, its forks such as Purpur, and Folia are supported. Spigot isn't: ClearLaggEnhanced runs its
+tasks on Paper's schedulers, which Spigot doesn't have. See [Requirements](../getting-started/requirements.md).
 
 **Do I need to restart the server after editing a config?**
 No — `/lagg reload` (permission `CLE.reload`) applies config changes without restarting.

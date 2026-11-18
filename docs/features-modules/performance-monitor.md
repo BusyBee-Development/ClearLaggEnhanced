@@ -11,9 +11,9 @@ performance placeholders. Enabled by default. Config file: `module/performance/c
 update-interval: 20
 ```
 
-- `update-interval` — how often (in ticks) the module refreshes its internal TPS/memory snapshot.
-  `20` ticks = once per second. Lower values give more responsive readings at a small CPU cost;
-  there's rarely a reason to go below 20.
+- `update-interval` — not used yet; changing it has no effect. TPS and memory are read live each
+  time a command or placeholder asks for them, and the module's own check (entity total and the
+  low-TPS snapshot below) runs every 5 seconds.
 
 ## Commands
 
@@ -21,6 +21,10 @@ update-interval: 20
 - `/lagg ram` (`CLE.ram`) — detailed memory usage (used/max/percentage).
 
 ## Snapshot notifications
+
+When TPS drops below 17, the module saves a lag snapshot to
+`plugins/ClearLaggEnhanced/snapshots/snapshot-<date>_<time>.txt`, at most once every 5 minutes. It
+records TPS, memory, the entity total, online players and the 10 busiest loaded chunks.
 
 Players with `CLE.performance.snapshot` receive a notification whenever a performance snapshot is
 triggered and saved.

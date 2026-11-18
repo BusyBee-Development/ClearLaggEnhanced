@@ -6,10 +6,13 @@ sidebar_position: 3
 
 | | Requirement |
 |---|---|
-| **Minecraft version** | 1.20 – 1.21.11 (also tested on the 26.1–26.2 line) |
-| **Server software** | Paper, Spigot, Purpur, or **Folia** |
+| **Minecraft version** | 1.20 – 1.21.11 (also tested on the 26.1–26.3 line) |
+| **Server software** | Paper, Purpur (or another Paper fork), or **Folia**. Spigot is not supported. |
 | **Java** | 21 or higher |
 | **API version** | Built against `paper-api 1.20.1-R0.1-SNAPSHOT` (`api-version: 1.20` in `plugin.yml`) |
+
+ClearLaggEnhanced runs all of its scheduled work on Paper's schedulers, which plain Spigot doesn't
+have, so it won't start on Spigot.
 
 ## Optional dependencies
 
